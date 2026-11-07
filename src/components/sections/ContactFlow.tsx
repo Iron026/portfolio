@@ -9,7 +9,7 @@ import { MotionArea } from '@/components/ui/MotionArea';
  */
 export function ContactFlow() {
   return (
-    <MotionArea aria-hidden="true" className="contact-flow mt-10 text-mist">
+    <MotionArea aria-hidden="true" className="contact-flow text-mist">
       {/* 1. necessidade */}
       <div className="cf-stage">
         <span className="cf-label">necessidade</span>

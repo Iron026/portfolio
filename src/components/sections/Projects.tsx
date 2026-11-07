@@ -34,7 +34,7 @@ export function Projects() {
         index="01"
         label="Projetos"
         title="Trabalhos para explorar e testar"
-        intro={`${projects.length} projetos demonstrativos autorais, com empresas e dados fictícios e funcionalidades reais. As prévias em movimento são gravações das próprias demonstrações.`}
+        intro={`${projects.length} projetos demonstrativos autorais, com empresas e dados fictícios e funcionalidades reais. Abra qualquer demonstração e teste no navegador, sem cadastro. As prévias em movimento são gravações das próprias demonstrações.`}
       />
 
       <div className="mt-14 grid gap-5 sm:mt-16 lg:grid-cols-12 lg:gap-6">

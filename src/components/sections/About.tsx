@@ -37,7 +37,7 @@ export function About() {
         </div>
 
         {/* Cartão do responsável: quem é, como falar direto e com o que trabalha */}
-        <aside aria-label={`Contato direto com ${displayName}`} className="lg:col-span-5">
+        <div role="group" aria-label={`Contato direto com ${displayName}`} className="lg:col-span-5">
           <AboutModules />
           <div className="mt-6 rounded-xl bg-card p-6 shadow-[inset_0_0_0_1px_var(--color-lavender-2)] sm:p-8">
             <div className="flex items-center gap-4">
@@ -96,7 +96,7 @@ export function About() {
               ))}
             </ul>
           </div>
-        </aside>
+        </div>
       </div>
     </Section>
   );

@@ -60,6 +60,8 @@ function validate(values: FormValues): Errors {
     const digits = retorno.replace(/\D/g, '');
     if (!digits) errors.retorno = 'Informe seu WhatsApp para o retorno.';
     else if (digits.length < 10 || digits.length > 11) errors.retorno = 'Informe o número com DDD, como (71) 98888-7777.';
+    else if (!/^[1-9]{2}/.test(digits)) errors.retorno = 'Confira o DDD: são dois dígitos sem zero, como 71.';
+    else if (digits.length === 11 && digits[2] !== '9') errors.retorno = 'Celular com 11 dígitos começa com 9 depois do DDD, como (71) 98888-7777.';
   }
   if (!values.servico) errors.servico = 'Escolha o tipo de projeto.';
   const msg = values.mensagem.trim();
@@ -89,6 +91,8 @@ export function Contact() {
   const [manualCopy, setManualCopy] = useState(false);
   /** Mostra o link de reserva do WhatsApp depois de tentar abrir a nova aba. */
   const [waFallback, setWaFallback] = useState(false);
+  /** Mostra a alternativa ao aplicativo de e-mail (nem todo aparelho tem um configurado). */
+  const [mailFallback, setMailFallback] = useState(false);
   const manualRef = useRef<HTMLTextAreaElement>(null);
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState('');
@@ -141,10 +145,11 @@ export function Contact() {
     if (channel === 'whatsapp' && hasWhatsapp) {
       window.open(whatsappLink(message), '_blank', 'noopener,noreferrer');
       setWaFallback(true);
-      setStatus('O WhatsApp foi aberto em uma nova aba com a sua mensagem. Para concluir, toque em enviar por lá.');
+      setStatus('Abrindo o WhatsApp em uma nova aba com a sua mensagem. Para concluir, toque em enviar por lá.');
     } else if (channel === 'email' && hasEmail) {
       window.location.href = mailtoLink(`Pedido de orçamento: ${values.nome.trim()}`, message);
-      setStatus('Seu aplicativo de e-mail foi aberto com a mensagem preenchida. Para concluir, envie o e-mail por lá.');
+      setMailFallback(true);
+      setStatus('Abrindo o seu aplicativo de e-mail com a mensagem preenchida. Para concluir, envie o e-mail por lá.');
     }
   }
 
@@ -174,7 +179,12 @@ export function Contact() {
 
   return (
     <Section id="contato" labelledBy="contato-title" className="on-dark bg-ink text-white" background={<AmbientBackground variant="contact" />}>
-      <div className="grid gap-14 lg:grid-cols-12 lg:gap-10 [&>*]:min-w-0">
+      {/*
+        No celular a ordem é título → formulário → canais, para quem toca em "Pedir orçamento"
+        encontrar o formulário logo abaixo do título. No desktop o formulário ocupa a coluna da
+        direita nas duas linhas, como antes.
+      */}
+      <div className="grid gap-14 lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:gap-x-10 lg:gap-y-0 [&>*]:min-w-0">
         <div className="lg:col-span-5">
           <SectionHeading
             id="contato-title"
@@ -189,34 +199,23 @@ export function Contact() {
             }
           />
           <p className="type-lead mt-6 text-mist">Conte o que você precisa. O orçamento é gratuito, sem compromisso, e nada começa antes da sua aprovação.</p>
-          <ContactFlow />
-
-
-          {hasAnyChannel || hasProfile ? (
-            <ul className="mt-10 grid border-t border-white/15 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-1 [&>li]:min-w-0">
+          {hasAnyChannel && (
+            <p className="type-small mt-4 text-mist lg:hidden">
+              Prefere falar direto?{' '}
               {hasWhatsapp && (
-                <li>
-                  <ChannelLink href={whatsappLink()} icon={<MessageCircle className="h-5 w-5" />} label="WhatsApp" value={formatPhone(contact.whatsapp)} external />
-                </li>
+                <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center font-semibold text-tide underline underline-offset-4">
+                  Chamar no WhatsApp
+                  <span className="sr-only"> (abre em nova aba)</span>
+                </a>
               )}
+              {hasWhatsapp && hasEmail && ' ou '}
               {hasEmail && (
-                <li>
-                  <ChannelLink href={`mailto:${contact.email}`} icon={<Mail className="h-5 w-5" />} label="E-mail" value={contact.email} />
-                </li>
+                <a href={`mailto:${contact.email}`} className="inline-flex min-h-10 items-center font-semibold text-tide underline underline-offset-4">
+                  enviar e-mail
+                </a>
               )}
-              {contact.profiles.map((profile) => (
-                <li key={profile.url}>
-                  <ChannelLink href={profile.url} icon={<ExternalLink className="h-5 w-5" />} label={profile.label} value="Ver perfil profissional" external />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="type-small mt-10 flex gap-3 rounded-lg p-5 text-mist shadow-[inset_0_0_0_1px_rgb(255_255_255/0.15)]">
-              <Info aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-tide" />
-              <p>
-                Os canais de contato de {site.name} ainda estão sendo configurados. Você já pode preencher o formulário e copiar a mensagem pronta.
-              </p>
-            </div>
+              . Os canais também estão abaixo do formulário.
+            </p>
           )}
         </div>
 
@@ -225,7 +224,7 @@ export function Contact() {
           noValidate
           onSubmit={onSubmit}
           aria-labelledby="contato-title"
-          className="on-light rounded-xl bg-card p-6 text-ink sm:p-10 lg:col-span-7"
+          className="on-light rounded-xl bg-card p-6 text-ink sm:p-10 lg:col-span-7 lg:col-start-6 lg:row-span-2 lg:row-start-1"
         >
           <div className="mb-8 flex items-center justify-between gap-4 border-b border-line pb-6">
             <div>
@@ -387,6 +386,16 @@ export function Contact() {
             </p>
           )}
 
+          {mailFallback && hasEmail && (
+            <p className="type-small mt-2 text-slate">
+              O aplicativo de e-mail não abriu? Use <strong className="font-semibold text-ink">Copiar mensagem</strong> e envie para{' '}
+              <a href={`mailto:${contact.email}`} className="font-semibold break-all text-tide-deep underline underline-offset-4">
+                {contact.email}
+              </a>
+              .
+            </p>
+          )}
+
           {manualCopy && (
             <div className="mt-4">
               <label htmlFor={`${formId}-copia`} className="type-small font-medium text-ink">
@@ -408,6 +417,37 @@ export function Contact() {
             Este formulário não envia dados para nenhum servidor: ele abre o WhatsApp ou o seu aplicativo de e-mail com a mensagem pronta, e o envio acontece por lá.
           </p>
         </form>
+
+        <div className="lg:col-span-5 lg:col-start-1 lg:row-start-2 lg:mt-10">
+          <ContactFlow />
+
+          {hasAnyChannel || hasProfile ? (
+            <ul className="mt-10 grid border-t border-white/15 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-1 [&>li]:min-w-0">
+              {hasWhatsapp && (
+                <li>
+                  <ChannelLink href={whatsappLink()} icon={<MessageCircle className="h-5 w-5" />} label="WhatsApp" value={formatPhone(contact.whatsapp)} external />
+                </li>
+              )}
+              {hasEmail && (
+                <li>
+                  <ChannelLink href={`mailto:${contact.email}`} icon={<Mail className="h-5 w-5" />} label="E-mail" value={contact.email} />
+                </li>
+              )}
+              {contact.profiles.map((profile) => (
+                <li key={profile.url}>
+                  <ChannelLink href={profile.url} icon={<ExternalLink className="h-5 w-5" />} label={profile.label} value="Ver perfil profissional" external />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="type-small mt-10 flex gap-3 rounded-lg p-5 text-mist shadow-[inset_0_0_0_1px_rgb(255_255_255/0.15)]">
+              <Info aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-tide" />
+              <p>
+                Os canais de contato de {site.name} ainda estão sendo configurados. Você já pode preencher o formulário e copiar a mensagem pronta.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </Section>
   );

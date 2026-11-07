@@ -4,7 +4,9 @@ const b = await chromium.launch(LAUNCH);
 let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : (fail++, console.log('FAIL:', m)); };
 const errs = [];
 const FALSE_CLAIM = /enviad[oa] com sucesso|pedido (foi )?recebido|recebemos (o )?seu|entraremos em contato|mensagem enviada|obrigad[oa] pelo (seu )?(pedido|contato)/i;
-async function topOf(p, id) { await p.waitForTimeout(900); return p.evaluate((i) => Math.round(document.getElementById(i).getBoundingClientRect().top), id); }
+// Espera a rolagem suave terminar (a duração varia com a distância e a versão do Chrome) antes de medir.
+async function settle(p) { await p.waitForTimeout(300); let last = -1; for (let i = 0; i < 30; i++) { const y = await p.evaluate(() => scrollY); if (y === last) return; last = y; await p.waitForTimeout(150); } }
+async function topOf(p, id) { await settle(p); return p.evaluate((i) => Math.round(document.getElementById(i).getBoundingClientRect().top), id); }
 const headerH = (p) => p.evaluate(() => Math.round(document.querySelector('header.sticky').getBoundingClientRect().height));
 const activeId = (p) => p.evaluate(() => document.activeElement?.id || document.activeElement?.textContent?.trim().slice(0, 30));
 

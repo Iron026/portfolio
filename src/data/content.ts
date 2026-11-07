@@ -40,6 +40,11 @@ export const faqs = [
       'Sites institucionais, landing pages, catálogos, planilhas de controle, dashboards, automações de tarefas repetitivas e sistemas web de escopo pequeno e médio, como painéis administrativos e cadastros.',
   },
   {
+    question: 'Quanto custa um projeto?',
+    answer:
+      'Depende do que precisa ser feito: quantidade de páginas ou telas, funcionalidades e integrações. Por isso não há tabela fixa. Depois de entender a sua necessidade, você recebe uma proposta por escrito com escopo, prazo e valor, sem custo e sem compromisso.',
+  },
+  {
     question: 'Como os prazos são definidos?',
     answer:
       'O prazo depende do tamanho do projeto e da rapidez com que conteúdos e aprovações chegam. Ele é informado na proposta, dividido por etapas, antes do início do trabalho.',

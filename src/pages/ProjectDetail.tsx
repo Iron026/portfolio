@@ -141,6 +141,17 @@ export default function ProjectDetail() {
               <p className="type-body mt-4 text-slate">{project.goal}</p>
             </div>
           </div>
+          <div className="container-site mt-14 sm:mt-16">
+            <h2 className="type-label text-tide-deep">Quem usa e o que resolve</h2>
+            <ul className="mt-5 grid gap-4 md:grid-cols-2">
+              {project.needs.map((need) => (
+                <li key={need.who} className="rounded-xl bg-card p-6 shadow-[inset_0_0_0_1px_var(--color-line)]">
+                  <p className="type-h4">{need.who}</p>
+                  <p className="type-body mt-2 text-slate">{need.text}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
       </div>
 
@@ -162,6 +173,29 @@ export default function ProjectDetail() {
               </li>
             ))}
           </ul>
+          {project.demo.status === 'disponivel' && (
+            <div className="rounded-xl bg-paper p-6 sm:p-8 lg:col-span-12">
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <h3 id="caso-roteiro" className="type-h3">
+                    Como experimentar a demonstração
+                  </h3>
+                  <p className="type-small mt-2 text-slate">Um roteiro curto, na ordem em que faz sentido testar. Os dados são fictícios e nada é enviado.</p>
+                </div>
+                <DemoButton project={project} />
+              </div>
+              <ol aria-labelledby="caso-roteiro" className="mt-6 grid gap-x-6 gap-y-5 border-t border-line pt-6 sm:grid-cols-2 lg:grid-cols-4">
+                {project.tryIt.map((step, i) => (
+                  <li key={step} className="flex gap-3">
+                    <span aria-hidden="true" className="type-label pt-1 text-tide-deep">
+                      {num(i + 1)}
+                    </span>
+                    <span className="type-small text-ink">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
         </div>
       </section>
 
@@ -170,8 +204,9 @@ export default function ProjectDetail() {
         <div className="container-site">
           <p className="type-label text-tide">Bastidores</p>
           <h2 id="caso-decisoes" className="type-h2 mt-4 max-w-3xl">
-            Decisões de implementação
+            Cuidados que fazem diferença no uso
           </h2>
+          <p className="type-body mt-4 max-w-2xl text-mist">Decisões de desenvolvimento tomadas para a solução funcionar bem no dia a dia, e não só parecer pronta.</p>
           <ol className="mt-12 grid gap-x-10 gap-y-10 md:grid-cols-2">
             {project.decisions.map((d, i) => (
               <li key={d.title} className="border-t border-white/15 pt-6">
@@ -215,17 +250,26 @@ export default function ProjectDetail() {
         </section>
       )}
 
-      {/* 7. Transparência + chamada para projeto semelhante */}
+      {/* 7. Adaptações + como pedir orçamento + transparência */}
       <section aria-labelledby="caso-cta" className="bg-card py-20 sm:py-24">
-        <div className="container-site grid gap-10 lg:grid-cols-12">
+        <div className="container-site grid gap-12 lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-7">
             <p className="type-label text-tide-deep">Projeto semelhante</p>
             <h2 id="caso-cta" className="type-h2 mt-4">
               Quer algo parecido para o seu negócio?
             </h2>
             <p className="type-lead mt-5 max-w-2xl text-slate">
-              O formulário abre com o serviço já escolhido e este projeto como referência. Você descreve o que precisa e recebe uma proposta sem compromisso.
+              A demonstração é um ponto de partida. Uma versão para o seu negócio parte do que você usa hoje e pode incluir, por exemplo:
             </p>
+            <ul className="mt-6 grid gap-x-8 border-t border-line sm:grid-cols-2">
+              {project.adaptations.map((item) => (
+                <li key={item} className="type-body flex gap-3 border-b border-line py-4">
+                  <Check aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-tide-deep" strokeWidth={2.5} />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <p className="type-small mt-4 text-slate">O que entra em cada caso é combinado na proposta, de acordo com a sua necessidade e o seu orçamento.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 to={quoteTarget(project)}
@@ -241,14 +285,36 @@ export default function ProjectDetail() {
               )}
             </div>
           </div>
-          {project.kind === 'demo' && (
-            <aside className="self-end rounded-xl bg-tide-wash p-6 lg:col-span-5">
-              <h2 className="type-h4">Sobre este projeto</h2>
-              <p className="type-small mt-2 text-ink/80">
-                Este é um projeto demonstrativo autoral. A empresa, os produtos e os dados são fictícios; as funcionalidades são reais e podem ser testadas na demonstração.
-              </p>
-            </aside>
-          )}
+          <div className="grid content-start gap-6 lg:col-span-5">
+            <div className="rounded-xl bg-paper p-6 sm:p-8">
+              <h3 id="caso-orcamento" className="type-h4">
+                Como pedir um orçamento
+              </h3>
+              <ol aria-labelledby="caso-orcamento" className="mt-5 space-y-4">
+                {[
+                  `Toque em "${project.quoteCta}". O formulário abre com o serviço escolhido e este projeto como referência.`,
+                  'Conte como isso funciona hoje no seu negócio e o que precisa mudar.',
+                  'Você recebe perguntas, se necessário, e uma proposta com escopo, prazo e valor antes de qualquer desenvolvimento.',
+                ].map((step, i) => (
+                  <li key={step} className="flex gap-3">
+                    <span aria-hidden="true" className="type-label pt-1 text-tide-deep">
+                      {num(i + 1)}
+                    </span>
+                    <span className="type-small text-ink">{step}</span>
+                  </li>
+                ))}
+              </ol>
+              <p className="type-small mt-5 border-t border-line pt-4 text-slate">O orçamento é gratuito e sem compromisso.</p>
+            </div>
+            {project.kind === 'demo' && (
+              <div className="rounded-xl bg-tide-wash p-6">
+                <h3 className="type-h4">Sobre este projeto</h3>
+                <p className="type-small mt-2 text-ink/80">
+                  Este é um projeto demonstrativo autoral. A empresa, os produtos e os dados são fictícios; as funcionalidades são reais e podem ser testadas na demonstração. Nenhum resultado de cliente é apresentado aqui.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 

@@ -131,7 +131,7 @@ export default function OrcaFacilDemo() {
 
   return (
     <div className="orca-root font-sans">
-      <div className="orca-on-dark bg-(--orca-ink) text-[0.8rem] text-white/85">
+      <aside aria-label="Sobre esta demonstração" className="orca-on-dark bg-(--orca-ink) text-[0.8rem] text-white/85">
         <div className="mx-auto flex max-w-[76rem] flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-2 sm:px-6 lg:px-8">
           <nav aria-label="Você está em">
             <ol className="flex flex-wrap items-center gap-1.5">
@@ -147,7 +147,7 @@ export default function OrcaFacilDemo() {
             <Link to="/projetos/orcafacil" className="rounded font-semibold text-white underline underline-offset-2">Ver detalhes do projeto</Link>
           </p>
         </div>
-      </div>
+      </aside>
 
       <header className="border-b border-(--orca-line) bg-white">
         <div className="mx-auto flex max-w-[76rem] flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">

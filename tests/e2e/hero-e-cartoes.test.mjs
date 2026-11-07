@@ -16,7 +16,9 @@ const nav = await p.$$eval('nav[aria-label="Principal"] a', as => as.map(a => a.
 ok(nav.join(',') === '/#projetos,/#servicos,/#como-trabalho,/#sobre,/#contato', 'menu na nova ordem ' + nav.join(','));
 ok(await p.isVisible('role=tab[name="Planilha"]'), 'bancada preservada');
 for (const [label, id] of [['Projetos', 'projetos'], ['Serviços', 'servicos'], ['Sobre', 'sobre'], ['Contato', 'contato']]) {
-  await p.click(`nav[aria-label="Principal"] >> text=${label}`); await p.waitForTimeout(900);
+  // espera a rolagem suave terminar: a duração varia com a distância e a versão do Chrome
+  await p.click(`nav[aria-label="Principal"] >> text=${label}`); await p.waitForTimeout(300);
+  for (let i = 0, last = -1; i < 30; i++) { const y = await p.evaluate(() => scrollY); if (y === last) break; last = y; await p.waitForTimeout(150); }
   const t = await p.evaluate((i) => document.getElementById(i).getBoundingClientRect().top, id);
   ok(Math.abs(t - 88) < 20, `menu → ${label} (top ${Math.round(t)})`);
 }

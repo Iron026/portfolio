@@ -181,6 +181,8 @@
 .g360-table-panel { padding: 22px 0 0; }
 .g360-table-panel .g360-panel-heading { padding: 0 22px; }
 .g360-table-scroll { overflow-x: auto; }
+/* a tabela rola para o lado no celular: a área recebe foco para rolar pelo teclado */
+.g360-table-scroll:focus-visible { outline: 2px solid #149b8a; outline-offset: 2px; border-radius: 4px; }
 .g360-table-scroll table { border-collapse: collapse; width: 100%; font-size: 13px; white-space: nowrap; }
 .g360-table-scroll th {
   text-align: left; background: #f7f9fc; color: var(--muted); padding: 12px 22px; font-size: 11px;

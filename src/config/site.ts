@@ -37,7 +37,7 @@ export const site = {
     title: 'Sites, sistemas e planilhas sob medida para pequenos negócios.',
     titleAccent: 'sob medida',
     subtitle:
-      'Estúdio de desenvolvimento de um profissional independente: cada solução começa pelo seu problema e é entregue testada.',
+      'Desenvolvedor independente: você fala direto com quem desenvolve, aprova escopo, prazo e valor antes de começar e recebe a solução testada no celular e no computador.',
   },
 
   contact: {
@@ -46,8 +46,9 @@ export const site = {
     /** E-mail profissional. */
     email: 'iron.comercial26@gmail.com',
     /**
-     * Perfis profissionais (99Freelas, LinkedIn, GitHub...).
+     * Perfis profissionais e comerciais (99Freelas, LinkedIn...).
      * Adicione ou remova itens à vontade; links vazios não aparecem.
+     * O GitHub não faz parte da apresentação comercial: não o inclua aqui.
      */
     profiles: [
       { label: '99Freelas', url: 'https://www.99freelas.com.br/user/Iron26' },
@@ -66,9 +67,12 @@ export const site = {
     ],
     /** Compromissos de trabalho exibidos em lista. */
     principles: [
-      { title: 'Entender antes de propor', text: 'O ponto de partida é como o seu negócio funciona no dia a dia.' },
-      { title: 'Revisado e testado', text: 'Uso inteligência artificial como apoio, mas todo código, texto e planilha é revisado e testado antes da entrega.' },
-      { title: 'Fácil de manter', text: 'Soluções organizadas, com orientações para você atualizar depois.' },
+      { title: 'Atendimento direto', text: 'Você conversa com quem desenvolve, sem intermediários, do primeiro contato ao suporte combinado.' },
+      { title: 'Entender antes de propor', text: 'O ponto de partida é como o seu negócio funciona no dia a dia e o que você usa hoje.' },
+      { title: 'Proposta por escrito', text: 'Escopo, etapas, prazo e valor ficam claros antes de qualquer desenvolvimento começar.' },
+      { title: 'Revisado e testado', text: 'Uso inteligência artificial como apoio, mas todo código, texto e planilha é revisado e testado no celular e no computador antes da entrega.' },
+      { title: 'Fácil de manter', text: 'Soluções organizadas, com orientações por escrito para você usar e atualizar depois.' },
+      { title: 'Transparência', text: 'Os projetos deste portfólio são demonstrativos e estão identificados assim. Não exibo clientes, depoimentos ou resultados que não existem.' },
     ],
   },
 
@@ -80,7 +84,7 @@ export const site = {
     'Vite',
     'Excel e Google Planilhas',
     'Python',
-    'Git e GitHub',
+    'Controle de versões (Git)',
     'Netlify e Cloudflare Pages',
     'Ferramentas de IA',
   ],

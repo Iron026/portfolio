@@ -60,6 +60,19 @@ function seoPagesPlugin(): Plugin {
         mkdirSync(join(outDir, 'projetos', p.slug), { recursive: true });
         writeFileSync(join(outDir, 'projetos', p.slug, 'index.html'), html);
       }
+      // Demonstrações internas: sem este HTML, /demos/<nome> receberia o título e o
+      // endereço canônico da página inicial (que contradiz o sitemap e as prévias de link).
+      for (const p of projects) {
+        if (p.demo.status !== 'disponivel' || !p.demo.url.startsWith('/')) continue;
+        const html = withMeta(index, url, {
+          path: p.demo.url,
+          title: `${p.name}: demonstração interativa | ${site.name}`,
+          description: `Teste a demonstração de ${p.name} (${p.category.toLowerCase()}), com empresa e dados fictícios. Projeto autoral da ${site.name}.`,
+          image: p.screens.length ? `/projetos/${p.slug}/og.jpg` : '/og-image.png',
+        });
+        mkdirSync(join(outDir, p.demo.url.slice(1)), { recursive: true });
+        writeFileSync(join(outDir, p.demo.url.slice(1), 'index.html'), html);
+      }
       if (url) {
         const paths = ['/', ...projects.map((p) => `/projetos/${p.slug}`), ...projects.filter((p) => p.demo.status === 'disponivel' && p.demo.url.startsWith('/')).map((p) => p.demo.url)];
         writeFileSync(join(outDir, 'sitemap.xml'), sitemap(url, paths, new Date().toISOString().slice(0, 10)));

@@ -87,7 +87,7 @@ export default function NovaServicosDemo() {
   return (
     <div className="ns-root font-sans">
       {/* Faixa do portfólio: caminho de volta para Alto Code / Projetos */}
-      <div className="ns-on-dark bg-(--ns-ink) text-[0.8rem] text-white/85">
+      <aside aria-label="Sobre esta demonstração" className="ns-on-dark bg-(--ns-ink) text-[0.8rem] text-white/85">
         <div className="mx-auto flex max-w-[72rem] flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-2 sm:px-6">
           <nav aria-label="Você está em">
             <ol className="flex flex-wrap items-center gap-1.5">
@@ -105,7 +105,7 @@ export default function NovaServicosDemo() {
             </Link>
           </p>
         </div>
-      </div>
+      </aside>
 
       <header className="sticky top-0 z-40 border-b border-(--ns-line) bg-white/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-[72rem] items-center justify-between gap-3 px-4 sm:px-6">

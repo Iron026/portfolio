@@ -27,6 +27,8 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
   ok((await p.getAttribute('#inicio .ambient', 'data-motion-off')) !== null, `${tag}: Hero fora da tela recebe data-motion-off`);
   const heroOff = await states(p, '#inicio .ambient *');
   ok(heroOff.every((s) => s === 'paused'), `${tag}: animações do Hero pausadas fora da tela`);
+  // no celular o diagrama fica abaixo do formulário: rola até ele para conferir que anima quando visível
+  await p.evaluate(() => document.querySelector('.contact-flow').scrollIntoView({ block: 'center', behavior: 'instant' })); await p.waitForTimeout(500);
   const contact = await states(p, '.contact-flow *');
   ok(contact.length > 0 && contact.every((s) => s === 'running'), `${tag}: diagrama do contato animado quando visível`);
 

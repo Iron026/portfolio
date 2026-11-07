@@ -23,6 +23,12 @@ export interface Decision {
   text: string;
 }
 
+/** Quem usa a solução e qual necessidade ela atende. */
+export interface Need {
+  who: string;
+  text: string;
+}
+
 export interface Screen {
   /** Caminho base, ex.: '/projetos/gestao360/tela-1' (arquivos -1600.webp e -800.webp). */
   src: string;
@@ -48,6 +54,12 @@ export interface Project {
   goal: string;
   /** Decisões de implementação relevantes (o que foi feito e por quê). */
   decisions: Decision[];
+  /** Quem usa a solução e o que ela resolve para cada um (estudo de caso). */
+  needs: Need[];
+  /** Roteiro curto para testar a demonstração, na ordem em que faz sentido. */
+  tryIt: string[];
+  /** O que pode ser adaptado para um cliente real (definido no orçamento, sem promessa de resultado). */
+  adaptations: string[];
   /** Capturas reais da interface; a primeira é a imagem principal. */
   screens: Screen[];
   demo: { status: 'disponivel' | 'em-breve'; url: string };
@@ -97,6 +109,22 @@ export const projects: Project[] = [
       { title: 'Galeria acessível', text: 'A troca de imagens funciona por toque, por clique e pelas setas do teclado, e o leitor de tela é avisado da imagem exibida.' },
       { title: 'Consulta sem servidor', text: 'Cada imóvel gera uma mensagem de consulta com código, valor e endereço, pronta para copiar: nenhum dado é enviado sem a ação do visitante.' },
     ],
+    needs: [
+      { who: 'Quem procura um imóvel', text: 'Filtra por finalidade, bairro, tipo, preço e quartos pelo celular e pode compartilhar a busca com o mesmo resultado.' },
+      { who: 'Corretor ou imobiliária', text: 'Reúne os anúncios em um só endereço e recebe consultas que já citam o código, o valor e o endereço do imóvel.' },
+    ],
+    tryIt: [
+      'Abra o catálogo e escolha entre Comprar e Alugar.',
+      'Combine bairro, tipo e quartos, ou busque uma característica como "mobiliado".',
+      'Abra um imóvel e passe pelas imagens com toque, clique ou as setas do teclado.',
+      'Copie a mensagem de consulta pronta do anúncio.',
+    ],
+    adaptations: [
+      'Imóveis reais, com fotos próprias e os bairros em que você atua',
+      'Consulta enviada direto para o seu WhatsApp ou e-mail',
+      'Cadastro de imóveis por planilha ou painel simples, para atualizar sem mexer no código',
+      'Domínio próprio, como suaimobiliaria.com.br',
+    ],
     video: { src: '/projetos/prime-imoveis/previa', shows: 'Busca por palavra-chave e filtros de finalidade, bairro e tipo atualizando a lista de imóveis.' },
     accent: { base: '#1f3d33', detail: '#c9a24a' },
     screens: [
@@ -123,7 +151,7 @@ export const projects: Project[] = [
       'Busca e tabela de transações com paginação',
       'Exportação do filtro atual em CSV compatível com Excel',
     ],
-    technologies: ['React', 'TypeScript', 'React Router', 'Gráficos em SVG', 'CSV'],
+    technologies: ['React', 'TypeScript', 'React Router', 'Gráficos em SVG', 'Exportação CSV'],
     preview: 'dashboard',
     service: 'dashboards',
     quoteCta: 'Quero um painel de gestão assim',
@@ -132,8 +160,24 @@ export const projects: Project[] = [
     decisions: [
       { title: 'Um único filtro para tudo', text: 'Indicadores, gráficos, tabela e exportação usam o mesmo recorte de dados, então os números da tela sempre batem com o arquivo exportado.' },
       { title: 'Eixo do tempo sem buracos', text: 'Os gráficos agrupam por semana (30 e 90 dias) ou por mês (12 meses) e mostram os períodos sem movimento, marcando quando a primeira ou a última semana está incompleta.' },
-      { title: 'Gráficos em SVG próprio', text: 'Os gráficos foram desenhados em SVG, sem biblioteca de gráficos: a página fica mais leve e os pontos podem ser percorridos pelo teclado, com descrição para leitores de tela.' },
-      { title: 'CSV no formato do Excel brasileiro', text: 'A exportação usa UTF-8 com BOM, ponto e vírgula, vírgula decimal e datas dd/mm/aaaa, para abrir no Excel com acentos e valores corretos.' },
+      { title: 'Gráficos próprios e acessíveis', text: 'Os gráficos foram desenhados no próprio código, sem biblioteca externa: a página fica mais leve e os pontos podem ser percorridos pelo teclado, com descrição para leitores de tela.' },
+      { title: 'CSV no formato do Excel brasileiro', text: 'O arquivo exportado abre direto no Excel em português, com acentos, vírgula decimal e datas dd/mm/aaaa corretos, sem precisar converter nada.' },
+    ],
+    needs: [
+      { who: 'Dono do negócio', text: 'Vê quanto entrou, quanto saiu e o resultado do período sem montar contas na mão.' },
+      { who: 'Quem cuida do financeiro', text: 'Filtra por período, tipo e categoria, encontra transações pela busca e leva o mesmo recorte para o Excel.' },
+    ],
+    tryIt: [
+      'Troque o período entre 30 dias, 90 dias e 12 meses e veja indicadores e gráficos recalcularem.',
+      'Filtre só as despesas ou uma categoria para ver para onde foi o dinheiro.',
+      'Procure uma transação pela busca da tabela.',
+      'Exporte o filtro atual em CSV e abra no Excel.',
+    ],
+    adaptations: [
+      'Seus dados, importados das planilhas ou do sistema que você já usa',
+      'Categorias, indicadores e períodos do seu negócio',
+      'Acesso com login para a sua equipe',
+      'Versão em Excel ou Google Planilhas, quando um painel na web não for necessário',
     ],
     video: { src: '/projetos/gestao360/previa', shows: 'Filtros de período, tipo e busca aplicados: indicadores e gráficos recalculam na hora.' },
     accent: { base: '#101f33', detail: '#22c3b0' },
@@ -173,6 +217,22 @@ export const projects: Project[] = [
       { title: 'Validação na ordem dos campos', text: 'Os erros aparecem ao lado de cada campo, e o foco vai para o primeiro campo com problema, seguindo a mesma ordem da tela.' },
       { title: 'Nenhum envio simulado', text: 'Sem um destinatário real, a página não finge enviar: ela monta a mensagem do pedido para o visitante copiar.' },
     ],
+    needs: [
+      { who: 'Cliente que procura o serviço', text: 'Entende rápido o que é oferecido e como funciona o atendimento, e pede orçamento sem criar conta.' },
+      { who: 'Prestador de serviço', text: 'Recebe pedidos mais completos, com serviço, contato e descrição organizados na mesma mensagem.' },
+    ],
+    tryIt: [
+      'Escolha um serviço nos atalhos do topo ou nos cartões de serviço.',
+      'Veja o formulário abrir com esse serviço já preenchido.',
+      'Tente enviar com um campo vazio para ver a validação e o foco no primeiro erro.',
+      'Preencha tudo e copie a mensagem do pedido pronta.',
+    ],
+    adaptations: [
+      'Seus serviços, área de atendimento, fotos e textos',
+      'Pedido enviado direto para o seu WhatsApp ou e-mail',
+      'Botão de WhatsApp sempre à vista e links para mapa e redes sociais',
+      'Domínio próprio e configuração básica para buscadores (SEO)',
+    ],
     video: { src: '/projetos/nova-servicos/previa', shows: 'Atalho de serviço levando ao formulário, preenchimento e o pedido pronto para enviar.' },
     accent: { base: '#0b5563', detail: '#f2c230' },
     screens: [
@@ -199,7 +259,7 @@ export const projects: Project[] = [
       'Carrinho salvo no navegador, com preços sempre do catálogo',
       'Checkout identificado como simulação, sem pagamento',
     ],
-    technologies: ['React', 'TypeScript', 'Tailwind CSS', 'localStorage'],
+    technologies: ['React', 'TypeScript', 'Tailwind CSS', 'Armazenamento no navegador'],
     preview: 'loja',
     service: 'sites',
     quoteCta: 'Quero uma loja virtual assim',
@@ -210,6 +270,22 @@ export const projects: Project[] = [
       { title: 'Carrinho salvo com verificação', text: 'Ao abrir a loja, os dados salvos são conferidos: itens inexistentes são descartados e quantidades acima do estoque são ajustadas, com aviso ao visitante.' },
       { title: 'Estoque respeitado', text: 'Os botões de quantidade e o carrinho não deixam passar do estoque ilustrativo de cada tamanho.' },
       { title: 'Simulação identificada', text: 'O checkout pede a confirmação de que se trata de uma simulação, e um aviso fixo lembra em todas as telas que nenhuma compra é processada e nenhum pagamento é realizado.' },
+    ],
+    needs: [
+      { who: 'Quem compra', text: 'Encontra o produto pela busca ou pela categoria, escolhe tamanho e quantidade e confere o total antes de finalizar.' },
+      { who: 'Lojista', text: 'Mostra o estoque de cada tamanho e evita pedidos com quantidade maior do que a disponível.' },
+    ],
+    tryIt: [
+      'Busque um produto ou filtre por categoria e ordene por preço.',
+      'Abra um produto, escolha tamanho e quantidade e adicione ao carrinho.',
+      'No carrinho, ajuste as quantidades e veja subtotal, frete fictício e total.',
+      'Recarregue a página: o carrinho continua salvo. O checkout é uma simulação, sem pagamento.',
+    ],
+    adaptations: [
+      'Seus produtos, fotos, tamanhos e estoque',
+      'Pedido finalizado pelo WhatsApp, como um catálogo com carrinho',
+      'Pagamento on-line e frete calculado, avaliados conforme o volume de vendas',
+      'Painel ou planilha para atualizar preços e estoque',
     ],
     video: { src: '/projetos/arena-store/previa', shows: 'Busca de produto, escolha de tamanho e quantidade, item no carrinho e total atualizado.' },
     accent: { base: '#15191c', detail: '#ff6b2c' },
@@ -238,17 +314,33 @@ export const projects: Project[] = [
       'Proposta para imprimir ou salvar em PDF pelo navegador',
       'Resumo pronto para copiar e catálogo salvo no navegador',
     ],
-    technologies: ['React', 'TypeScript', 'Tailwind CSS', 'CSS de impressão', 'localStorage'],
+    technologies: ['React', 'TypeScript', 'Tailwind CSS', 'Impressão e PDF', 'Armazenamento no navegador'],
     preview: 'orcamento',
     service: 'ferramentas',
     quoteCta: 'Quero um gerador de orçamentos assim',
     goal:
       'Fazer com que o mesmo serviço tenha sempre o mesmo preço: regras fixas de cálculo, conta visível linha a linha e proposta pronta para enviar.',
     decisions: [
-      { title: 'Dinheiro em centavos', text: 'Todos os valores são calculados em centavos inteiros e os percentuais em pontos-base, evitando os erros de arredondamento comuns em contas com decimais.' },
+      { title: 'Contas sem diferença de centavos', text: 'Os valores são calculados em centavos inteiros, o que evita as diferenças de arredondamento comuns em contas com decimais e porcentagens.' },
       { title: 'Cálculo explicado', text: 'Cada linha do orçamento mostra a conta completa: preço base, multiplicador do material e acréscimos de acabamento e prazo.' },
       { title: 'PDF sem gerador externo', text: 'A proposta usa uma folha de estilo de impressão própria: o navegador imprime ou salva em PDF só o documento, em uma página A4.' },
       { title: 'Catálogo local validado', text: 'O catálogo editável fica salvo no navegador e é conferido ao abrir; dados inválidos voltam ao catálogo de exemplo.' },
+    ],
+    needs: [
+      { who: 'Quem monta os orçamentos', text: 'Aplica as mesmas regras de preço a cada cliente, sem refazer contas nem consultar tabelas soltas.' },
+      { who: 'Cliente que recebe a proposta', text: 'Recebe um documento organizado, com itens, valores e total, para imprimir ou guardar em PDF.' },
+    ],
+    tryIt: [
+      'Adicione itens e escolha material, acabamento e prazo de cada um.',
+      'Confira o cálculo detalhado de cada linha e aplique um desconto.',
+      'Abra a proposta e imprima ou salve em PDF pelo navegador.',
+      'Edite o catálogo de produtos e preços: ele fica salvo no navegador.',
+    ],
+    adaptations: [
+      'Seus produtos, serviços e regras de preço',
+      'Proposta com a sua marca, os dados da empresa e as suas condições comerciais',
+      'Versão em planilha, se a equipe já trabalha no Excel ou no Google Planilhas',
+      'Histórico de orçamentos e envio da proposta pelo WhatsApp ou e-mail',
     ],
     video: { src: '/projetos/orcafacil/previa', shows: 'Itens com material e prazo, desconto aplicado e a proposta montada com os valores calculados.' },
     accent: { base: '#172033', detail: '#2844c7' },

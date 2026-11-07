@@ -126,8 +126,8 @@ export default function StoreCatalog() {
 function ProductCard({ product: p }: { product: Product }) {
   const units = totalStock(p);
   return (
-    <article className={`as-card group flex h-full flex-col overflow-hidden rounded-2xl bg-(--as-card) ring-1 ring-(--as-line) transition-shadow hover:shadow-[0_14px_30px_-18px_rgba(21,25,28,0.45)] ${units ? '' : 'opacity-80'}`}>
-      <div className="aspect-[4/3] overflow-hidden">
+    <article className={`as-card group flex h-full flex-col overflow-hidden rounded-2xl bg-(--as-card) ring-1 ring-(--as-line) transition-shadow hover:shadow-[0_14px_30px_-18px_rgba(21,25,28,0.45)]`}>
+      <div className={`aspect-[4/3] overflow-hidden ${units ? '' : 'opacity-70'}`}>
         <ProductArt kind={p.art} color={p.color} className="h-full w-full transition-transform duration-500 group-hover:scale-[1.04]" />
       </div>
       <div className="flex flex-1 flex-col p-3 sm:p-4">

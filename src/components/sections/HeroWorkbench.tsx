@@ -142,7 +142,9 @@ function SheetPanel() {
           <caption className="sr-only">Planilha de exemplo com receita, despesas e lucro por mês</caption>
           <thead>
             <tr className="bg-paper text-[0.8rem] text-slate">
-              <th scope="col" className="w-8 max-sm:hidden border-r border-b border-line px-2 py-1.5 text-center font-normal" />
+              <th scope="col" className="w-8 max-sm:hidden border-r border-b border-line px-2 py-1.5 text-center font-normal">
+                <span className="sr-only">Linha</span>
+              </th>
               <th scope="col" className="border-r border-b border-line px-2 py-1.5 sm:px-3 font-medium">Mês</th>
               {columns.map((c) => (
                 <th key={c.key} scope="col" className="border-r border-b border-line px-2 py-1.5 sm:px-3 text-right font-medium">

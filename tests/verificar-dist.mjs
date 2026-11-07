@@ -62,6 +62,27 @@ for (const s of slugs) {
   ok(has(`projetos/${s}/og.jpg`), `${s}: og.jpg presente`);
 }
 
+// Demonstrações: HTML próprio, para o canonical e a prévia de link não apontarem para a página inicial
+const demoUrls = [...projectsSrc.matchAll(/demo: \{ status: 'disponivel', url: '(\/demos\/[^']+)' \}/g)].map((m) => m[1]);
+ok(demoUrls.length === 5, `5 demonstrações internas declaradas (${demoUrls})`);
+for (const d of demoUrls) {
+  const f = `${d.slice(1)}/index.html`;
+  ok(has(f), `${f} existe`);
+  if (!has(f)) continue;
+  const h = read(f);
+  ok(/<title>[^<]+demonstração interativa \| Alto Code<\/title>/.test(h), `${d}: título próprio`);
+  ok(h.includes(`<link rel="canonical" href="${siteUrl}${d}"`), `${d}: canonical da própria demonstração`);
+}
+
+// O GitHub não faz parte da apresentação comercial: nenhuma menção ou link no conteúdo publicado
+// (o código de bibliotecas pode citar github.com em comentários de licença; por isso só os textos do site)
+{
+  const texts = ['src/config/site.ts', 'src/data/projects.ts', 'src/data/services.ts', 'src/data/content.ts'].map((p) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8').replace(/^\s*(\/\/|\*|\/\*).*$/gm, '')).join('\n');
+  ok(!/github/i.test(texts), 'textos e contatos do site sem menção ao GitHub');
+  const htmls = readdirSync(new URL('../dist/', import.meta.url), { recursive: true }).filter((p) => String(p).endsWith('.html'));
+  ok(htmls.every((p) => !/github/i.test(read(String(p)))), `páginas HTML do build sem menção ao GitHub (${htmls.length} arquivos)`);
+}
+
 // Prévias em vídeo (WebM e MP4) de cada projeto que declara `video`
 const videos = [...projectsSrc.matchAll(/video: \{ src: '(\/projetos\/[^']+)'/g)].map((m) => m[1]);
 ok(videos.length === 5, `prévias em vídeo declaradas (${videos.length})`);

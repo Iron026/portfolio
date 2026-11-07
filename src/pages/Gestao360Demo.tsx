@@ -324,7 +324,7 @@ export default function Gestao360Demo() {
               </div>
               <span className="g360-panel-chip">{filtered.length.toLocaleString('pt-BR')} registros</span>
             </div>
-            <div className="g360-table-scroll">
+            <div className="g360-table-scroll" tabIndex={0} role="region" aria-labelledby="g360-tabela-titulo">
               <table>
                 <caption className="g360-sr-only">Transações filtradas, página {safePage} de {maxPage}</caption>
                 <thead>
