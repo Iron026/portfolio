@@ -46,6 +46,7 @@ Variáveis opcionais: `TEST_OUT` (pasta das capturas geradas, padrão `tests/sai
 | `desempenho.test.mjs` | vídeos fora do carregamento inicial, estabilidade visual (CLS), thread principal livre, resposta à digitação; computador e celular simulado (CPU 4×) |
 | `navegacao-historico.test.mjs` | Voltar/Avançar entre portfólio, estudos de caso e as 5 demonstrações (3 vezes cada, computador e celular), atualizar na demo e voltar, também com a rolagem do Chrome 150+ (scrollTo devolvendo Promise); simula um deploy novo com a aba aberta (arquivos antigos com 404) e exige recarga única ou tela de recuperação, nunca página vazia |
 | `textos.test.mjs` | nenhum travessão em textos, títulos, rótulos e metadados (portfólio e demonstrações) |
+| `comercial.test.mjs` | nada de GitHub no site; Sobre com os seis compromissos; estudos de caso com quem usa, roteiro de teste, adaptações e como pedir orçamento; no celular o formulário aparece logo após o título do contato (320, 390, 768 px) e no desktop fica à direita; validação de DDD e celular; alternativa quando o aplicativo de e-mail não abre; tabela do Gestão360 rolável pelo teclado; HTML próprio das 5 demonstrações |
 | `gestao360`, `prime-imoveis(-teclado)`, `nova-servicos(-teclado)`, `arena-store`, `orcafacil` | as funcionalidades de cada demonstração |
 
 Cada arquivo termina com `N passaram, M falharam` e o runner mostra um resumo no final.
