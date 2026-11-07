@@ -1,0 +1,42 @@
+/*
+ * OrçaFácil — identidade (azul-tinta, papel e números em fonte monoespaçada)
+ * e regras de impressão da proposta.
+ */
+.orca-root {
+  --orca-ink: #172033;
+  --orca-blue: #2844c7;     /* botões e destaques (branco sobre ele: 7,7:1) */
+  --orca-blue-2: #1e36a3;
+  --orca-wash: #eef1fb;
+  --orca-bg: #f4f5f8;
+  --orca-line: #dde1ea;
+  --orca-muted: #596173;    /* texto de apoio (5,7:1 sobre o fundo) */
+  --orca-error: #b42318;
+  --orca-warn: #8a5a00;
+  --orca-warn-bg: #fff6dc;
+  min-height: 100vh;
+  background: var(--orca-bg);
+  color: var(--orca-ink);
+}
+.orca-root :focus-visible { outline-color: var(--orca-blue); }
+.orca-root .orca-on-dark :focus-visible { outline-color: #ffffff; }
+.orca-num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* A proposta para impressão é uma cópia colocada direto no <body>, só visível ao imprimir. */
+.orca-print-root { display: none; }
+.orca-print-root .orca-root { min-height: 0; background: #ffffff; }
+
+@media print {
+  /* Vale somente enquanto a página do OrçaFácil está aberta (classe no <body>). */
+  body.orca-page > *:not(.orca-print-root) { display: none !important; }
+  body.orca-page .orca-print-root { display: block !important; }
+  body.orca-page { background: #ffffff !important; }
+  .orca-print-root { color: #000000; font-size: 11pt; }
+  .orca-print-root .orca-doc { box-shadow: none !important; border: 0 !important; padding: 0 !important; border-radius: 0 !important; }
+  .orca-print-root table { page-break-inside: auto; }
+  .orca-print-root tr { page-break-inside: avoid; }
+  @page { size: A4; margin: 16mm 14mm; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orca-root * { transition: none !important; }
+}

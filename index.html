@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>%SITE_TITLE%</title>
+    <meta name="description" content="%SITE_DESCRIPTION%" />
+    <meta name="theme-color" content="#060E1D" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Fontes da marca (locais): baixadas em paralelo com o app para o título não trocar de fonte -->
+    <link rel="preload" href="/fonts/sora-latin-wght-v1.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/onest-latin-wght-v1.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/azeret-mono-latin-wght-v1.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="canonical" href="%SITE_URL%/" />
+    <meta property="og:url" content="%SITE_URL%/" />
+
+    <!-- Compartilhamento (WhatsApp, LinkedIn, Facebook, X) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="%SITE_NAME%" />
+    <meta property="og:title" content="%SITE_TITLE%" />
+    <meta property="og:description" content="%SITE_DESCRIPTION%" />
+    <meta property="og:image" content="%OG_IMAGE%" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="%SITE_NAME%: %SITE_DESCRIPTION%" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="%SITE_TITLE%" />
+    <meta name="twitter:description" content="%SITE_DESCRIPTION%" />
+    <meta name="twitter:image" content="%OG_IMAGE%" />
+  </head>
+  <body>
+    <noscript>Este site precisa de JavaScript ativado para funcionar.</noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

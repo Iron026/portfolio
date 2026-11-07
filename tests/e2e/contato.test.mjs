@@ -1,0 +1,63 @@
+import { chromium, BASE, OUT, LAUNCH } from '../helpers.mjs';
+// Formulário de contato: canal de retorno, máscara, validação, WhatsApp, e-mail e cópia (com e sem área de transferência).
+const B = BASE;
+const b = await chromium.launch(LAUNCH);
+let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : (fail++, console.log('FAIL:', m)); };
+const errs = [];
+const open = async (ctx, vp = { width: 390, height: 844 }) => { const p = await ctx.newPage(); await p.setViewportSize(vp); p.on('pageerror', e => errs.push(e.message)); await p.goto(B + '/#contato'); await p.waitForTimeout(700); return p; };
+// 1. celular, com área de transferência
+let ctx = await b.newContext({ permissions: ['clipboard-read', 'clipboard-write'], isMobile: true, hasTouch: true });
+let p = await open(ctx);
+const attrs = async () => p.$eval('input[name="retorno"]', i => [i.type, i.inputMode, i.autocomplete, i.placeholder, document.querySelector(`label[for="${i.id}"]`).textContent]);
+let a = await attrs();
+ok(a[0] === 'tel' && a[1] === 'tel' && a[2] === 'tel' && a[4].includes('WhatsApp'), 'WhatsApp por padrão: teclado numérico e autocompletar de telefone ' + a);
+await p.fill('input[name="retorno"]', '71988887777'); ok(await p.inputValue('input[name="retorno"]') === '(71) 98888-7777', 'máscara do celular');
+await p.fill('input[name="retorno"]', '7133334444'); ok(await p.inputValue('input[name="retorno"]') === '(71) 3333-4444', 'máscara do fixo');
+await p.fill('input[name="retorno"]', '+55 71 98888-7777'); ok(await p.inputValue('input[name="retorno"]') === '(71) 98888-7777', 'remove o +55');
+await p.fill('input[name="retorno"]', '9888'); await p.click('text=Copiar mensagem'); await p.waitForTimeout(150);
+ok((await p.textContent('[id$="-retorno-erro"]')).includes('DDD'), 'número sem DDD é recusado com orientação');
+await p.click('label:has(input[name="canal"][value="email"])'); await p.waitForTimeout(100);
+a = await attrs();
+ok(a[0] === 'email' && a[1] === 'email' && a[2] === 'email' && a[4] === 'Seu e-mail' && (await p.inputValue('input[name="retorno"]')) === '', 'E-mail: teclado de e-mail e campo limpo ao trocar');
+ok(!(await p.$('[id$="-retorno-erro"]')), 'erro some ao trocar de canal');
+await p.fill('input[name="retorno"]', 'ana@exemplo'); await p.click('text=Copiar mensagem'); await p.waitForTimeout(150);
+ok((await p.textContent('[id$="-retorno-erro"]')).includes('nome@dominio.com'), 'e-mail incompleto é recusado');
+await p.fill('input[name="nome"]', 'Ana Souza'); await p.fill('input[name="retorno"]', 'ana@exemplo.com');
+await p.selectOption('select[name="servico"]', 'sites'); await p.fill('textarea[name="mensagem"]', 'Preciso de um site com catálogo e botão de WhatsApp.');
+await p.click('text=Copiar mensagem'); await p.waitForTimeout(200);
+let clip = await p.evaluate(() => navigator.clipboard.readText());
+ok(clip.includes('Retorno por e-mail: ana@exemplo.com') && clip.includes('Tipo de projeto: Sites e landing pages'), 'mensagem copiada com o canal');
+ok(!(await p.$('textarea[readonly]')), 'sem campo manual quando a cópia funciona');
+// WhatsApp: abre nova aba e mostra link de reserva
+await p.click('label:has(input[name="canal"][value="whatsapp"])'); await p.fill('input[name="retorno"]', '71988887777');
+const [pop] = await Promise.all([ctx.waitForEvent('page', { timeout: 3000 }).catch(() => null), p.click('button:has-text("Enviar pelo WhatsApp")')]);
+ok(!!pop, 'WhatsApp abre nova aba');
+const fb = await p.getAttribute('a:has-text("Abrir a conversa no WhatsApp")', 'href');
+ok(fb && fb.startsWith('https://wa.me/5571992853309?text=') && decodeURIComponent(fb).includes('Retorno por WhatsApp: (71) 98888-7777'), 'link de reserva para o WhatsApp com a mensagem');
+ok(await p.isVisible('a:has-text("Abrir a conversa no WhatsApp")'), 'link de reserva visível');
+// E-mail: abre o aplicativo (mailto)
+const mail = await p.evaluate(() => new Promise((res) => { const orig = Object.getOwnPropertyDescriptor(Location.prototype, 'href'); res(!!orig); }));
+await p.evaluate(() => { window.__mailto = null; document.addEventListener('click', () => {}, true); });
+await p.click('button:has-text("Enviar por e-mail")'); await p.waitForTimeout(300);
+ok((await p.textContent('[role="status"]')).includes('aplicativo de e-mail'), 'e-mail: status de envio pelo aplicativo');
+await ctx.close();
+// 2. sem área de transferência: campo selecionável
+ctx = await b.newContext();
+await ctx.addInitScript(() => { Object.defineProperty(navigator, 'clipboard', { value: { writeText: () => Promise.reject(new Error('negado')) }, configurable: true }); });
+p = await open(ctx, { width: 1280, height: 900 });
+await p.fill('input[name="nome"]', 'Ana'); await p.fill('input[name="retorno"]', '71988887777');
+await p.selectOption('select[name="servico"]', 'planilhas'); await p.fill('textarea[name="mensagem"]', 'Quero organizar o controle financeiro da loja.');
+await p.click('text=Copiar mensagem'); await p.waitForTimeout(300);
+const ta = await p.$('textarea[readonly]');
+ok(!!ta, 'campo com a mensagem aparece quando a cópia falha');
+const sel = await p.evaluate(() => { const t = document.querySelector('textarea[readonly]'); return [document.activeElement === t, t.selectionStart === 0 && t.selectionEnd === t.value.length, t.value]; });
+ok(sel[0] && sel[1], 'campo focado e texto selecionado');
+ok(sel[2].includes('Retorno por WhatsApp: (71) 98888-7777') && sel[2].includes('Quero organizar'), 'campo contém a mensagem completa');
+ok((await p.textContent('[role="status"]')).includes('campo abaixo'), 'status explica o que fazer');
+const label = await p.$eval('textarea[readonly]', t => document.querySelector(`label[for="${t.id}"]`)?.textContent);
+ok(label === 'Mensagem pronta para copiar', 'campo tem rótulo');
+await p.fill('textarea[name="mensagem"]', 'Quero organizar o controle financeiro e o estoque da loja.'); await p.waitForTimeout(100);
+ok((await p.inputValue('textarea[readonly]')).includes('e o estoque'), 'campo acompanha as alterações do formulário');
+console.log('erros:', errs);
+console.log(`${pass} passaram, ${fail} falharam`);
+await b.close(); if (fail || errs.length) process.exit(1);

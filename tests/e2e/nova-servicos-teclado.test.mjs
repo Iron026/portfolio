@@ -1,0 +1,31 @@
+import { chromium, BASE, OUT, LAUNCH } from '../helpers.mjs';
+const b = await chromium.launch(LAUNCH);
+let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : (fail++, console.log('FAIL:', m)); };
+const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
+const act = () => p.evaluate(() => { const a = document.activeElement; return a?.id || a?.getAttribute('name') || a?.textContent?.trim().slice(0, 25); });
+await p.goto(BASE + '/demos/nova-servicos'); await p.waitForTimeout(400);
+const order = []; for (let i = 0; i < 12; i++) { await p.keyboard.press('Tab'); order.push(await act()); }
+console.log('Tab:', order.join(' > '));
+ok(order.includes('Serviços') && order.includes('Pedir orçamento'), 'menu e CTA no Tab');
+// tudo pelo teclado: CTA → formulário
+const cta = p.locator('header a:has-text("Pedir orçamento")'); await cta.focus(); await p.keyboard.press('Enter'); await p.waitForTimeout(900);
+ok((await act()) === 'ns-nome', 'Enter no CTA foca o nome');
+await p.keyboard.type('Carlos Lima'); await p.keyboard.press('Tab');
+ok((await act()) === 'ns-servico', 'Tab → serviço');
+await p.keyboard.press('ArrowDown'); await p.keyboard.press('ArrowDown');
+ok((await p.inputValue('#ns-servico')) !== '', 'serviço pelo teclado: ' + await p.inputValue('#ns-servico'));
+await p.keyboard.press('Tab'); ok((await act()) === 'method', 'Tab → forma de contato');
+await p.keyboard.press('ArrowRight'); ok(await p.isChecked('input[value=email]'), 'seta troca para e-mail');
+const ring = await p.evaluate(() => getComputedStyle(document.activeElement.nextElementSibling).outlineStyle);
+ok(ring !== 'none', 'foco visível na opção: ' + ring);
+await p.keyboard.press('ArrowLeft');
+await p.keyboard.press('Tab'); ok((await act()) === 'ns-contato', 'Tab → contato'); await p.keyboard.type('71 98888 7777');
+await p.keyboard.press('Tab'); ok((await act()) === 'ns-bairro', 'Tab → bairro'); await p.keyboard.type('Centro');
+await p.keyboard.press('Tab'); ok((await act()) === 'urgency', 'Tab → urgência'); await p.keyboard.press('ArrowRight');
+await p.keyboard.press('Tab'); ok((await act()) === 'ns-descricao', 'Tab → descrição'); await p.keyboard.type('Montar um guarda-roupa de seis portas no quarto.');
+await p.keyboard.press('Tab'); ok((await act()) === 'ns-consentimento', 'Tab → consentimento'); await p.keyboard.press('Space');
+await p.keyboard.press('Tab'); ok((await act()) === 'Preparar pedido', 'Tab → botão'); await p.keyboard.press('Enter'); await p.waitForTimeout(150);
+ok((await act()).startsWith('Seu pedido está pronto'), 'Enter prepara o pedido');
+ok((await p.inputValue('#ns-mensagem')).includes('Urgência: Nesta semana') && (await p.inputValue('#ns-mensagem')).includes('WhatsApp: (71) 98888-7777'), 'mensagem com dados digitados');
+await p.locator('#ns-orcamento').screenshot({ path: OUT + '/ns-sucesso.png' });
+console.log(`${pass} passaram, ${fail} falharam`); await b.close(); if (fail) process.exit(1);

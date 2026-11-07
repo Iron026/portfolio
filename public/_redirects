@@ -1,0 +1,4 @@
+# Arquivos do build que não existem (ex.: de uma versão anterior) respondem 404,
+# em vez de receber a página do site no lugar de um script
+/assets/*    /404.html     404
+/*    /index.html   200

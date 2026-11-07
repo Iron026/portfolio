@@ -1,0 +1,23 @@
+[build]
+  # build oficial (TypeScript + Vite) e, em seguida, a conferência da pasta dist/:
+  # se qualquer verificação falhar, o deploy para e o site no ar continua como estava
+  command = "npm run build && npm run verify:dist"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Arquivos do build que não existem mais (versão anterior) respondem 404,
+# em vez de receber a página do site no lugar de um script
+[[redirects]]
+  from = "/assets/*"
+  to = "/404.html"
+  status = 404
+
+# Rotas internas (ex.: /projetos/gestao360) carregam o app ao atualizar a página
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Cabeçalhos de cache: veja public/_headers (vale também ao publicar arrastando a pasta dist/)

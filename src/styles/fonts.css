@@ -1,0 +1,67 @@
+/* ==================================================================
+   FONTES DA MARCA ALTO CODE — carregamento local (sem Google Fonts)
+
+   Sora        → títulos            (pesos 400–700)
+   Onest       → textos e interface (pesos 400–700)
+   Azeret Mono → detalhes técnicos  (pesos 400–600)
+
+   Arquivos em public/fonts: WOFF2 variáveis com o subconjunto latino
+   (cobre todo o português: á à â ã é ê í ó ô õ ú ü ç, aspas, travessões,
+   € e ™). Os três são pré-carregados no index.html. O sufixo "-v1" no
+   nome permite cache longo: ao trocar um arquivo, mude para "-v2" aqui e
+   no index.html. Licença SIL OFL 1.1 em public/fonts/licencas.
+
+   As demonstrações continuam com as próprias fontes (Bricolage/Plex).
+================================================================== */
+
+@font-face {
+  font-family: 'Sora';
+  src: url('/fonts/sora-latin-wght-v1.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Onest';
+  src: url('/fonts/onest-latin-wght-v1.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Azeret Mono';
+  src: url('/fonts/azeret-mono-latin-wght-v1.woff2') format('woff2');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*
+ * Fontes de reserva com métricas ajustadas (largura média e altura de linha
+ * calculadas a partir dos arquivos) para o texto não "pular" enquanto a
+ * fonte da marca carrega.
+ */
+@font-face {
+  font-family: 'Sora Fallback';
+  src: local('Arial'), local('Liberation Sans'), local('Helvetica');
+  size-adjust: 113%;
+  ascent-override: 85.8%;
+  descent-override: 25.7%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Onest Fallback';
+  src: local('Arial'), local('Liberation Sans'), local('Helvetica');
+  size-adjust: 104%;
+  ascent-override: 93.3%;
+  descent-override: 29.3%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Azeret Mono Fallback';
+  src: local('Courier New'), local('Liberation Mono'), local('Menlo');
+  size-adjust: 108.3%;
+  ascent-override: 86.5%;
+  descent-override: 21.2%;
+  line-gap-override: 0%;
+}

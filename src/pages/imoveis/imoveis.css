@@ -1,0 +1,34 @@
+/*
+ * Prime Imóveis — identidade da imobiliária fictícia.
+ * Tokens isolados em .pi-root; os componentes usam utilitários do Tailwind
+ * apontando para estas variáveis (ex.: bg-(--pi-green)), sem alterar o tema do Alto Code.
+ */
+.pi-root {
+  --pi-green: #1f3d33;      /* verde-garrafa: marca, cabeçalho, botões */
+  --pi-green-2: #2a5244;    /* hover */
+  --pi-gold: #c9a24a;       /* dourado sobre o verde (4,9:1) */
+  --pi-gold-text: #8a6420;  /* dourado para texto sobre branco (5,4:1) */
+  --pi-paper: #f6f5f1;      /* fundo */
+  --pi-ink: #1b2420;        /* texto principal */
+  --pi-muted: #5d6a63;      /* texto de apoio (5,2:1 sobre o fundo) */
+  --pi-line: #e1e4de;
+  --pi-mint: #e8efe9;       /* selo de aluguel */
+  --pi-sand: #f3e8cc;       /* selo de venda */
+  min-height: 100vh;
+  background: var(--pi-paper);
+  color: var(--pi-ink);
+}
+.pi-root :focus-visible { outline-color: var(--pi-gold-text); }
+.pi-root .pi-on-green :focus-visible { outline-color: var(--pi-gold); }
+
+/* O link do título cobre o card inteiro (um único destino por card). */
+.pi-card { position: relative; }
+.pi-card-link::after { content: ''; position: absolute; inset: 0; border-radius: 1rem; }
+.pi-card-link:focus-visible { outline: none; }
+.pi-card:has(.pi-card-link:focus-visible) { outline: 2px solid var(--pi-gold-text); outline-offset: 3px; }
+
+.pi-scene { display: block; width: 100%; height: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pi-root * { transition: none !important; }
+}

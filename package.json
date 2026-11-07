@@ -1,0 +1,39 @@
+{
+  "name": "alto-code-portfolio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Portfólio profissional de desenvolvimento e soluções digitais.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test:setup": "npm install --no-save playwright@1.56.0 && npx playwright install chromium",
+    "test:unit": "node tests/run-unit.mjs",
+    "verify:dist": "node tests/verificar-dist.mjs",
+    "test:e2e": "node tests/run-e2e.mjs",
+    "test": "npm run test:unit && npm run build && npm run verify:dist && npm run test:e2e"
+  },
+  "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.1.0",
+    "@fontsource/ibm-plex-mono": "^5.1.0",
+    "@fontsource/ibm-plex-sans": "^5.1.0",
+    "lucide-react": "^0.460.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^6.28.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

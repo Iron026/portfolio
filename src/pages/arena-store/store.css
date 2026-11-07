@@ -1,0 +1,38 @@
+/*
+ * Arena Store — identidade da loja fictícia (grafite + laranja esportivo).
+ * Tokens isolados em .as-root; os componentes usam utilitários do Tailwind
+ * apontando para estas variáveis (ex.: bg-(--as-orange)).
+ */
+.as-root {
+  --as-ink: #15191c;         /* texto e cabeçalho */
+  --as-orange: #ff6b2c;      /* preenchimentos com texto escuro (6,2:1) */
+  --as-orange-text: #c2410c; /* texto laranja e botões com texto branco (5,2:1) */
+  --as-bg: #f5f5f1;
+  --as-card: #ffffff;
+  --as-line: #e3e3dc;
+  --as-muted: #5b6168;       /* texto de apoio (5,7:1 sobre o fundo) */
+  --as-ok: #1d6b3a;          /* em estoque */
+  --as-ok-bg: #e6f4ea;
+  --as-low: #9a3412;         /* últimas unidades */
+  --as-low-bg: #ffedd5;
+  min-height: 100vh;
+  background: var(--as-bg);
+  color: var(--as-ink);
+}
+.as-root :focus-visible { outline-color: var(--as-orange-text); }
+.as-root .as-on-dark :focus-visible { outline-color: var(--as-orange); }
+
+.as-card { position: relative; }
+.as-card-link::after { content: ''; position: absolute; inset: 0; border-radius: 1rem; }
+.as-card-link:focus-visible { outline: none; }
+.as-card:has(.as-card-link:focus-visible) { outline: 2px solid var(--as-orange-text); outline-offset: 3px; }
+
+/* Remove as setas nativas do campo numérico de quantidade (há botões − e +). */
+.as-qty::-webkit-outer-spin-button, .as-qty::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.as-qty { -moz-appearance: textfield; appearance: textfield; }
+
+@keyframes as-bump { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
+.as-bump { animation: as-bump 300ms ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .as-root * { transition: none !important; animation: none !important; }
+}

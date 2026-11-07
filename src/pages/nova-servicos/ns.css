@@ -1,0 +1,28 @@
+/*
+ * Nova Serviços — identidade da empresa fictícia (azul-petróleo + amarelo de obra).
+ * Tokens isolados em .ns-root; os componentes usam utilitários do Tailwind
+ * apontando para estas variáveis (ex.: bg-(--ns-petrol)).
+ */
+.ns-root {
+  --ns-petrol: #0b5563;    /* marca e botões (branco sobre ele: 8,4:1) */
+  --ns-petrol-2: #08414c;  /* hover */
+  --ns-yellow: #f2c230;    /* destaque; texto escuro sobre ele (9,6:1) */
+  --ns-ink: #12232b;       /* texto principal */
+  --ns-muted: #55666d;     /* texto de apoio (5,5:1 sobre o fundo) */
+  --ns-bg: #f3f7f6;
+  --ns-line: #dbe5e4;
+  --ns-wash: #e2eff1;      /* fundo suave em azul */
+  --ns-error: #b42318;     /* erros (6,6:1 sobre branco) */
+  min-height: 100vh;
+  background: var(--ns-bg);
+  color: var(--ns-ink);
+}
+.ns-root :focus-visible { outline-color: var(--ns-petrol); }
+.ns-root .ns-on-dark :focus-visible { outline-color: var(--ns-yellow); }
+
+/* Seções de destino das âncoras: compensam o cabeçalho fixo. */
+.ns-root section[id], .ns-root [data-ns-anchor] { scroll-margin-top: 5.5rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ns-root * { transition: none !important; }
+}

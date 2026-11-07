@@ -1,0 +1,722 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------
+   Identidade visual — tokens de cor, tipografia, raios e sombras
+   Altere as cores aqui para mudar o site inteiro.
+   (As demonstrações em /demos usam identidades próprias e só herdam
+   daqui as famílias tipográficas.)
+------------------------------------------------------------------- */
+@theme {
+  /* Marinho — fundos escuros e textos fortes */
+  --color-night: #060e1d;      /* Noite: hero, processo, contato e rodapé */
+  --color-ink: #0d1a30;        /* Marinho: títulos, textos e botões principais */
+  --color-ink-2: #172a4d;      /* superfícies sobre o fundo escuro */
+  --color-ink-3: #24395f;      /* linhas sobre o fundo escuro */
+
+  /* Neutros claros */
+  --color-paper: #f4f6fa;      /* Papel: fundo das seções claras */
+  --color-card: #ffffff;
+  --color-line: #e0e5ee;       /* linhas finas e bordas */
+  --color-slate: #48566f;      /* texto de apoio (7,4:1 sobre branco) */
+  --color-mist: #a9b6cc;       /* texto de apoio sobre a Noite (9,4:1) */
+
+  /* Destaque — usado com parcimônia: moldura de seleção, números, links */
+  --color-tide: #22c3b0;       /* Verde-água sobre fundos escuros */
+  --color-tide-bright: #5fe0cf;/* hover sobre fundos escuros */
+  --color-tide-deep: #0a7568;  /* Verde-água para textos sobre fundo claro (5,6:1) */
+  --color-tide-wash: #e3f6f3;  /* fundo de selos */
+
+  /*
+   * Cores complementares (cada uma com uma função; nunca decorativas soltas)
+   * Gelo: superfícies "técnicas" (vitrine de projetos, telas das ilustrações claras).
+   * Lavanda acinzentada: o lado humano e editorial (seção Sobre, atmosfera do Contato).
+   * Âmbar: sinal de dado em movimento e mudança de estado (pacotes, valores que
+   *   acabaram de mudar, etapa em andamento). Aparece pouco e sempre em algo que se move.
+   */
+  --color-ice: #edf3fa;        /* fundo da vitrine de projetos */
+  --color-ice-2: #d9e5f3;      /* linhas e trilhos sobre o gelo */
+  --color-lavender: #efeef6;   /* fundo da seção Sobre */
+  --color-lavender-2: #dcd9ec; /* linhas e módulos sobre a lavanda */
+  --color-lavender-deep: #5a5687; /* texto sobre lavanda (5,9:1) */
+  --color-lavender-glow: #8f89c7; /* brilho do Contato (só decorativo, baixa opacidade) */
+  --color-amber: #f2a93b;      /* sinal sobre fundos escuros */
+  --color-amber-deep: #8c5a07; /* âmbar para texto sobre claro (5,9:1 sobre branco, 5,3:1 sobre o gelo) */
+
+  --font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  /*
+   * Famílias da MARCA Alto Code (só o portfólio usa; @font-face em
+   * src/styles/fonts.css). As demonstrações continuam com
+   * --font-display/--font-sans/--font-mono, para manter a identidade de cada uma.
+   */
+  --font-title: 'Sora', 'Sora Fallback', ui-sans-serif, system-ui, sans-serif;
+  --font-text: 'Onest', 'Onest Fallback', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-code: 'Azeret Mono', 'Azeret Mono Fallback', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  /* Uma única sombra de apoio + uma de destaque no hover */
+  --shadow-soft: 0 1px 2px rgb(13 26 48 / 0.05), 0 6px 18px -10px rgb(13 26 48 / 0.18);
+  --shadow-lift: 0 2px 4px rgb(13 26 48 / 0.05), 0 18px 36px -18px rgb(13 26 48 / 0.32);
+
+  --animate-rise: rise 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-fade: fade 220ms ease-out both;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display text-balance;
+    font-optical-sizing: auto;
+    letter-spacing: -0.02em; /* (demos dependem destes valores) */
+    line-height: 1.08;
+  }
+  p { text-wrap: pretty; }
+  /* Títulos do portfólio usam a fonte de títulos da marca (as demos ficam fora de .brand) */
+  .brand :is(h1, h2, h3, h4) { font-family: var(--font-title); }
+  ::selection { background: var(--color-tide); color: var(--color-ink); }
+
+  :focus-visible {
+    outline: 2px solid var(--color-tide-deep);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  .on-dark :focus-visible { outline-color: var(--color-tide); }
+  .on-light :focus-visible { outline-color: var(--color-tide-deep); }
+
+  /* Compensa o cabeçalho fixo ao navegar por âncoras */
+  [id] { scroll-margin-top: 5.5rem; }
+}
+
+@layer components {
+  .container-site {
+    @apply mx-auto w-full max-w-[78rem] px-4 sm:px-6 lg:px-10;
+  }
+
+  /* ----------------------------------------------------------------
+     MOLDURA DE SELEÇÃO — assinatura da marca
+     Uma linha fina e quatro alças, como um objeto selecionado em uma
+     ferramenta de design: "enquadrar o problema e ajustar sob medida".
+     Usos previstos: logotipo, palavra-chave do título, capturas dos
+     projetos (visível no hover/foco) e imagem principal dos estudos de caso.
+  ----------------------------------------------------------------- */
+  .frame-sel { position: relative; isolation: isolate; }
+  .frame-sel::before,
+  .frame-sel::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    transition: opacity 200ms ease-out;
+  }
+  .frame-sel::before { inset: 0; border: 1px solid var(--frame-color, var(--color-tide)); z-index: 2; }
+  .frame-sel::after {
+    inset: -3.5px;
+    z-index: 3;
+    --h: var(--frame-color, var(--color-tide));
+    background:
+      linear-gradient(var(--h), var(--h)) top left / 8px 8px no-repeat,
+      linear-gradient(var(--h), var(--h)) top right / 8px 8px no-repeat,
+      linear-gradient(var(--h), var(--h)) bottom left / 8px 8px no-repeat,
+      linear-gradient(var(--h), var(--h)) bottom right / 8px 8px no-repeat;
+  }
+  /* Variante que aparece só ao apontar ou focar (cartões clicáveis) */
+  .frame-sel-hover::before,
+  .frame-sel-hover::after { opacity: 0; }
+  .group:hover .frame-sel-hover::before,
+  .group:hover .frame-sel-hover::after,
+  .group:focus-visible .frame-sel-hover::before,
+  .group:focus-visible .frame-sel-hover::after,
+  .group:focus-within .frame-sel-hover::before,
+  .group:focus-within .frame-sel-hover::after { opacity: 1; }
+
+  /* Palavra destacada dentro de um título (use junto com .frame-sel) */
+  .frame-word {
+    display: inline-block;
+    padding: 0 0.14em 0.04em;
+    /* as alças passam 3,5 px da caixa: as margens afastam a moldura da
+       palavra seguinte e das descendentes da linha de cima (p, g, ç) */
+    margin: 0.16em 0.12em 0.06em 0.06em;
+    line-height: 1;
+  }
+
+  /* Cabeçalho de seção: número + nome em fonte mono, sobre uma linha fina */
+  .section-index {
+    @apply type-label flex items-center gap-3 border-t pt-4;
+  }
+  .section-index > b { font-weight: 600; }
+}
+
+/* ------------------------------------------------------------------
+   ESCALA TIPOGRÁFICA (somente portfólio — as demos têm a sua)
+   Sora (600): títulos — geométrica e limpa; tracking negativo moderado
+   nos corpos grandes e quase neutro nos pequenos.
+   Onest (400/500/600): textos, menus, botões e formulários.
+   Azeret Mono (400/500/600): etiquetas, identificadores e tecnologias.
+   Tamanhos fluidos com clamp(): crescem com a tela sem saltos.
+------------------------------------------------------------------- */
+@utility type-h1 {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: clamp(2.125rem, 1.3rem + 3.5vw, 4.25rem); /* 34 px (390) → 68 px (1440) */
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+@utility type-h2 {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 1.3rem + 1.9vw, 2.875rem); /* 28 → 46 px */
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+@utility type-h3 {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.625rem); /* 20 → 26 px */
+  line-height: 1.22;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+@utility type-h4 {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: 1.125rem; /* 18 px */
+  line-height: 1.32;
+  letter-spacing: -0.01em;
+}
+@utility type-lead {
+  font-family: var(--font-text);
+  font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.21875rem);
+  line-height: 1.58;
+}
+@utility type-body {
+  font-family: var(--font-text);
+  font-size: 1.0625rem;
+  line-height: 1.62;
+}
+@utility type-small {
+  font-family: var(--font-text);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+@utility type-label {
+  font-family: var(--font-code);
+  font-weight: 500;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+@utility type-tag {
+  font-family: var(--font-code);
+  font-weight: 400;
+  font-size: 0.78125rem;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+
+/* Vitrine de projetos: cada cartão usa as cores da identidade da demonstração
+   (--accent e --accent-2, definidas no cartão) em um fundo bem claro. */
+.project-media {
+  --tint: color-mix(in oklab, var(--accent) 13%, #ffffff);
+  --accent-ring: var(--tint);
+  background: var(--tint);
+}
+
+/* ------------------------------------------------------------------
+   ILUSTRAÇÕES DOS SERVIÇOS (ServiceIllustrations.tsx)
+   Movimento demonstrativo: cada uma mostra um tipo de solução.
+------------------------------------------------------------------- */
+.svc-fill-ink { fill: var(--color-ink); }
+.svc-fill-slate { fill: rgb(72 86 111 / 0.45); }
+.svc-fill-tide { fill: var(--color-tide); }
+.svc-fill-ice { fill: var(--color-ice-2); }
+.svc-fill-card { fill: #fff; stroke: var(--color-ice-2); }
+.svc-site-block { animation: svc-site-in 8s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d) infinite both; }
+.svc-site-frame { opacity: 0; stroke-width: 1; animation: svc-site-frame 8s ease-out var(--d) infinite both; }
+.svc-row-in { animation: svc-row-in 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.svc-value-in { animation: svc-value-in 420ms ease-out both; }
+.svc-cell-hit { animation: svc-cell-hit 800ms ease-out both; }
+.svc-total-on { background: rgb(34 195 176 / 0.18); color: var(--color-tide-bright); }
+.svc-auto-box { transition: none; }
+.svc-auto-node .svc-auto-box { animation: svc-auto-box 6s ease-out var(--d) infinite both; }
+.svc-auto-node .svc-auto-dot { transform-box: fill-box; transform-origin: center; animation: svc-auto-dot 6s ease-out var(--d) infinite both; }
+.svc-auto-packet { animation: svc-auto-packet 6s cubic-bezier(0.6, 0, 0.3, 1) infinite both; }
+
+@keyframes svc-site-in {
+  0% { opacity: 0; transform: translate(var(--dx), var(--dy)); }
+  10%, 80% { opacity: 1; transform: none; }
+  92%, 100% { opacity: 0; transform: none; }
+}
+@keyframes svc-site-frame { 0%, 8% { opacity: 0; } 12% { opacity: 1; } 24%, 100% { opacity: 0; } }
+@keyframes svc-row-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@keyframes svc-value-in { from { opacity: 0.25; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes svc-cell-hit { from { background-color: rgb(242 169 59 / 0.35); } to { background-color: var(--color-night); } }
+@keyframes svc-auto-box {
+  0%, 2% { stroke: var(--color-ice-2); }
+  6%, 18% { stroke: var(--color-tide); }
+  26%, 100% { stroke: var(--color-ice-2); }
+}
+@keyframes svc-auto-dot {
+  0%, 2% { fill: var(--color-ink); transform: none; }
+  6%, 18% { fill: var(--color-tide); transform: scale(1.25); }
+  26%, 100% { fill: var(--color-ink); transform: none; }
+}
+@keyframes svc-auto-packet {
+  0% { transform: translateX(0); opacity: 0; }
+  4%, 15% { transform: translateX(0); opacity: 1; }
+  25%, 40% { transform: translateX(80px); }
+  50%, 65% { transform: translateX(160px); }
+  75%, 90% { transform: translateX(240px); opacity: 1; }
+  97%, 100% { transform: translateX(240px); opacity: 0; }
+}
+
+/* ------------------------------------------------------------------
+   PROCESSO: linha entre as etapas, sinal que a percorre e marcadores
+------------------------------------------------------------------- */
+.process-track {
+  top: -1px;
+  height: 3px;
+  overflow: hidden;
+  background: linear-gradient(rgb(255 255 255 / 0.15), rgb(255 255 255 / 0.15)) center / 100% 1px no-repeat;
+}
+.process-runner {
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  will-change: transform;
+  animation: process-run 9.6s linear infinite;
+}
+.process-signal {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 88px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgb(242 169 59 / 0.9));
+}
+.process-marker { animation: process-marker 9.6s ease-out infinite both; }
+@keyframes process-run {
+  0% { transform: translateX(-100%); opacity: 1; }
+  83% { transform: translateX(0); opacity: 1; }
+  90%, 100% { transform: translateX(0); opacity: 0; }
+}
+@keyframes process-marker {
+  0% { transform: none; background: var(--color-tide); }
+  3% { transform: scale(1.7); background: var(--color-amber); }
+  14%, 100% { transform: none; background: var(--color-tide); }
+}
+
+/* ------------------------------------------------------------------
+   SOBRE: mesa de trabalho com módulos independentes (AboutModules.tsx)
+------------------------------------------------------------------- */
+.about-desk { contain: layout; }
+.about-module {
+  border-radius: 10px;
+  background: #fff;
+  padding: 12px 14px;
+  box-shadow: inset 0 0 0 1px var(--color-lavender-2), 0 10px 24px -18px rgb(90 86 135 / 0.45);
+}
+.about-module:nth-child(2) { margin-top: 18px; }
+.about-module:nth-child(3) { margin-top: -8px; }
+.about-label { font-family: var(--font-code); font-size: 0.6875rem; color: var(--color-lavender-deep); letter-spacing: 0.02em; }
+.about-signal {
+  position: absolute;
+  left: 28%;
+  top: 26%;
+  width: 7px;
+  height: 7px;
+  margin: -3px 0 0 -3px;
+  border-radius: 2px;
+  background: var(--color-amber);
+  animation: about-signal 10s linear infinite;
+}
+.about-type-mask {
+  position: absolute;
+  inset: 0 -2px;
+  background: #fff;
+  transform-origin: right;
+  animation: about-type 7s steps(18, end) infinite;
+}
+.about-type::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: 2px;
+  bottom: 2px;
+  width: 1.5px;
+  background: var(--color-tide-deep);
+  animation: about-caret 1s steps(1, end) infinite;
+}
+.about-card { animation: about-card 9s cubic-bezier(0.6, 0, 0.3, 1) infinite both; }
+.about-point { animation: about-point 8s ease-in-out infinite both; }
+.about-switch { animation: about-switch 6s ease-in-out infinite both; }
+.about-knob { animation: about-knob 6s ease-in-out infinite both; }
+.about-done { animation: about-done 6s ease-in-out infinite both; }
+@keyframes about-signal {
+  0% { left: 28%; top: 26%; }
+  25% { left: 72%; top: 26%; }
+  50% { left: 72%; top: 74%; }
+  75% { left: 28%; top: 74%; }
+  100% { left: 28%; top: 26%; }
+}
+@keyframes about-type { 0%, 8% { transform: scaleX(1); } 40%, 88% { transform: scaleX(0); } 96%, 100% { transform: scaleX(1); } }
+@keyframes about-caret { 50% { opacity: 0; } }
+@keyframes about-card {
+  0%, 22% { transform: none; }
+  32%, 55% { transform: translateX(calc(100% + 14px)); }
+  65%, 90% { transform: translateX(calc(200% + 28px)); opacity: 1; }
+  96% { transform: translateX(calc(200% + 28px)); opacity: 0; }
+  97% { transform: none; opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+@keyframes about-point {
+  0% { transform: translate(2px, 34px); }
+  16% { transform: translate(22px, 28px); }
+  33% { transform: translate(42px, 31px); }
+  50% { transform: translate(62px, 18px); }
+  66% { transform: translate(82px, 22px); }
+  83% { transform: translate(102px, 10px); }
+  100% { transform: translate(118px, 14px); }
+}
+@keyframes about-switch { 0%, 30% { background: var(--color-lavender-2); } 38%, 85% { background: var(--color-tide); } 93%, 100% { background: var(--color-lavender-2); } }
+@keyframes about-knob { 0%, 30% { transform: none; } 38%, 85% { transform: translateX(12px); } 93%, 100% { transform: none; } }
+@keyframes about-done { 0%, 42% { opacity: 0; transform: translateY(3px); } 50%, 85% { opacity: 1; transform: none; } 93%, 100% { opacity: 0; } }
+
+/* ------------------------------------------------------------------
+   CONTATO: da necessidade ao orçamento (ContactFlow.tsx), ciclo de 9 s
+------------------------------------------------------------------- */
+.contact-flow { display: flex; align-items: flex-end; gap: 8px; max-width: 30rem; }
+.cf-stage { display: flex; flex-direction: column; gap: 7px; flex: 1 1 0; min-width: 0; }
+.cf-stage--fixed { flex: 0 0 auto; align-items: center; }
+.cf-label { font-family: var(--font-code); font-size: 10px; color: rgb(169 182 204 / 0.85); }
+.cf-bubble, .cf-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  height: 58px;
+  padding: 0 10px;
+  border-radius: 10px;
+}
+.cf-bubble { background: rgb(255 255 255 / 0.05); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1); border-bottom-left-radius: 2px; }
+.cf-card { background: rgb(34 195 176 / 0.07); box-shadow: inset 0 0 0 1px rgb(34 195 176 / 0.28); }
+.cf-line, .cf-field { display: block; height: 4px; border-radius: 2px; transform-origin: left; }
+.cf-line { background: rgb(169 182 204 / 0.55); animation: cf-write 9s ease-out infinite both; }
+.cf-field { width: 62%; background: rgb(34 195 176 / 0.65); animation: cf-fill 9s ease-out infinite both; }
+.cf-field:nth-child(2) { width: 48%; animation-delay: 0.3s; }
+.cf-field--wide { width: 84%; animation-delay: 0.6s; }
+.cf-link { position: relative; flex: 0 1 44px; min-width: 14px; height: 1px; margin-bottom: 29px; background: rgb(255 255 255 / 0.16); }
+.cf-link--short { flex-basis: 28px; }
+.cf-dot {
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--color-amber);
+  opacity: 0;
+  animation: cf-travel-1 9s ease-in-out infinite both;
+}
+.cf-dot--2 { animation-name: cf-travel-2; }
+.cf-dot--3 { animation-name: cf-travel-3; }
+.cf-channel {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  color: rgb(169 182 204 / 0.8);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15);
+}
+.cf-channel--a { animation: cf-channel-a 18s ease-out infinite both; }
+.cf-channel--b { animation: cf-channel-b 18s ease-out infinite both; }
+.cf-check {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--color-tide);
+  box-shadow: inset 0 0 0 1px rgb(34 195 176 / 0.4);
+  animation: cf-check 9s ease-out infinite both;
+}
+@keyframes cf-write { 0% { transform: scaleX(0); opacity: 1; } 10%, 86% { transform: scaleX(1); opacity: 1; } 94%, 100% { transform: scaleX(1); opacity: 0; } }
+@keyframes cf-fill { 0%, 33% { transform: scaleX(0); opacity: 1; } 44%, 86% { transform: scaleX(1); opacity: 1; } 94%, 100% { transform: scaleX(1); opacity: 0; } }
+@keyframes cf-travel-1 { 0%, 18% { left: 0; opacity: 0; } 20% { opacity: 1; } 30% { left: calc(100% - 5px); opacity: 1; } 32%, 100% { left: calc(100% - 5px); opacity: 0; } }
+@keyframes cf-travel-2 { 0%, 48% { left: 0; opacity: 0; } 50% { opacity: 1; } 59% { left: calc(100% - 5px); opacity: 1; } 61%, 100% { left: calc(100% - 5px); opacity: 0; } }
+@keyframes cf-travel-3 { 0%, 66% { left: 0; opacity: 0; } 67% { opacity: 1; } 73% { left: calc(100% - 5px); opacity: 1; } 75%, 100% { left: calc(100% - 5px); opacity: 0; } }
+@keyframes cf-channel-a { 0%, 29%, 41%, 100% { color: rgb(169 182 204 / 0.8); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15); } 31%, 38% { color: var(--color-night); background: var(--color-tide); box-shadow: none; } }
+@keyframes cf-channel-b { 0%, 79%, 91%, 100% { color: rgb(169 182 204 / 0.8); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15); } 81%, 88% { color: var(--color-night); background: var(--color-tide); box-shadow: none; } }
+@keyframes cf-check { 0%, 74% { transform: scale(0.6); opacity: 0; } 79% { transform: scale(1.08); opacity: 1; } 83%, 90% { transform: none; opacity: 1; } 97%, 100% { transform: none; opacity: 0; } }
+
+/* ------------------------------------------------------------------
+   FUNDO ANIMADO (componente AmbientBackground)
+   Só transform e opacity: roda na GPU e não força o navegador a refazer o
+   layout. Cores da paleta, com opacidade baixa.
+------------------------------------------------------------------- */
+.ambient {
+  position: absolute;
+  inset: 0;
+  z-index: -10;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+.ambient-parallax { position: absolute; inset: 0; }
+.ambient-grid-wrap { position: absolute; inset: 0; }
+.ambient-grid {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: calc(100% + 64px);
+  background-image:
+    linear-gradient(rgb(169 182 204 / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(169 182 204 / 0.06) 1px, transparent 1px);
+  background-size: 64px 64px;
+  background-position: 50% 0; /* centralizada: linhas em 50% − 32 px + n × 64 px */
+  will-change: transform;
+  animation: ambient-rise 48s linear infinite;
+}
+/* Grade de trás: células maiores. Ela não anda sozinha (duas camadas de tela
+   inteira em movimento contínuo pesavam em aparelhos sem GPU); a profundidade
+   vem do parallax ao rolar, em que ela se desloca num ritmo diferente. */
+.ambient-grid--far {
+  height: calc(100% + 192px);
+  background-image:
+    linear-gradient(rgb(169 182 204 / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(169 182 204 / 0.035) 1px, transparent 1px);
+  background-size: 192px 192px;
+  background-position: calc(50% - 64px) 32px;
+  animation: none;
+}
+.ambient-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent, var(--color-night) 82%);
+}
+
+/* Pacotes de dados: um traço curto percorre um trecho da grade */
+.ambient-flow {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  overflow: hidden;
+}
+.ambient-flow--h { width: var(--len); height: 1px; margin-top: 0; }
+.ambient-flow--v { width: 1px; height: var(--len); }
+.ambient-flow > i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  --sig: rgb(34 195 176 / 0.9);
+  will-change: transform;
+}
+.ambient-flow.is-amber > i { --sig: rgb(242 169 59 / 0.85); }
+.ambient-flow--h > i {
+  width: 56px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--sig));
+  animation: ambient-flow-x var(--t) cubic-bezier(0.45, 0, 0.25, 1) var(--d) infinite both;
+}
+.ambient-flow--v > i {
+  width: 1px;
+  height: 56px;
+  background: linear-gradient(180deg, transparent, var(--sig));
+  animation: ambient-flow-y var(--t) cubic-bezier(0.45, 0, 0.25, 1) var(--d) infinite both;
+}
+/* Ponto de conexão no fim do trilho: acende quando o pacote chega (45% do ciclo) */
+.ambient-port {
+  position: absolute;
+  left: calc(50% - 32px + var(--c) * 64px - 3px);
+  top: calc(var(--r) * 64px - 3px);
+  width: 7px;
+  height: 7px;
+  border: 1px solid rgb(34 195 176 / 0.55);
+  background: var(--color-night);
+  opacity: 0.35;
+  animation: ambient-port var(--t) ease-out var(--d) infinite both;
+}
+.ambient-port.is-amber { border-color: rgb(242 169 59 / 0.6); }
+/* Pontos soltos nas interseções */
+.ambient-node {
+  position: absolute;
+  left: calc(50% - 32px + var(--c) * 64px - 2px);
+  top: calc(var(--r) * 64px - 2px);
+  width: 5px;
+  height: 5px;
+  background: var(--color-tide);
+  opacity: 0;
+  animation: ambient-pulse 8s ease-in-out var(--d) infinite;
+}
+/* Moldura de seleção da marca, bem apagada, aparecendo e sumindo devagar */
+.ambient-frame {
+  position: absolute;
+  left: calc(50% - 32px + 8 * 64px);
+  top: calc(9 * 64px);
+  width: calc(3 * 64px);
+  height: 64px;
+  border: 1px solid rgb(34 195 176 / 0.45);
+  opacity: 0;
+  animation: ambient-frame 14s ease-in-out 3s infinite;
+}
+.ambient-frame::before {
+  content: '';
+  position: absolute;
+  inset: -3.5px;
+  --h: rgb(34 195 176 / 0.7);
+  background:
+    linear-gradient(var(--h), var(--h)) top left / 6px 6px no-repeat,
+    linear-gradient(var(--h), var(--h)) top right / 6px 6px no-repeat,
+    linear-gradient(var(--h), var(--h)) bottom left / 6px 6px no-repeat,
+    linear-gradient(var(--h), var(--h)) bottom right / 6px 6px no-repeat;
+}
+/* Pacotes, portas, pontos e moldura só em telas largas, onde há área livre */
+@media (max-width: 1199px) {
+  .ambient-flow, .ambient-port, .ambient-node, .ambient-frame { display: none; }
+}
+@media (max-width: 1359px) { .ambient-frame { display: none; } }
+
+/* Brilhos suaves: verde-água atrás da bancada e marinho no canto oposto */
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+}
+.ambient-glow--a {
+  width: min(900px, 150vw);
+  aspect-ratio: 1;
+  right: -18%;
+  top: -30%;
+  background: radial-gradient(closest-side, rgb(34 195 176 / 0.15), rgb(34 195 176 / 0.045) 55%, transparent);
+  animation: ambient-drift-a 22s ease-in-out infinite alternate;
+}
+.ambient-glow--b {
+  width: min(820px, 140vw);
+  aspect-ratio: 1;
+  left: -22%;
+  bottom: -35%;
+  background: radial-gradient(closest-side, rgb(36 57 95 / 0.55), transparent);
+  animation: ambient-drift-b 28s ease-in-out infinite alternate;
+}
+@media (max-width: 767px) {
+  .ambient-glow--a { right: -60%; top: -10%; }
+  .ambient-glow--b { left: -70%; bottom: -20%; }
+}
+
+/* Processo: grade parada e um único brilho lento */
+.ambient--process .ambient-grid { animation: none; opacity: 0.6; }
+.ambient--process .ambient-fade { background: linear-gradient(to bottom, var(--color-night), transparent 30%, transparent 60%, var(--color-night)); }
+.ambient--process .ambient-glow--a {
+  width: min(760px, 140vw);
+  right: -20%;
+  top: -35%;
+  background: radial-gradient(closest-side, rgb(34 195 176 / 0.07), transparent);
+  animation-duration: 34s;
+}
+
+/* Contato: atmosfera própria. Trama de pontos (não grade) e brilho lavanda */
+.ambient-dots {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgb(169 182 204 / 0.12) 1px, transparent 1.5px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 70% 80% at 20% 30%, black, transparent 75%);
+}
+.ambient--contact .ambient-glow--a {
+  width: min(820px, 150vw);
+  left: -25%;
+  right: auto;
+  top: -20%;
+  background: radial-gradient(closest-side, rgb(143 137 199 / 0.16), rgb(143 137 199 / 0.05) 55%, transparent);
+  animation-duration: 30s;
+}
+
+/* Parallax leve: no Hero, o fundo rola um pouco mais devagar que o conteúdo */
+@supports (animation-timeline: scroll()) {
+  .ambient--hero .ambient-parallax {
+    animation: ambient-parallax linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 100vh;
+  }
+  .ambient--hero .ambient-grid--far {
+    animation: ambient-parallax-far linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 100vh;
+  }
+}
+
+@keyframes ambient-rise { to { transform: translate3d(0, -64px, 0); } }
+@keyframes ambient-parallax-far { to { transform: translate3d(0, 14vh, 0); } }
+@keyframes ambient-pulse { 0%, 100% { opacity: 0; } 50% { opacity: 0.55; } }
+@keyframes ambient-frame { 0%, 55%, 100% { opacity: 0; } 20%, 40% { opacity: 0.6; } }
+@keyframes ambient-drift-a { to { transform: translate3d(-8%, 6%, 0) scale(1.08); } }
+@keyframes ambient-drift-b { to { transform: translate3d(10%, -6%, 0) scale(1.05); } }
+@keyframes ambient-parallax { to { transform: translate3d(0, 22vh, 0); } }
+@keyframes ambient-flow-x {
+  0% { transform: translate3d(-56px, 0, 0); opacity: 0; }
+  6% { opacity: 1; }
+  45% { transform: translate3d(var(--len), 0, 0); opacity: 1; }
+  46%, 100% { transform: translate3d(var(--len), 0, 0); opacity: 0; }
+}
+@keyframes ambient-flow-y {
+  0% { transform: translate3d(0, -56px, 0); opacity: 0; }
+  6% { opacity: 1; }
+  45% { transform: translate3d(0, var(--len), 0); opacity: 1; }
+  46%, 100% { transform: translate3d(0, var(--len), 0); opacity: 0; }
+}
+@keyframes ambient-port {
+  0%, 40% { opacity: 0.35; }
+  46% { opacity: 1; }
+  70%, 100% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  /* Com "reduzir movimento", tudo para, a menos que a pessoa tenha escolhido
+     "Retomar animações" no botão do portfólio (html[data-motion="on"]). */
+  :root:not([data-motion='on']) *,
+  :root:not([data-motion='on']) *::before,
+  :root:not([data-motion='on']) *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+  :root:not([data-motion='on']) .motion,
+  :root:not([data-motion='on']) .motion *,
+  :root:not([data-motion='on']) .motion *::before,
+  :root:not([data-motion='on']) .motion *::after { animation: none !important; }
+}
+
+/* Pausa das animações decorativas: botão "Pausar animações" (html[data-motion="paused"])
+   ou área fora da tela / aba em segundo plano ([data-motion-off]) */
+:root[data-motion='paused'] .motion,
+:root[data-motion='paused'] .motion *,
+:root[data-motion='paused'] .motion *::before,
+:root[data-motion='paused'] .motion *::after,
+[data-motion-off],
+[data-motion-off] *,
+[data-motion-off] *::before,
+[data-motion-off] *::after {
+  animation-play-state: paused !important;
+}
