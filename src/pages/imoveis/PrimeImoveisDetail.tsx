@@ -7,20 +7,24 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Bath, BedDouble, Car, Check, ChevronLeft, ChevronRight, Copy, Info, MapPin, Ruler } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import {
-  CITY, INTEREST_LABELS, PURPOSE_LABELS, TYPE_LABELS,
-  consultMessage, formatMoney, formatPrice, getProperty, monthlyTotal, plural, pricePerSquareMeter, properties,
+  CITY, interestLabels,
+  consultMessage, formatMoney, formatPrice, getProperty, monthlyTotal, pricePerSquareMeter, properties,
   type Interest, type Property,
 } from './imoveis-data';
-import { LIST_PATH, rememberLastViewed, savedSearch } from './imoveis-nav';
+import { rememberLastViewed, savedSearch } from './imoveis-nav';
+import { usePi } from './imoveis-i18n';
 import { Scene } from './imoveis-art';
 import { PropertyCard } from './PrimeImoveisList';
 
 export default function PrimeImoveisDetail() {
   const { id } = useParams();
-  const property = getProperty(id);
+  const { t: all, locale, listPath: LIST_PATH, types: TYPE_LABELS, purposes: PURPOSE_LABELS, shown } = usePi();
+  const t = all.detail;
+  const found = getProperty(id);
+  const property = found ? shown(found) : undefined;
   useDocumentTitle(
-    property ? `${property.title} (${property.id}) · Prime Imóveis` : 'Imóvel não encontrado · Prime Imóveis',
-    property ? `${PURPOSE_LABELS[property.purpose]}: ${property.title} em ${property.neighborhood}. Imóvel fictício de demonstração.` : undefined,
+    property ? `${property.title} (${property.id}) · Prime Imóveis` : t.notFoundTitle,
+    property ? t.docDescription(PURPOSE_LABELS[property.purpose], property.title, property.neighborhood) : undefined,
   );
   const back = { pathname: LIST_PATH, search: savedSearch() };
 
@@ -32,12 +36,10 @@ export default function PrimeImoveisDetail() {
   if (!property) {
     return (
       <div className="mx-auto max-w-[76rem] px-4 py-16 sm:px-6 lg:px-8">
-        <h1 className="text-[2rem] font-semibold">Imóvel não encontrado</h1>
-        <p className="mt-3 max-w-lg text-(--pi-muted)">
-          O código {id ? `“${id}”` : 'informado'} não corresponde a nenhum imóvel do catálogo. Confira o endereço ou volte para a lista.
-        </p>
+        <h1 className="text-[2rem] font-semibold">{t.notFound}</h1>
+        <p className="mt-3 max-w-lg text-(--pi-muted)">{t.notFoundText(id)}</p>
         <Link to={back} className="mt-6 inline-flex rounded-full bg-(--pi-green) px-5 py-2.5 font-semibold text-white hover:bg-(--pi-green-2)">
-          Ver imóveis disponíveis
+          {t.available}
         </Link>
       </div>
     );
@@ -56,12 +58,12 @@ export default function PrimeImoveisDetail() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link to={back} className="inline-flex items-center gap-2 rounded font-semibold text-(--pi-green) hover:underline">
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          {back.search ? 'Voltar para os resultados' : 'Ver todos os imóveis'}
+          {back.search ? t.backResults : t.seeAll}
         </Link>
-        <nav aria-label="Caminho do imóvel" className="text-sm text-(--pi-muted)">
+        <nav aria-label={t.path} className="text-sm text-(--pi-muted)">
           <ol className="flex flex-wrap gap-1.5">
             <li>
-              <Link to={LIST_PATH} className="rounded hover:underline">Imóveis</Link>
+              <Link to={LIST_PATH} className="rounded hover:underline">{t.properties}</Link>
             </li>
             <li aria-hidden="true">/</li>
             <li>
@@ -85,7 +87,7 @@ export default function PrimeImoveisDetail() {
                 {PURPOSE_LABELS[p.purpose]}
               </span>
               <span className="text-sm text-(--pi-muted)">
-                {TYPE_LABELS[p.type]} · Código {p.id}
+                {TYPE_LABELS[p.type]} · {t.code} {p.id}
               </span>
             </div>
             <h1 className="mt-3 text-[2rem] font-semibold sm:text-[2.5rem]">{p.title}</h1>
@@ -95,25 +97,25 @@ export default function PrimeImoveisDetail() {
             </p>
             {/* No celular o quadro de valores fica mais abaixo; o preço aparece já aqui. */}
             <p className="mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1 lg:hidden">
-              <span className="font-display text-[1.6rem] font-semibold tabular-nums">{formatPrice(p)}</span>
+              <span className="font-display text-[1.6rem] font-semibold tabular-nums">{formatPrice(p, locale)}</span>
               <a href="#pi-valores" onClick={(e) => { e.preventDefault(); document.getElementById('pi-valores')?.scrollIntoView({ block: 'start' }); }} className="rounded font-semibold text-(--pi-green) underline underline-offset-2">
-                Ver valores e consultar
+                {t.seePrices}
               </a>
             </p>
           </div>
 
-          <h2 className="sr-only">Características principais</h2>
+          <h2 className="sr-only">{t.mainFeatures}</h2>
           <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Attr icon={<BedDouble className="h-5 w-5" />} label="Quartos" value={p.bedrooms ? String(p.bedrooms) : 'Não se aplica'} />
-            <Attr icon={<Bath className="h-5 w-5" />} label="Banheiros" value={String(p.bathrooms)} />
-            <Attr icon={<Car className="h-5 w-5" />} label="Vagas" value={p.parking ? String(p.parking) : 'Nenhuma'} />
-            <Attr icon={<Ruler className="h-5 w-5" />} label="Área útil" value={`${p.area} m²`} />
+            <Attr icon={<BedDouble className="h-5 w-5" />} label={t.bedrooms} value={p.bedrooms ? String(p.bedrooms) : t.notApplicable} />
+            <Attr icon={<Bath className="h-5 w-5" />} label={t.bathrooms} value={String(p.bathrooms)} />
+            <Attr icon={<Car className="h-5 w-5" />} label={t.parking} value={p.parking ? String(p.parking) : t.none} />
+            <Attr icon={<Ruler className="h-5 w-5" />} label={t.area} value={`${p.area} m²`} />
           </dl>
 
-          <h2 className="mt-9 text-[1.4rem] font-semibold">Sobre o imóvel</h2>
+          <h2 className="mt-9 text-[1.4rem] font-semibold">{t.about}</h2>
           <p className="mt-3 max-w-[65ch] text-[1.02rem] leading-relaxed">{p.description}</p>
 
-          <h2 className="mt-8 text-[1.4rem] font-semibold">Diferenciais</h2>
+          <h2 className="mt-8 text-[1.4rem] font-semibold">{t.highlights}</h2>
           <ul className="mt-3 flex flex-wrap gap-2">
             {p.features.map((f) => (
               <li key={f} className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[0.92rem] ring-1 ring-(--pi-line)">
@@ -124,15 +126,15 @@ export default function PrimeImoveisDetail() {
           </ul>
         </div>
 
-        <aside id="pi-valores" aria-label="Valores e consulta" className="lg:self-start">
+        <aside id="pi-valores" aria-label={t.pricesPanel} className="lg:self-start">
           <div className="rounded-2xl bg-white p-5 ring-1 ring-(--pi-line)">
-            <p className="text-sm text-(--pi-muted)">{p.purpose === 'venda' ? 'Valor de venda' : 'Aluguel mensal'}</p>
-            <p className="font-display text-[2rem] font-semibold tabular-nums">{formatPrice(p)}</p>
+            <p className="text-sm text-(--pi-muted)">{p.purpose === 'venda' ? t.salePrice : t.monthlyRent}</p>
+            <p className="font-display text-[2rem] font-semibold tabular-nums">{formatPrice(p, locale)}</p>
             <dl className="mt-4 space-y-2 border-t border-(--pi-line) pt-4 text-[0.95rem]">
-              <Row label="Condomínio" value={p.condo ? `${formatMoney(p.condo)}/mês` : 'Não há'} />
-              <Row label="IPTU" value={`${formatMoney(p.iptu)}/mês`} />
-              {total !== null && <Row label="Total mensal estimado" value={`${formatMoney(total)}/mês`} strong />}
-              {perM2 !== null && <Row label="Valor por m²" value={formatMoney(perM2)} />}
+              <Row label={t.condo} value={p.condo ? `${formatMoney(p.condo, locale)}${t.perMonth}` : t.noCondo} />
+              <Row label={t.iptu} value={`${formatMoney(p.iptu, locale)}${t.perMonth}`} />
+              {total !== null && <Row label={t.monthlyTotal} value={`${formatMoney(total, locale)}${t.perMonth}`} strong />}
+              {perM2 !== null && <Row label={t.perM2} value={formatMoney(perM2, locale)} />}
             </dl>
             <ConsultPanel property={p} />
           </div>
@@ -142,7 +144,7 @@ export default function PrimeImoveisDetail() {
       {similar.length > 0 && (
         <section aria-labelledby="pi-similares" className="mt-14">
           <h2 id="pi-similares" className="text-[1.5rem] font-semibold">
-            Outros imóveis para {p.purpose === 'venda' ? 'comprar' : 'alugar'}
+            {t.similar(p.purpose)}
           </h2>
           <ul className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {similar.map((o) => (
@@ -181,6 +183,7 @@ function Row({ label, value, strong }: { label: string; value: string; strong?: 
 /* ------------------------------------------------------------ galeria */
 
 function Gallery({ property: p }: { property: Property }) {
+  const t = usePi().t.gallery;
   const [index, setIndex] = useState(0);
   const count = p.gallery.length;
   const go = (i: number) => setIndex((i + count) % count);
@@ -197,7 +200,7 @@ function Gallery({ property: p }: { property: Property }) {
   }
 
   return (
-    <section aria-roledescription="galeria" aria-label={`Imagens ilustrativas de ${p.title}`} onKeyDown={onKeyDown}>
+    <section aria-roledescription={t.role} aria-label={t.label(p.title)} onKeyDown={onKeyDown}>
       <figure className="relative overflow-hidden rounded-2xl bg-(--pi-mint)">
         <div className="aspect-[16/10] max-w-full">
           <Scene kind={current.scene} hue={p.hue} className="pi-scene" />
@@ -205,30 +208,30 @@ function Gallery({ property: p }: { property: Property }) {
         <figcaption className="flex flex-wrap items-center justify-between gap-2 bg-white px-4 py-3 text-[0.92rem]" aria-live="polite">
           <span>
             <span className="font-semibold">{current.caption}</span>
-            <span className="text-(--pi-muted)"> · imagem {index + 1} de {count}</span>
+            <span className="text-(--pi-muted)">{t.position(index + 1, count)}</span>
           </span>
           <span className="inline-flex items-center gap-1 text-[0.8rem] text-(--pi-muted)">
             <Info aria-hidden="true" className="h-4 w-4" />
-            Ilustração, não é foto do imóvel
+            {t.illustration}
           </span>
         </figcaption>
         <div className="absolute inset-x-3 top-[calc(50%-1.75rem)] flex justify-between">
-          <GalleryButton label="Imagem anterior" onClick={() => go(index - 1)}>
+          <GalleryButton label={t.previous} onClick={() => go(index - 1)}>
             <ChevronLeft aria-hidden="true" className="h-5 w-5" />
           </GalleryButton>
-          <GalleryButton label="Próxima imagem" onClick={() => go(index + 1)}>
+          <GalleryButton label={t.next} onClick={() => go(index + 1)}>
             <ChevronRight aria-hidden="true" className="h-5 w-5" />
           </GalleryButton>
         </div>
       </figure>
-      <ul className="mt-3 grid grid-cols-4 gap-2" aria-label="Miniaturas">
+      <ul className="mt-3 grid grid-cols-4 gap-2" aria-label={t.thumbs}>
         {p.gallery.map((g, i) => (
           <li key={g.caption + i}>
             <button
               type="button"
               onClick={() => setIndex(i)}
               aria-pressed={i === index}
-              aria-label={`Ver imagem ${i + 1}: ${g.caption}`}
+              aria-label={t.see(i + 1, g.caption)}
               className={`block aspect-[16/10] w-full overflow-hidden rounded-lg ring-2 transition-opacity ${
                 i === index ? 'ring-(--pi-green)' : 'opacity-75 ring-transparent hover:opacity-100'
               }`}
@@ -258,6 +261,9 @@ function GalleryButton({ label, onClick, children }: { label: string; onClick: (
 /* ------------------------------------------------------------ consulta */
 
 function ConsultPanel({ property: p }: { property: Property }) {
+  const { t: all, locale } = usePi();
+  const t = all.consult;
+  const INTEREST_LABELS = interestLabels(locale);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [interest, setInterest] = useState<Interest>('visita');
@@ -265,7 +271,7 @@ function ConsultPanel({ property: p }: { property: Property }) {
   const baseId = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
-  const message = consultMessage(p, name, interest);
+  const message = consultMessage(p, name, interest, locale);
 
   // Novo imóvel: painel fechado e status limpo.
   useEffect(() => {
@@ -280,11 +286,11 @@ function ConsultPanel({ property: p }: { property: Property }) {
   async function copy() {
     try {
       await navigator.clipboard.writeText(message);
-      setStatus('Mensagem copiada. Por ser uma demonstração, nada foi enviado a nenhum corretor.');
+      setStatus(t.copied);
     } catch {
       textRef.current?.focus();
       textRef.current?.select();
-      setStatus('Não foi possível copiar automaticamente. O texto foi selecionado: use Ctrl+C (ou toque e segure) para copiar.');
+      setStatus(t.copyFailed);
     }
   }
 
@@ -297,19 +303,17 @@ function ConsultPanel({ property: p }: { property: Property }) {
         onClick={() => setOpen((v) => !v)}
         className="w-full rounded-full bg-(--pi-green) px-5 py-3 font-semibold text-white hover:bg-(--pi-green-2)"
       >
-        {open ? 'Fechar consulta' : 'Consultar imóvel'}
+        {open ? t.close : t.open}
       </button>
 
       <div id={`${baseId}-painel`} hidden={!open} className="mt-5 border-t border-(--pi-line) pt-5">
         <h2 ref={headingRef} tabIndex={-1} className="font-sans text-base font-semibold tracking-normal outline-none">
-          Mensagem de consulta
+          {t.title}
         </h2>
-        <p className="mt-1 text-[0.88rem] text-(--pi-muted)">
-          Demonstração: a Prime Imóveis é fictícia. O texto abaixo é só um exemplo para copiar e não é enviado a ninguém.
-        </p>
+        <p className="mt-1 text-[0.88rem] text-(--pi-muted)">{t.note}</p>
 
         <label htmlFor={`${baseId}-nome`} className="mt-4 block text-[0.92rem] font-medium">
-          Seu nome <span className="font-normal text-(--pi-muted)">(opcional)</span>
+          {t.name} <span className="font-normal text-(--pi-muted)">{t.optional}</span>
         </label>
         <input
           id={`${baseId}-nome`}
@@ -321,7 +325,7 @@ function ConsultPanel({ property: p }: { property: Property }) {
         />
 
         <fieldset className="mt-4">
-          <legend className="text-[0.92rem] font-medium">Você quer</legend>
+          <legend className="text-[0.92rem] font-medium">{t.want}</legend>
           <div className="mt-1.5 space-y-1.5">
             {(Object.keys(INTEREST_LABELS) as Interest[]).map((key) => (
               <label key={key} className="flex cursor-pointer items-center gap-2 text-[0.95rem]">
@@ -340,7 +344,7 @@ function ConsultPanel({ property: p }: { property: Property }) {
         </fieldset>
 
         <label htmlFor={`${baseId}-texto`} className="mt-4 block text-[0.92rem] font-medium">
-          Texto gerado
+          {t.generated}
         </label>
         <textarea
           id={`${baseId}-texto`}
@@ -356,16 +360,16 @@ function ConsultPanel({ property: p }: { property: Property }) {
           className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-2.5 font-semibold text-(--pi-green) ring-1 ring-(--pi-green) hover:bg-(--pi-mint)"
         >
           <Copy aria-hidden="true" className="h-4 w-4" />
-          Copiar mensagem
+          {t.copy}
         </button>
         <p role="status" aria-live="polite" className="mt-3 min-h-[1.25rem] text-[0.88rem] font-medium text-(--pi-green)">
           {status}
         </p>
         <p className="text-[0.8rem] text-(--pi-muted)">
-          Em um site real, este botão poderia abrir o WhatsApp ou o e-mail do corretor com a mensagem pronta.
+          {t.real}
         </p>
       </div>
-      <p className="mt-3 text-center text-[0.8rem] text-(--pi-muted)">{plural(p.gallery.length, 'imagem ilustrativa', 'imagens ilustrativas')} · dados fictícios</p>
+      <p className="mt-3 text-center text-[0.8rem] text-(--pi-muted)">{t.images(p.gallery.length)}</p>
     </div>
   );
 }

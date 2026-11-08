@@ -8,18 +8,21 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Car, MapPin, Search, SlidersHorizontal, X } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import {
-  BEDROOM_OPTIONS, CITY, EMPTY_FILTERS, NEIGHBORHOODS, PRICE_RANGES, PURPOSE_LABELS, TYPES, TYPE_LABELS,
+  BEDROOM_OPTIONS, CITY, EMPTY_FILTERS, NEIGHBORHOODS, PRICE_RANGES, TYPES,
   activeFilterCount, filterProperties, filtersFromParams, filtersToParams, findRange, formatPrice, plural,
-  properties, summary, type Filters, type Property, type Purpose,
+  properties, rangeLabel, summary, type Filters, type Property, type Purpose,
 } from './imoveis-data';
 import { rememberLastViewed, rememberSearch, takeLastViewed } from './imoveis-nav';
 import { Scene } from './imoveis-art';
+import { usePi } from './imoveis-i18n';
 
 export default function PrimeImoveisList() {
-  useDocumentTitle('Prime Imóveis: imóveis à venda e para alugar', `Catálogo demonstrativo com 12 imóveis fictícios em ${CITY}: busca, filtros e páginas de detalhes.`);
+  const { t: all, locale, types: TYPE_LABELS, purposes: PURPOSE_LABELS } = usePi();
+  const t = all.list;
+  useDocumentTitle(t.docTitle, t.docDescription(CITY));
   const [params, setParams] = useSearchParams();
   const filters = useMemo(() => filtersFromParams(params), [params]);
-  const results = useMemo(() => filterProperties(properties, filters), [filters]);
+  const results = useMemo(() => filterProperties(properties, filters, locale), [filters, locale]);
   const activeCount = activeFilterCount(filters);
   const [panelOpen, setPanelOpen] = useState(false);
   const listRef = useRef<HTMLUListElement>(null);
@@ -51,30 +54,30 @@ export default function PrimeImoveisList() {
   const clearAll = () => setParams(filtersToParams(EMPTY_FILTERS));
 
   const chips: { label: string; clear: Partial<Filters> }[] = [];
-  if (filters.q.trim()) chips.push({ label: `Busca: “${filters.q.trim()}”`, clear: { q: '' } });
+  if (filters.q.trim()) chips.push({ label: t.chipSearch(filters.q.trim()), clear: { q: '' } });
   if (filters.purpose) chips.push({ label: PURPOSE_LABELS[filters.purpose], clear: { purpose: '' } });
   if (filters.type) chips.push({ label: TYPE_LABELS[filters.type], clear: { type: '' } });
   if (filters.neighborhood) chips.push({ label: filters.neighborhood, clear: { neighborhood: '' } });
   const range = findRange(filters.purpose, filters.price);
-  if (range) chips.push({ label: range.label, clear: { price: '' } });
-  if (filters.bedrooms) chips.push({ label: `${filters.bedrooms}+ quartos`, clear: { bedrooms: 0 } });
+  if (range && filters.purpose) chips.push({ label: rangeLabel(range, filters.purpose, locale), clear: { price: '' } });
+  if (filters.bedrooms) chips.push({ label: t.chipBedrooms(filters.bedrooms), clear: { bedrooms: 0 } });
 
   return (
     <>
       <section aria-labelledby="pi-busca-titulo" className="pi-on-green bg-(--pi-green) pb-10 text-white">
         <div className="mx-auto max-w-[76rem] px-4 pt-6 sm:px-6 lg:px-8">
           <h1 id="pi-busca-titulo" className="max-w-[22ch] text-[2.1rem] font-semibold sm:text-[2.8rem]">
-            Encontre seu próximo endereço em {CITY}
+            {t.title(CITY)}
           </h1>
           <p className="mt-3 max-w-xl text-white/80">
-            {properties.length} imóveis selecionados para compra e aluguel, com imagens ilustrativas, valores e características.
+            {t.intro(properties.length)}
           </p>
 
           <form role="search" className="mt-7 flex flex-col gap-3 md:flex-row md:items-end" onSubmit={(e) => e.preventDefault()}>
             <fieldset className="shrink-0">
-              <legend className="mb-2 text-sm font-medium text-white/85">Finalidade</legend>
+              <legend className="mb-2 text-sm font-medium text-white/85">{t.purpose}</legend>
               <div className="inline-flex rounded-full bg-white/10 p-1">
-                {([['', 'Todos'], ['venda', 'Comprar'], ['aluguel', 'Alugar']] as const).map(([value, label]) => (
+                {([['', t.all], ['venda', t.buy], ['aluguel', t.rent]] as const).map(([value, label]) => (
                   <button
                     key={label}
                     type="button"
@@ -93,7 +96,7 @@ export default function PrimeImoveisList() {
             </fieldset>
             <div className="min-w-0 flex-1">
               <label htmlFor="pi-q" className="mb-2 block text-sm font-medium text-white/85">
-                Buscar por nome, bairro ou característica
+                {t.searchLabel}
               </label>
               <div className="flex items-center gap-2 rounded-xl bg-white px-3 text-(--pi-ink) focus-within:ring-2 focus-within:ring-(--pi-gold)">
                 <Search aria-hidden="true" className="h-5 w-5 shrink-0 text-(--pi-muted)" />
@@ -102,7 +105,7 @@ export default function PrimeImoveisList() {
                   type="search"
                   value={filters.q}
                   onChange={(e) => update({ q: e.target.value }, { replace: true })}
-                  placeholder="Ex.: piscina, Centro, varanda"
+                  placeholder={t.searchPlaceholder}
                   autoComplete="off"
                   className="h-12 w-full min-w-0 bg-transparent text-base outline-none placeholder:text-(--pi-muted)"
                 />
@@ -113,7 +116,7 @@ export default function PrimeImoveisList() {
       </section>
 
       <div className="mx-auto grid max-w-[76rem] gap-8 px-4 pt-8 sm:px-6 lg:grid-cols-[17rem_1fr] lg:px-8 [&>*]:min-w-0">
-        <aside aria-label="Filtros">
+        <aside aria-label={t.filters}>
           <button
             type="button"
             className="flex w-full items-center justify-between rounded-xl bg-white px-4 py-3 font-semibold ring-1 ring-(--pi-line) lg:hidden"
@@ -123,23 +126,23 @@ export default function PrimeImoveisList() {
           >
             <span className="flex items-center gap-2">
               <SlidersHorizontal aria-hidden="true" className="h-5 w-5" />
-              Filtros{activeCount ? ` (${activeCount})` : ''}
+              {t.filters}{activeCount ? ` (${activeCount})` : ''}
             </span>
-            <span className="text-sm font-medium text-(--pi-muted)">{panelOpen ? 'Fechar' : 'Abrir'}</span>
+            <span className="text-sm font-medium text-(--pi-muted)">{panelOpen ? t.close : t.open}</span>
           </button>
 
           <div id="pi-filtros" className={`${panelOpen ? 'mt-3 block' : 'hidden'} space-y-5 rounded-2xl bg-white p-5 ring-1 ring-(--pi-line) lg:sticky lg:top-4 lg:mt-0 lg:block`}>
-            <h2 className="hidden font-sans text-base font-semibold tracking-normal lg:block">Filtros</h2>
-            <Select label="Tipo de imóvel" id="pi-tipo" value={filters.type} onChange={(v) => update({ type: v as Filters['type'] })}>
-              <option value="">Todos os tipos</option>
+            <h2 className="hidden font-sans text-base font-semibold tracking-normal lg:block">{t.filters}</h2>
+            <Select label={t.type} id="pi-tipo" value={filters.type} onChange={(v) => update({ type: v as Filters['type'] })}>
+              <option value="">{t.allTypes}</option>
               {TYPES.map((t) => (
                 <option key={t} value={t}>
                   {TYPE_LABELS[t]}
                 </option>
               ))}
             </Select>
-            <Select label="Bairro" id="pi-bairro" value={filters.neighborhood} onChange={(v) => update({ neighborhood: v })}>
-              <option value="">Todos os bairros</option>
+            <Select label={t.neighborhood} id="pi-bairro" value={filters.neighborhood} onChange={(v) => update({ neighborhood: v })}>
+              <option value="">{t.allNeighborhoods}</option>
               {NEIGHBORHOODS.map((n) => (
                 <option key={n} value={n}>
                   {n}
@@ -148,31 +151,27 @@ export default function PrimeImoveisList() {
             </Select>
             <div>
               <Select
-                label="Faixa de preço"
+                label={t.price}
                 id="pi-preco"
                 value={filters.price}
                 disabled={!filters.purpose}
                 describedBy="pi-preco-dica"
                 onChange={(v) => update({ price: v })}
               >
-                <option value="">{filters.purpose ? 'Qualquer valor' : 'Escolha a finalidade'}</option>
+                <option value="">{filters.purpose ? t.anyPrice : t.pickPurpose}</option>
                 {filters.purpose &&
                   PRICE_RANGES[filters.purpose].map((r) => (
                     <option key={r.value} value={r.value}>
-                      {r.label}
+                      {rangeLabel(r, filters.purpose as Purpose, locale)}
                     </option>
                   ))}
               </Select>
               <p id="pi-preco-dica" className="mt-1.5 text-[0.82rem] text-(--pi-muted)">
-                {filters.purpose === 'aluguel'
-                  ? 'Valores mensais de aluguel, sem condomínio e IPTU.'
-                  : filters.purpose === 'venda'
-                    ? 'Valores de venda do imóvel.'
-                    : 'Venda e aluguel têm faixas diferentes. Escolha Comprar ou Alugar para filtrar por preço.'}
+                {filters.purpose === 'aluguel' ? t.priceRent : filters.purpose === 'venda' ? t.priceSale : t.priceNone}
               </p>
             </div>
             <fieldset>
-              <legend className="mb-2 text-[0.92rem] font-medium">Quartos</legend>
+              <legend className="mb-2 text-[0.92rem] font-medium">{t.bedrooms}</legend>
               <div className="flex flex-wrap gap-1.5">
                 {[0, ...BEDROOM_OPTIONS].map((n) => (
                   <label key={n} className="cursor-pointer">
@@ -185,7 +184,7 @@ export default function PrimeImoveisList() {
                       className="peer sr-only"
                     />
                     <span className="block rounded-full px-3 py-1.5 text-sm ring-1 ring-(--pi-line) peer-checked:bg-(--pi-green) peer-checked:text-white peer-checked:ring-(--pi-green) peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-(--pi-gold-text)">
-                      {n ? `${n}+` : 'Qualquer'}
+                      {n ? `${n}+` : t.any}
                     </span>
                   </label>
                 ))}
@@ -197,7 +196,7 @@ export default function PrimeImoveisList() {
               disabled={!activeCount}
               className="w-full rounded-full px-4 py-2.5 text-sm font-semibold text-(--pi-green) ring-1 ring-(--pi-green)/40 hover:bg-(--pi-mint) disabled:cursor-not-allowed disabled:opacity-45"
             >
-              Limpar filtros
+              {t.clear}
             </button>
           </div>
         </aside>
@@ -205,13 +204,13 @@ export default function PrimeImoveisList() {
         <section aria-labelledby="pi-resultados-titulo">
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <h2 id="pi-resultados-titulo" className="text-[1.5rem] font-semibold" aria-live="polite">
-              {results.length ? `${plural(results.length, 'imóvel encontrado', 'imóveis encontrados')}` : 'Nenhum imóvel encontrado'}
+              {results.length ? t.found(results.length) : t.none}
             </h2>
-            <p className="text-sm text-(--pi-muted)">de {properties.length} no catálogo</p>
+            <p className="text-sm text-(--pi-muted)">{t.ofCatalog(properties.length)}</p>
           </div>
 
           {chips.length > 0 && (
-            <ul className="mt-3 flex flex-wrap gap-2" aria-label="Filtros ativos">
+            <ul className="mt-3 flex flex-wrap gap-2" aria-label={t.active}>
               {chips.map((chip) => (
                 <li key={chip.label}>
                   <button
@@ -221,7 +220,7 @@ export default function PrimeImoveisList() {
                   >
                     {chip.label}
                     <X aria-hidden="true" className="h-4 w-4 text-(--pi-muted)" />
-                    <span className="sr-only">(remover filtro)</span>
+                    <span className="sr-only">{t.removeFilter}</span>
                   </button>
                 </li>
               ))}
@@ -238,16 +237,14 @@ export default function PrimeImoveisList() {
             </ul>
           ) : (
             <div className="mt-6 rounded-2xl bg-white p-8 text-center ring-1 ring-(--pi-line)">
-              <p className="text-lg font-semibold">Nenhum imóvel corresponde a esta busca.</p>
-              <p className="mx-auto mt-2 max-w-md text-(--pi-muted)">
-                Tente remover um dos filtros acima ou buscar por outra característica, como “varanda” ou “quintal”.
-              </p>
+              <p className="text-lg font-semibold">{t.emptyTitle}</p>
+              <p className="mx-auto mt-2 max-w-md text-(--pi-muted)">{t.emptyText}</p>
               <button
                 type="button"
                 onClick={clearAll}
                 className="mt-5 rounded-full bg-(--pi-green) px-5 py-2.5 font-semibold text-white hover:bg-(--pi-green-2)"
               >
-                Limpar filtros e ver todos
+                {t.clearAll}
               </button>
             </div>
           )}
@@ -281,8 +278,10 @@ function Select({
   );
 }
 
-export function PropertyCard({ property: p, headingLevel = 3 }: { property: Property; headingLevel?: 2 | 3 }) {
+export function PropertyCard({ property, headingLevel = 3 }: { property: Property; headingLevel?: 2 | 3 }) {
   const Heading = headingLevel === 2 ? 'h2' : 'h3';
+  const { t, locale, listPath, types: TYPE_LABELS, purposes: PURPOSE_LABELS, shown } = usePi();
+  const p = shown(property);
   return (
     <article className="pi-card group flex h-full flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-(--pi-line) transition-shadow hover:shadow-[0_14px_34px_-18px_rgba(27,36,32,0.45)]">
       <div className="relative aspect-[16/10] overflow-hidden bg-(--pi-mint)">
@@ -296,9 +295,9 @@ export function PropertyCard({ property: p, headingLevel = 3 }: { property: Prop
         </span>
       </div>
       <div className="flex flex-1 flex-col p-4">
-        <p className="font-display text-[1.35rem] font-semibold tabular-nums">{formatPrice(p)}</p>
+        <p className="font-display text-[1.35rem] font-semibold tabular-nums">{formatPrice(p, locale)}</p>
         <Heading className="mt-1 font-sans text-[1.02rem] leading-snug font-semibold tracking-normal">
-          <Link to={`/demos/imoveis/${p.id}`} className="pi-card-link" data-property={p.id} onClick={() => rememberLastViewed(p.id)}>
+          <Link to={`${listPath}/${p.id}`} className="pi-card-link" data-property={p.id} onClick={() => rememberLastViewed(p.id)}>
             {p.title}
           </Link>
         </Heading>
@@ -308,13 +307,15 @@ export function PropertyCard({ property: p, headingLevel = 3 }: { property: Prop
         </p>
         <div className="mt-auto pt-3">
           <p className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-(--pi-line) pt-3 text-[0.88rem] text-(--pi-ink)">
-            <span>{summary(p)}</span>
+            <span>{summary(p, locale)}</span>
             <span className="inline-flex items-center gap-1">
               <Car aria-hidden="true" className="h-4 w-4 text-(--pi-muted)" />
-              {p.parking ? plural(p.parking, 'vaga', 'vagas') : 'Sem vaga'}
+              {p.parking ? plural(p.parking, t.card.parking[0], t.card.parking[1]) : t.card.noParking}
             </span>
           </p>
-          <p className="mt-2 text-[0.78rem] text-(--pi-muted)">Código {p.id}</p>
+          <p className="mt-2 text-[0.78rem] text-(--pi-muted)">
+            {t.card.code} {p.id}
+          </p>
         </div>
       </div>
     </article>

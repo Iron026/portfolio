@@ -44,6 +44,73 @@ export const TYPE_LABELS: Record<PropertyType, string> = {
 
 export const PURPOSE_LABELS: Record<Purpose, string> = { venda: 'Venda', aluguel: 'Aluguel' };
 
+/* ------------------------------------------------------------ inglês
+ * Textos de exibição em inglês. Códigos, finalidades, tipos, bairros e
+ * parâmetros da URL são identificadores e não mudam. Bairros e a cidade
+ * (Nova Aurora) são nomes próprios fictícios e ficam iguais.
+ */
+export type PiLocale = 'pt' | 'en';
+
+const TYPE_LABELS_EN: Record<PropertyType, string> = {
+  apartamento: 'Apartment',
+  casa: 'House',
+  sobrado: 'Townhouse',
+  cobertura: 'Penthouse',
+  studio: 'Studio',
+  comercial: 'Commercial unit',
+};
+const PURPOSE_LABELS_EN: Record<Purpose, string> = { venda: 'For sale', aluguel: 'For rent' };
+
+const FEATURE_EN: Record<string, string> = {
+  '3 suítes': '3 en-suite bedrooms', Academia: 'Gym', 'Aceita pets': 'Pets allowed', Acessibilidade: 'Accessible', 'Ar-condicionado': 'Air conditioning',
+  Churrasqueira: 'Barbecue grill', 'Condomínio fechado': 'Gated community', Edícula: 'Guest house', Elevador: 'Elevator', Escritório: 'Home office',
+  Mobiliado: 'Furnished', Piscina: 'Pool', 'Portaria 24h': '24-hour doorman', Quintal: 'Backyard', Suíte: 'En-suite bedroom', Terraço: 'Terrace',
+  Varanda: 'Balcony', Vitrine: 'Shop window',
+};
+
+const CAPTION_EN: Record<string, string> = {
+  'Ambiente integrado': 'Open-plan space', Banheiro: 'Bathroom', 'Banheiro acessível': 'Accessible bathroom', Copa: 'Kitchenette', Cozinha: 'Kitchen',
+  'Cozinha aberta': 'Open kitchen', 'Cozinha americana': 'Open-plan kitchen', 'Cozinha equipada': 'Equipped kitchen', Fachada: 'Front view',
+  'Fachada com vitrine': 'Front with shop window', 'Fachada do condomínio': 'Community entrance', 'Fachada do edifício': 'Building front',
+  'Fachada do prédio': 'Building front', 'Living com pé-direito duplo': 'Double-height living room', Piscina: 'Pool', 'Piscina do condomínio': 'Community pool',
+  Quarto: 'Bedroom', 'Quarto principal': 'Main bedroom', Quintal: 'Backyard', 'Quintal com churrasqueira': 'Backyard with barbecue grill',
+  'Quintal e edícula': 'Backyard and guest house', Sala: 'Living room', 'Sala com acesso à varanda': 'Living room opening to the balcony',
+  'Sala de estar': 'Living room', 'Sala de estar integrada': 'Open-plan living room', 'Sala e varanda gourmet': 'Living room and covered balcony',
+  'Salão principal': 'Main hall', Suíte: 'En-suite bedroom', 'Suíte com varanda': 'En-suite bedroom with balcony', 'Suíte principal': 'Main en-suite bedroom',
+  'Terraço com piscina': 'Terrace with pool',
+};
+
+const PROPERTY_EN: Record<string, { title: string; description: string }> = {
+  'PI-101': { title: 'House with backyard', description: 'Single-story house on a quiet street, with a large living room open to the kitchen, an en-suite bedroom with wardrobes and a lawn backyard with a barbecue grill. Covered parking for two cars and a separate laundry area.' },
+  'PI-102': { title: '2-bedroom apartment', description: 'Sixth-floor apartment a short walk from the shops downtown. Two bedrooms, a balcony overlooking the square and a kitchen with built-in cabinets. Building with an elevator and a 24-hour doorman.' },
+  'PI-103': { title: 'New townhouse', description: 'Newly built townhouse with three en-suite bedrooms upstairs, a powder room and a double-height living room. Covered balcony with a barbecue grill and parking for two cars.' },
+  'PI-104': { title: 'Apartment with covered balcony', description: 'Two-bedroom apartment, one en-suite, with a glassed-in covered balcony and a view of the valley. Building with a gym, party room and elevator.' },
+  'PI-105': { title: 'House with guest house', description: 'Three-bedroom house with a separate guest house at the back, ideal as an office or for visitors. Backyard with fruit trees and parking for two cars. Pets allowed.' },
+  'PI-106': { title: 'Duplex penthouse with pool', description: 'Duplex penthouse with four bedrooms, two en-suite, and a terrace with a private pool and outdoor kitchen. Three parking spaces and an open view of the park.' },
+  'PI-107': { title: 'Furnished studio', description: 'Compact furnished studio with a bed, wardrobes, an equipped kitchen and a study area. New building with a 24-hour doorman and shared laundry room.' },
+  'PI-108': { title: 'Compact apartment to invest in', description: 'Well-located one-bedroom apartment, close to the university and shops. A good option to live alone or to rent out.' },
+  'PI-109': { title: '3-bedroom apartment with full amenities', description: 'Spacious apartment with three bedrooms, one en-suite, and two parking spaces. Resort-style building with a pool, gym, playground and sports court. Pets allowed.' },
+  'PI-110': { title: 'House in a gated community', description: 'Four-bedroom house in a gated community with a 24-hour doorman. Home office on the ground floor, a pool in the backyard and parking for three cars.' },
+  'PI-111': { title: 'Ground-floor commercial unit', description: 'Ground-floor commercial unit with a street-facing shop window, accessible flooring, a bathroom and a kitchenette. Suitable for a clinic, office or small shop.' },
+  'PI-112': { title: 'Townhouse with home office', description: 'Townhouse with three bedrooms, one en-suite with a balcony, and a home office with its own entrance. Backyard at the back and parking for two cars.' },
+};
+
+export const typeLabels = (locale: PiLocale = 'pt') => (locale === 'en' ? TYPE_LABELS_EN : TYPE_LABELS);
+export const purposeLabels = (locale: PiLocale = 'pt') => (locale === 'en' ? PURPOSE_LABELS_EN : PURPOSE_LABELS);
+
+/** Imóvel com os textos do idioma pedido (código, preços e regras não mudam). */
+export function localizeProperty(p: Property, locale: PiLocale = 'pt'): Property {
+  if (locale === 'pt') return p;
+  const t = PROPERTY_EN[p.id];
+  return {
+    ...p,
+    title: t?.title ?? p.title,
+    description: t?.description ?? p.description,
+    features: p.features.map((f) => FEATURE_EN[f] ?? f),
+    gallery: p.gallery.map((g) => ({ ...g, caption: CAPTION_EN[g.caption] ?? g.caption })),
+  };
+}
+
 export const properties: Property[] = [
   {
     id: 'PI-101', title: 'Casa com quintal', purpose: 'venda', type: 'casa', neighborhood: 'Jardim das Flores',
@@ -248,27 +315,28 @@ export const BEDROOM_OPTIONS = [1, 2, 3, 4];
 const normalize = (value: string) =>
   value.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
 
-/** Texto pesquisável: nome, código, tipo, bairro, cidade e características. */
-function haystack(p: Property) {
-  return normalize([p.title, p.id, TYPE_LABELS[p.type], p.neighborhood, CITY, ...p.features].join(' '));
+/** Texto pesquisável no idioma exibido: nome, código, tipo, bairro, cidade e características. */
+function haystack(p: Property, locale: PiLocale) {
+  const shown = localizeProperty(p, locale);
+  return normalize([shown.title, p.id, typeLabels(locale)[p.type], p.neighborhood, CITY, ...shown.features].join(' '));
 }
 
 /**
  * Cada palavra da busca precisa aparecer no imóvel (busca "E"),
  * então "casa piscina" encontra apenas casas com piscina.
  */
-export function matchesSearch(p: Property, q: string) {
+export function matchesSearch(p: Property, q: string, locale: PiLocale = 'pt') {
   const words = normalize(q).split(' ').filter(Boolean);
   if (!words.length) return true;
-  const text = haystack(p);
+  const text = haystack(p, locale);
   return words.every((w) => text.includes(w));
 }
 
-export function filterProperties(list: Property[], f: Filters): Property[] {
+export function filterProperties(list: Property[], f: Filters, locale: PiLocale = 'pt'): Property[] {
   const range = findRange(f.purpose, f.price);
   return list.filter(
     (p) =>
-      matchesSearch(p, f.q) &&
+      matchesSearch(p, f.q, locale) &&
       (!f.purpose || p.purpose === f.purpose) &&
       (!f.type || p.type === f.type) &&
       (!f.neighborhood || p.neighborhood === f.neighborhood) &&
@@ -319,26 +387,41 @@ export function filtersToParams(f: Filters): URLSearchParams {
 
 /* ------------------------------------------------------------ formatação */
 
+/** Valores sempre em reais (imobiliária fictícia brasileira); o formato acompanha o idioma. */
 const brl0 = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+const brl0En = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
 
-export function formatPrice(p: Pick<Property, 'price' | 'purpose'>) {
-  return p.purpose === 'aluguel' ? `${brl0.format(p.price)}/mês` : brl0.format(p.price);
+export function formatPrice(p: Pick<Property, 'price' | 'purpose'>, locale: PiLocale = 'pt') {
+  const f = locale === 'en' ? brl0En : brl0;
+  return p.purpose === 'aluguel' ? `${f.format(p.price)}/${locale === 'en' ? 'month' : 'mês'}` : f.format(p.price);
 }
 
-export const formatMoney = (value: number) => brl0.format(value);
+export const formatMoney = (value: number, locale: PiLocale = 'pt') => (locale === 'en' ? brl0En : brl0).format(value);
 
 export function plural(n: number, one: string, many: string) {
   return `${n} ${n === 1 ? one : many}`;
 }
 
+const UNITS = {
+  pt: { bed: ['quarto', 'quartos'], bath: ['banheiro', 'banheiros'] },
+  en: { bed: ['bedroom', 'bedrooms'], bath: ['bathroom', 'bathrooms'] },
+} as const;
+
 /** Resumo curto: "3 quartos · 2 banheiros · 160 m²" */
-export function summary(p: Property) {
-  const parts = [
-    p.bedrooms ? plural(p.bedrooms, 'quarto', 'quartos') : null,
-    plural(p.bathrooms, 'banheiro', 'banheiros'),
-    `${p.area} m²`,
-  ];
+export function summary(p: Property, locale: PiLocale = 'pt') {
+  const u = UNITS[locale];
+  const parts = [p.bedrooms ? plural(p.bedrooms, u.bed[0], u.bed[1]) : null, plural(p.bathrooms, u.bath[0], u.bath[1]), `${p.area} m²`];
   return parts.filter(Boolean).join(' · ');
+}
+
+/** Rótulo de uma faixa de preço no idioma pedido (os valores das faixas não mudam). */
+export function rangeLabel(r: PriceRange, purpose: Purpose, locale: PiLocale = 'pt') {
+  if (locale === 'pt') return r.label;
+  const k = (v: number) => (v >= 1_000_000 ? `R$${v / 1_000_000} million` : v >= 1000 && purpose === 'venda' ? `R$${v / 1000}k` : `R$${v.toLocaleString('en-US')}`);
+  const per = purpose === 'aluguel' ? '/month' : '';
+  if (r.min === 0) return `Up to ${k(r.max)}${per}`;
+  if (r.max === Infinity) return `Over ${k(r.min)}${per}`;
+  return `${k(r.min)} to ${k(r.max)}${per}`;
 }
 
 /** Valor do m² (somente venda), arredondado. */
@@ -359,9 +442,25 @@ export const INTEREST_LABELS: Record<Interest, string> = {
   informacoes: 'Receber mais informações',
   proposta: 'Fazer uma proposta',
 };
+export const interestLabels = (locale: PiLocale = 'pt'): Record<Interest, string> =>
+  locale === 'en' ? { visita: 'Schedule a visit', informacoes: 'Get more information', proposta: 'Make an offer' } : INTEREST_LABELS;
 
 /** Mensagem de exemplo que o visitante pode copiar. Não é enviada a ninguém. */
-export function consultMessage(p: Property, name: string, interest: Interest) {
+export function consultMessage(p: Property, name: string, interest: Interest, locale: PiLocale = 'pt') {
+  const shown = localizeProperty(p, locale);
+  if (locale === 'en') {
+    const wish: Record<Interest, string> = {
+      visita: 'I would like to schedule a visit.',
+      informacoes: 'I would like more information.',
+      proposta: 'I would like to discuss an offer.',
+    };
+    return [
+      name.trim() ? `Hello! My name is ${name.trim()}.` : 'Hello!',
+      `I am interested in property ${p.id}: ${shown.title}, in ${p.neighborhood} (${CITY}).`,
+      `${purposeLabels('en')[p.purpose]} at ${formatPrice(p, 'en')}. ${summary(p, 'en')}.`,
+      wish[interest],
+    ].join('\n');
+  }
   const greeting = name.trim() ? `Olá! Meu nome é ${name.trim()}.` : 'Olá!';
   const wish: Record<Interest, string> = {
     visita: 'Gostaria de agendar uma visita.',

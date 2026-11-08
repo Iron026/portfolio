@@ -20,10 +20,11 @@ export default function NotFound() {
   return (
     <section className="tone-light on-light flex min-h-[70vh] items-center pt-32 pb-20">
       <div className="container-site">
-        <p className="type-label text-accent">{t.label}</p>
-        <h1 className="type-h1 mt-4 text-fg">
-          <span className="frame-sel frame-word">404</span> {t.heading}
-        </h1>
+        <p aria-hidden="true" className="case-title text-accent">
+          <span className="frame-sel frame-word">404</span>
+        </p>
+        <p className="type-label mt-6 text-accent">{t.label}</p>
+        <h1 className="type-h1 mt-4 text-fg">{t.heading}</h1>
         <p className="type-lead mt-5 max-w-xl text-fg-muted">{t.text}</p>
         <div className="mt-9 flex flex-wrap gap-3">
           <ButtonLink to={lp('/')}>{t.home}</ButtonLink>
