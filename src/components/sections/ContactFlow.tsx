@@ -1,5 +1,11 @@
 import { Check, Mail, MessageCircle } from 'lucide-react';
 import { MotionArea } from '@/components/ui/MotionArea';
+import { useLocale } from '@/i18n/useLocale';
+
+const LABELS = {
+  pt: { need: 'necessidade', message: 'mensagem', channel: 'canal', quote: 'orçamento' },
+  en: { need: 'need', message: 'message', channel: 'channel', quote: 'quote' },
+};
 
 /**
  * Diagrama discreto do caminho de um pedido: a necessidade escrita vira uma
@@ -8,11 +14,12 @@ import { MotionArea } from '@/components/ui/MotionArea';
  * WhatsApp ou o e-mail). Decorativo e separado dos campos.
  */
 export function ContactFlow() {
+  const l = LABELS[useLocale().locale];
   return (
     <MotionArea aria-hidden="true" className="contact-flow text-mist">
       {/* 1. necessidade */}
       <div className="cf-stage">
-        <span className="cf-label">necessidade</span>
+        <span className="cf-label">{l.need}</span>
         <span className="cf-bubble">
           <i className="cf-line" style={{ width: '88%', animationDelay: '0s' }} />
           <i className="cf-line" style={{ width: '64%', animationDelay: '0.35s' }} />
@@ -22,7 +29,7 @@ export function ContactFlow() {
       <span className="cf-link"><i className="cf-dot" /></span>
       {/* 2. mensagem organizada */}
       <div className="cf-stage">
-        <span className="cf-label">mensagem</span>
+        <span className="cf-label">{l.message}</span>
         <span className="cf-card">
           <i className="cf-field" />
           <i className="cf-field" />
@@ -32,7 +39,7 @@ export function ContactFlow() {
       <span className="cf-link"><i className="cf-dot cf-dot--2" /></span>
       {/* 3. canal */}
       <div className="cf-stage cf-stage--fixed">
-        <span className="cf-label">canal</span>
+        <span className="cf-label">{l.channel}</span>
         <span className="flex flex-col gap-1.5">
           <span className="cf-channel cf-channel--a"><MessageCircle className="h-3.5 w-3.5" /></span>
           <span className="cf-channel cf-channel--b"><Mail className="h-3.5 w-3.5" /></span>
@@ -41,7 +48,7 @@ export function ContactFlow() {
       <span className="cf-link cf-link--short"><i className="cf-dot cf-dot--3" /></span>
       {/* 4. orçamento */}
       <div className="cf-stage cf-stage--fixed">
-        <span className="cf-label">orçamento</span>
+        <span className="cf-label">{l.quote}</span>
         <span className="grid h-[58px] place-items-center">
           <span className="cf-check"><Check className="h-4 w-4" strokeWidth={2.5} /></span>
         </span>

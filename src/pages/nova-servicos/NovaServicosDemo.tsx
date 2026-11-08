@@ -98,7 +98,7 @@ export default function NovaServicosDemo() {
             <Link to={lp('/projetos/nova-servicos')} className="rounded font-semibold text-white underline underline-offset-2">
               {t.bar.details}
             </Link>
-            <LanguageSwitch className="tone-dark bg-transparent! p-0.5! [&_a]:h-7! [&_span]:h-7!" />
+            <LanguageSwitch className="tone-dark bg-transparent! p-0.5! [&>a]:h-7! [&>span]:h-7!" />
           </div>
         </div>
       </aside>

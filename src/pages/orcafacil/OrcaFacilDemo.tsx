@@ -149,7 +149,7 @@ export default function OrcaFacilDemo() {
           <p className="flex flex-wrap items-center gap-x-3">
             <span>{T.bar.note}</span>
             <Link to={lp('/projetos/orcafacil')} className="rounded font-semibold text-white underline underline-offset-2">{T.bar.details}</Link>
-            <LanguageSwitch className="tone-dark bg-transparent! p-0.5! [&_a]:h-7! [&_span]:h-7!" />
+            <LanguageSwitch className="tone-dark bg-transparent! p-0.5! [&>a]:h-7! [&>span]:h-7!" />
           </p>
         </div>
       </aside>

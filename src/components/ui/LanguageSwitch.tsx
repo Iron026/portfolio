@@ -27,12 +27,12 @@ export function LanguageSwitch({ className }: { className?: string }) {
             key={l}
             to={{ pathname: switchLocalePath(pathname, l), search, hash }}
             hrefLang={HTML_LANG[l]}
-            lang={HTML_LANG[l]}
-            aria-label={ui.nav.switchTo}
             title={ui.nav.switchTo}
             className="grid h-9 min-w-9 place-items-center rounded-[7px] px-2 font-code text-[0.75rem] font-medium text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
           >
-            {label}
+            {/* Nome acessível começa pelo texto visível (WCAG 2.5.3): "EN, ver esta página em inglês" */}
+            <span lang={HTML_LANG[l]}>{label}</span>
+            <span className="sr-only">, {ui.nav.switchTo.charAt(0).toLowerCase() + ui.nav.switchTo.slice(1)}</span>
           </Link>
         );
       })}
