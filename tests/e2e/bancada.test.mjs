@@ -12,8 +12,11 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : (fail++, console.log
     ok((await p.getAttribute('[role=tab][aria-selected=true]', 'id')) && (await p.textContent('[role=tab][aria-selected=true]')).trim() === 'Planilha', `${vp.width}: Planilha inicial`);
     // fórmulas
     for (const [lbl, f] of [['receita', '=SOMA(B2:B5)'], ['despesas', '=SOMA(C2:C5)'], ['lucro', '=SOMA(D2:D5)']]) {
-      await p.click(`button[aria-label="Ver fórmula do total de ${lbl}"]`);
-      ok((await p.getAttribute(`button[aria-label="Ver fórmula do total de ${lbl}"]`, 'aria-pressed')) === 'true', `${vp.width}: total ${lbl} pressionado`);
+      // O nome acessível começa pelo valor visível e termina com "ver fórmula do total de …".
+      const btn = p.getByRole('button', { name: new RegExp(`ver fórmula do total de ${lbl}$`) });
+      await btn.click();
+      ok((await btn.getAttribute('aria-pressed')) === 'true', `${vp.width}: total ${lbl} pressionado`);
+      ok(/^R\$/.test((await btn.textContent()).trim()), `${vp.width}: nome do total ${lbl} começa pelo valor visível`);
       ok((await p.locator('[role=tabpanel]').textContent()).includes(f), `${vp.width}: fórmula ${f}`);
     }
     // mouse em cada aba: painel ligado à aba e visível

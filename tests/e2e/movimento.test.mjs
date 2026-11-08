@@ -46,16 +46,20 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
   ok(playing.length === 1 && playing[0] === 'projetos-prime-imoveis', `${tag}: só a prévia visível toca (${playing})`);
   await scrollToId(p, 'projetos-arena-store'); await p.waitForTimeout(2500);
   playing = await playingVideos(p);
-  ok(playing.length === 1 && playing[0] === 'projetos-arena-store', `${tag}: ao rolar, a prévia muda para o cartão visível (${playing})`);
+  // No computador, Nova Serviços, Arena Store e OrçaFácil dividem a mesma linha: toca uma das três visíveis.
+  const row = await p.evaluate(() => ['projetos-nova-servicos', 'projetos-arena-store', 'projetos-orcafacil'].filter((id) => { const r = document.getElementById(id).getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; }));
+  ok(playing.length === 1 && row.includes(playing[0]) && playing[0] !== 'projetos-prime-imoveis', `${tag}: ao rolar, a prévia muda para um cartão visível (${playing}; visíveis: ${row})`);
+  const cur = '#' + (playing[0] ?? 'projetos-arena-store');
   const loaded = await p.evaluate(() => [...document.querySelectorAll('video')].filter((v) => v.currentSrc).length);
   ok(loaded <= 3, `${tag}: vídeos baixados só quando chegam perto da tela (${loaded} de 5)`);
 
   // 5. botão de pausa do cartão
-  await p.click('#projetos-arena-store [data-preview-toggle]'); await p.waitForTimeout(400);
+  await p.click(`${cur} [data-preview-toggle]`); await p.waitForTimeout(400);
   ok((await playingVideos(p)).length === 0, `${tag}: botão pausa a prévia do cartão`);
-  ok((await p.getAttribute('#projetos-arena-store [data-preview-toggle]', 'aria-label')).startsWith('Reproduzir'), `${tag}: rótulo do botão muda para Reproduzir`);
-  await p.click('#projetos-arena-store [data-preview-toggle]'); await p.waitForTimeout(800);
-  ok((await playingVideos(p))[0] === 'projetos-arena-store', `${tag}: botão retoma a prévia`);
+  const toggleName = await p.locator(`${cur} [data-preview-toggle]`).evaluate((b) => b.textContent.trim());
+  ok(toggleName.startsWith('Ver em movimento') && toggleName.includes('prévia em vídeo de'), `${tag}: rótulo do botão muda para Ver em movimento (${toggleName})`);
+  await p.click(`${cur} [data-preview-toggle]`); await p.waitForTimeout(800);
+  ok((await playingVideos(p))[0] === cur.slice(1), `${tag}: botão retoma a prévia`);
 
   // 6. botão global "Pausar animações"
   await p.click('header [data-motion-toggle]'); await p.waitForTimeout(400);
