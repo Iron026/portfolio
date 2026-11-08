@@ -14,7 +14,8 @@ for (const [url, expect] of [['/demos/gestao360', 'Gestão360'], ['/projetos/ges
   await p.goto(B + url); await p.waitForTimeout(400);
   ok((await h1()).includes(expect), `URL direta ${url}`);
   await p.reload(); await p.waitForTimeout(400);
-  ok((await h1()).includes(expect) && new URL(p.url()).pathname === url, `atualizar ${url}`);
+  // no Netlify, /projetos/<slug> é entregue com barra final (301 para /projetos/<slug>/)
+  ok((await h1()).includes(expect) && [url, url + '/'].includes(new URL(p.url()).pathname), `atualizar ${url}`);
 }
 await p.goto(B + '/demos/gestao360'); await p.waitForTimeout(300);
 ok(await p.$('.g360-root') && !(await p.$('footer.on-dark')), 'demo sem cabeçalho/rodapé do portfólio');
