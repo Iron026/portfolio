@@ -10,11 +10,13 @@ import { CircleAlert, Copy, Plus, Printer, Trash2 } from 'lucide-react';
 import { site } from '@/config/site';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import {
-  BUSINESS, CATALOG_KEY, DEFAULT_CHOICES, SAMPLE_CATALOG, UNITS, VARIABLES, VARIABLE_IDS,
-  calcLine, formatMultiplier, formatPercent, formatQty, money, proposalNumber, quoteTotals, restoreCatalog, summaryText,
+  BUSINESS, CATALOG_KEY, DEFAULT_CHOICES, SAMPLE_CATALOG, VARIABLES, VARIABLE_IDS,
+  calcLine, proposalNumber, quoteTotals, restoreCatalog, summaryText,
   validateDiscount, validateQty,
   type CatalogItem, type Choices, type Option, type ProposalInfo, type QuoteLine,
 } from './orca-data';
+import { useOrca } from './orca-i18n';
+import { LanguageSwitch } from '@/components/ui/LanguageSwitch';
 import { CatalogManager } from './CatalogManager';
 import { Proposal } from './Proposal';
 import './orca.css';
@@ -30,7 +32,8 @@ function loadCatalog() {
 }
 
 export default function OrcaFacilDemo() {
-  useDocumentTitle('OrçaFácil: calculadora de orçamentos', 'Calculadora comercial demonstrativa: monte orçamentos com material, acabamento e prazo, aplique desconto e imprima a proposta.');
+  const { t: T, locale, lp, money, qty: fmtQty, percent, multiplier, unit, name, opt, variable, spec } = useOrca();
+  useDocumentTitle(T.docTitle, T.docDescription);
 
   // Página no topo e classe no <body> para as regras de impressão só valerem aqui.
   useEffect(() => {
@@ -43,7 +46,8 @@ export default function OrcaFacilDemo() {
   if (!initial.current) initial.current = loadCatalog();
   const [catalog, setCatalog] = useState<CatalogItem[]>(initial.current.catalog);
   const [storageOk, setStorageOk] = useState(true);
-  const [catalogNotice] = useState(initial.current.corrupted ? 'O catálogo salvo neste navegador não pôde ser lido. Usamos o catálogo de exemplo.' : '');
+  const [catalogCorrupted] = useState(initial.current.corrupted);
+  const catalogNotice = catalogCorrupted ? T.corrupted : '';
 
   useEffect(() => {
     try {
@@ -66,7 +70,7 @@ export default function OrcaFacilDemo() {
     if (!catalog.some((i) => i.id === itemId)) setItemId(catalog[0]?.id ?? '');
   }, [catalog, itemId]);
 
-  const qtyCheck = item ? validateQty(qtyRaw, item.unit) : { error: 'Cadastre um item.' };
+  const qtyCheck = item ? validateQty(qtyRaw, item.unit, locale) : { error: T.build.noItem };
   const previewLine = item && qtyCheck.qty ? calcLine({ uid: 'preview', itemId: item.id, qty: qtyCheck.qty, choices }, catalog) : null;
 
   // Orçamento
@@ -80,20 +84,20 @@ export default function OrcaFacilDemo() {
   const [number] = useState(() => proposalNumber());
   const [date] = useState(() => new Date());
 
-  const discount = validateDiscount(discountRaw);
+  const discount = validateDiscount(discountRaw, locale);
   const t = useMemo(() => quoteTotals(lines, catalog, discount.bp ?? 0), [lines, catalog, discount.bp]);
   const validity = Number(validityRaw);
-  const validityError = !/^\d{1,2}$/.test(validityRaw.trim()) || validity < 1 || validity > 90 ? 'Use de 1 a 90 dias.' : '';
+  const validityError = !/^\d{1,2}$/.test(validityRaw.trim()) || validity < 1 || validity > 90 ? T.review.validityError : '';
   const info: ProposalInfo = { number, client, validityDays: validityError ? 7 : validity, notes, date };
   const canIssue = t.rows.length > 0 && !discount.error && !validityError;
 
   function addLine() {
     if (!item) return;
     if (lines.length >= MAX_LINES) {
-      setQtyError(`O orçamento aceita até ${MAX_LINES} linhas.`);
+      setQtyError(T.build.maxLines(MAX_LINES));
       return;
     }
-    const check = validateQty(qtyRaw, item.unit);
+    const check = validateQty(qtyRaw, item.unit, locale);
     if (check.error) {
       setQtyError(check.error);
       document.getElementById(`${baseId}-qtd`)?.focus();
@@ -101,24 +105,24 @@ export default function OrcaFacilDemo() {
     }
     setQtyError('');
     setLines((ls) => [...ls, { uid: `${Date.now().toString(36)}-${ls.length}`, itemId: item.id, qty: check.qty!, choices }]);
-    setLineStatus(`${item.name} (${formatQty(check.qty!, item.unit)}) adicionado ao orçamento.`);
+    setLineStatus(T.build.added(name(item), fmtQty(check.qty!, item.unit)));
     setCopyStatus('');
   }
 
-  function removeLine(uid: string, name: string) {
+  function removeLine(uid: string, label: string) {
     setLines((ls) => ls.filter((l) => l.uid !== uid));
-    setLineStatus(`${name} removido do orçamento.`);
+    setLineStatus(T.build.removed(label));
   }
 
   async function copySummary() {
-    const text = summaryText(t, info);
+    const text = summaryText(t, info, locale);
     try {
       await navigator.clipboard.writeText(text);
       setCopyFallback('');
-      setCopyStatus('Resumo copiado. Cole no WhatsApp ou no e-mail para enviar ao cliente.');
+      setCopyStatus(T.issue.copied);
     } catch {
       setCopyFallback(text);
-      setCopyStatus('Não foi possível copiar automaticamente. O texto está selecionado abaixo: use Ctrl+C (ou toque e segure).');
+      setCopyStatus(T.issue.copyFailed);
       window.setTimeout(() => {
         const el = document.getElementById(`${baseId}-resumo-texto`) as HTMLTextAreaElement | null;
         el?.focus();
@@ -131,20 +135,21 @@ export default function OrcaFacilDemo() {
 
   return (
     <div className="orca-root font-sans">
-      <aside aria-label="Sobre esta demonstração" className="orca-on-dark bg-(--orca-ink) text-[0.8rem] text-white/85">
+      <aside aria-label={T.bar.region} className="orca-on-dark bg-(--orca-ink) text-[0.8rem] text-white/85">
         <div className="mx-auto flex max-w-[76rem] flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-2 sm:px-6 lg:px-8">
-          <nav aria-label="Você está em">
+          <nav aria-label={T.bar.youAreHere}>
             <ol className="flex flex-wrap items-center gap-1.5">
-              <li><Link to="/" className="rounded hover:text-white hover:underline">{site.name}</Link></li>
+              <li><Link to={lp('/')} className="rounded hover:text-white hover:underline">{site.name}</Link></li>
               <li aria-hidden="true" className="text-white/50">/</li>
-              <li><Link to={{ pathname: '/', hash: '#projetos' }} className="rounded hover:text-white hover:underline">Projetos</Link></li>
+              <li><Link to={{ pathname: lp('/'), hash: '#projetos' }} className="rounded hover:text-white hover:underline">{T.bar.projects}</Link></li>
               <li aria-hidden="true" className="text-white/50">/</li>
               <li aria-current="page" className="font-semibold text-white">OrçaFácil</li>
             </ol>
           </nav>
           <p className="flex flex-wrap items-center gap-x-3">
-            <span>Demonstração com empresa e preços fictícios</span>
-            <Link to="/projetos/orcafacil" className="rounded font-semibold text-white underline underline-offset-2">Ver detalhes do projeto</Link>
+            <span>{T.bar.note}</span>
+            <Link to={lp('/projetos/orcafacil')} className="rounded font-semibold text-white underline underline-offset-2">{T.bar.details}</Link>
+            <LanguageSwitch className="tone-dark bg-transparent! p-0.5! [&_a]:h-7! [&_span]:h-7!" />
           </p>
         </div>
       </aside>
@@ -155,7 +160,7 @@ export default function OrcaFacilDemo() {
             <OrcaMark />
             <div>
               <p className="font-display text-[1.3rem] font-bold tracking-tight">OrçaFácil</p>
-              <p className="text-[0.85rem] text-(--orca-muted)">Configurado para: {BUSINESS.name}, gráfica rápida (fictícia)</p>
+              <p className="text-[0.85rem] text-(--orca-muted)">{T.configuredFor(BUSINESS.name)}</p>
             </div>
           </div>
         </div>
@@ -164,21 +169,19 @@ export default function OrcaFacilDemo() {
       <main id="conteudo" className="mx-auto max-w-[76rem] px-4 pt-8 pb-16 sm:px-6 lg:px-8">
         <section aria-labelledby="orca-titulo" className="max-w-3xl">
           <h1 id="orca-titulo" className="text-[2rem] font-bold tracking-tight sm:text-[2.5rem]">
-            Orçamentos padronizados em poucos minutos
+            {T.title}
           </h1>
-          <p className="mt-2 text-[1.05rem] text-(--orca-muted)">
-            O preço sai das mesmas regras toda vez: você escolhe o item, a quantidade, o material, o acabamento e o prazo, e a proposta fica pronta para imprimir ou enviar.
-          </p>
+          <p className="mt-2 text-[1.05rem] text-(--orca-muted)">{T.intro}</p>
         </section>
         {catalogNotice && <p role="status" className="mt-4 rounded-xl bg-(--orca-warn-bg) px-4 py-3 text-[0.92rem] text-(--orca-warn)">{catalogNotice}</p>}
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_1fr] [&>*]:min-w-0">
           {/* ------------------------------------------------ montar linha */}
           <section aria-labelledby={`${baseId}-montar`} className="rounded-2xl bg-white p-5 ring-1 ring-(--orca-line) sm:p-6">
-            <h2 id={`${baseId}-montar`} className="text-[1.3rem] font-semibold">1. Adicione os itens</h2>
+            <h2 id={`${baseId}-montar`} className="text-[1.3rem] font-semibold">{T.build.title}</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_10rem] [&>*]:min-w-0">
               <div>
-                <label htmlFor={`${baseId}-item`} className="text-[0.92rem] font-medium">Produto ou serviço</label>
+                <label htmlFor={`${baseId}-item`} className="text-[0.92rem] font-medium">{T.build.product}</label>
                 <select
                   id={`${baseId}-item`}
                   value={item?.id ?? ''}
@@ -186,17 +189,17 @@ export default function OrcaFacilDemo() {
                   className="mt-1 h-11 w-full rounded-lg bg-white px-3 ring-1 ring-(--orca-line) outline-none focus-visible:ring-2 focus-visible:ring-(--orca-blue)"
                 >
                   {catalog.map((i) => (
-                    <option key={i.id} value={i.id}>{i.name}: {money(i.price)}/{UNITS[i.unit].label}</option>
+                    <option key={i.id} value={i.id}>{name(i)}: {money(i.price)}/{unit(i.unit).label}</option>
                   ))}
                 </select>
               </div>
               <div>
                 <label htmlFor={`${baseId}-qtd`} className="text-[0.92rem] font-medium">
-                  Quantidade {item ? `(${UNITS[item.unit].label})` : ''}
+                  {T.build.quantity} {item ? `(${unit(item.unit).label})` : ''}
                 </label>
                 <input
                   id={`${baseId}-qtd`}
-                  inputMode={item && UNITS[item.unit].decimals ? 'decimal' : 'numeric'}
+                  inputMode={item && unit(item.unit).decimals ? 'decimal' : 'numeric'}
                   value={qtyRaw}
                   onChange={(e) => { setQtyRaw(e.target.value); setQtyError(''); }}
                   aria-invalid={!!qtyError}
@@ -204,7 +207,7 @@ export default function OrcaFacilDemo() {
                   className="orca-num mt-1 h-11 w-full rounded-lg bg-white px-3 ring-1 ring-(--orca-line) outline-none focus-visible:ring-2 focus-visible:ring-(--orca-blue) aria-[invalid=true]:ring-(--orca-error)"
                 />
                 <p id={`${baseId}-qtd-dica`} className="mt-1 text-[0.8rem] text-(--orca-muted)">
-                  {item && UNITS[item.unit].decimals ? 'Aceita decimais, ex.: 2,5' : 'Número inteiro'}
+                  {item && unit(item.unit).decimals ? T.build.decimals : T.build.integer}
                 </p>
               </div>
             </div>
@@ -217,7 +220,7 @@ export default function OrcaFacilDemo() {
 
             {VARIABLE_IDS.map((v) => (
               <fieldset key={v} className="mt-5">
-                <legend className="text-[0.92rem] font-medium">{VARIABLES[v].label}</legend>
+                <legend className="text-[0.92rem] font-medium">{variable(v)}</legend>
                 <div className="mt-2 grid gap-2 sm:grid-cols-3">
                   {(VARIABLES[v].options as Option[]).map((o) => (
                     <label key={o.id} className="cursor-pointer">
@@ -230,8 +233,8 @@ export default function OrcaFacilDemo() {
                         className="peer sr-only"
                       />
                       <span className="block h-full rounded-xl p-3 ring-1 ring-(--orca-line) peer-checked:bg-(--orca-wash) peer-checked:ring-2 peer-checked:ring-(--orca-blue) peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-(--orca-blue)">
-                        <span className="block font-semibold">{o.label}</span>
-                        <span className="block text-[0.82rem] text-(--orca-muted)">{o.hint}</span>
+                        <span className="block font-semibold">{opt(v, o).label}</span>
+                        <span className="block text-[0.82rem] text-(--orca-muted)">{opt(v, o).hint}</span>
                       </span>
                     </label>
                   ))}
@@ -241,8 +244,8 @@ export default function OrcaFacilDemo() {
 
             <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-(--orca-line) pt-4">
               <p className="text-[0.95rem]" aria-live="polite">
-                Valor desta linha:{' '}
-                <strong className="orca-num text-[1.15rem]" data-preview-total>{previewLine ? money(previewLine.lineTotal) : 'Sem valor'}</strong>
+                {T.build.lineValue}{' '}
+                <strong className="orca-num text-[1.15rem]" data-preview-total>{previewLine ? money(previewLine.lineTotal) : T.build.noValue}</strong>
               </p>
               <button
                 type="button"
@@ -250,7 +253,7 @@ export default function OrcaFacilDemo() {
                 className="inline-flex items-center gap-2 rounded-full bg-(--orca-blue) px-5 py-2.5 font-semibold text-white hover:bg-(--orca-blue-2)"
               >
                 <Plus aria-hidden="true" className="h-4 w-4" />
-                Adicionar ao orçamento
+                {T.build.add}
               </button>
             </div>
             <p role="status" aria-live="polite" className="mt-2 min-h-[1.25rem] text-[0.9rem] font-medium text-(--orca-blue)">{lineStatus}</p>
@@ -258,44 +261,45 @@ export default function OrcaFacilDemo() {
 
           {/* ------------------------------------------------ itens e totais */}
           <section aria-labelledby={`${baseId}-itens`} className="rounded-2xl bg-white p-5 ring-1 ring-(--orca-line) sm:p-6">
-            <h2 id={`${baseId}-itens`} className="text-[1.3rem] font-semibold">2. Confira o orçamento</h2>
+            <h2 id={`${baseId}-itens`} className="text-[1.3rem] font-semibold">{T.review.title}</h2>
             {t.rows.length === 0 ? (
               <p className="mt-4 rounded-xl bg-(--orca-bg) p-5 text-center text-(--orca-muted)">
-                Nenhum item ainda. Escolha um produto, a quantidade e as opções, e clique em “Adicionar ao orçamento”.
+                {T.review.empty}
               </p>
             ) : (
               <ol className="mt-4 space-y-3">
                 {lines.map((l, i) => {
                   const r = calcLine(l, catalog);
                   if (!r) return null;
+                  const label = name(r.item);
                   return (
                     <li key={l.uid} data-quote-line className="rounded-xl ring-1 ring-(--orca-line)">
                       <div className="flex items-start justify-between gap-3 p-3">
                         <div className="min-w-0">
                           <p className="font-semibold">
-                            <span className="orca-num text-(--orca-muted)">{i + 1}.</span> {r.item.name}
+                            <span className="orca-num text-(--orca-muted)">{i + 1}.</span> {label}
                           </p>
                           <p className="text-[0.85rem] text-(--orca-muted)">
-                            {formatQty(r.qty, r.item.unit)} · {r.options.material.label} · {r.options.acabamento.label} · Prazo {r.options.prazo.label.toLowerCase()}
+                            {spec(r)}
                           </p>
                         </div>
                         <div className="flex shrink-0 items-center gap-1">
                           <span className="orca-num font-semibold" data-line-total>{money(r.lineTotal)}</span>
-                          <button type="button" onClick={() => removeLine(l.uid, r.item.name)} aria-label={`Remover linha ${i + 1}: ${r.item.name}`} className="grid h-9 w-9 place-items-center rounded-full hover:bg-(--orca-wash)">
+                          <button type="button" onClick={() => removeLine(l.uid, label)} aria-label={T.review.removeLine(i + 1, label)} className="grid h-9 w-9 place-items-center rounded-full hover:bg-(--orca-wash)">
                             <Trash2 aria-hidden="true" className="h-4 w-4" />
                           </button>
                         </div>
                       </div>
                       <details className="border-t border-(--orca-line) px-3 py-2 text-[0.88rem]">
-                        <summary className="cursor-pointer font-medium text-(--orca-blue)">Ver cálculo</summary>
+                        <summary className="cursor-pointer font-medium text-(--orca-blue)">{T.review.seeCalc}</summary>
                         <dl className="orca-num mt-2 space-y-1">
-                          <Step label={`Preço base por ${UNITS[r.item.unit].label}`} value={money(r.basePrice)} />
-                          <Step label={`Material ${r.options.material.label.toLowerCase()} (${formatMultiplier(r.options.material.bp)})`} value={money(r.materialUnit)} />
-                          <Step label={`Acabamento ${r.options.acabamento.label.toLowerCase()} (+${formatPercent(r.options.acabamento.bp)})`} value={`+${money(r.finishingAmount)}`} />
-                          <Step label="Preço final da unidade" value={money(r.unitPrice)} strong />
-                          <Step label={`× ${formatQty(r.qty, r.item.unit)}`} value={money(r.goods)} />
-                          <Step label={`Prazo ${r.options.prazo.label.toLowerCase()} (+${formatPercent(r.options.prazo.bp)})`} value={`+${money(r.rushAmount)}`} />
-                          <Step label="Total da linha" value={money(r.lineTotal)} strong />
+                          <Step label={T.review.basePer(unit(r.item.unit).label)} value={money(r.basePrice)} />
+                          <Step label={T.review.material(opt('material', r.options.material).label, multiplier(r.options.material.bp))} value={money(r.materialUnit)} />
+                          <Step label={T.review.finishing(opt('acabamento', r.options.acabamento).label, percent(r.options.acabamento.bp), r.options.acabamento.id === 'nenhum')} value={`+${money(r.finishingAmount)}`} />
+                          <Step label={T.review.unitFinal} value={money(r.unitPrice)} strong />
+                          <Step label={`× ${fmtQty(r.qty, r.item.unit)}`} value={money(r.goods)} />
+                          <Step label={T.review.turnaround(opt('prazo', r.options.prazo).label, percent(r.options.prazo.bp))} value={`+${money(r.rushAmount)}`} />
+                          <Step label={T.review.lineTotal} value={money(r.lineTotal)} strong />
                         </dl>
                       </details>
                     </li>
@@ -306,7 +310,7 @@ export default function OrcaFacilDemo() {
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2 [&>*]:min-w-0">
               <div>
-                <label htmlFor={`${baseId}-desconto`} className="text-[0.92rem] font-medium">Desconto (%)</label>
+                <label htmlFor={`${baseId}-desconto`} className="text-[0.92rem] font-medium">{T.review.discount}</label>
                 <input
                   id={`${baseId}-desconto`}
                   inputMode="decimal"
@@ -323,7 +327,7 @@ export default function OrcaFacilDemo() {
                 )}
               </div>
               <div>
-                <label htmlFor={`${baseId}-validade`} className="text-[0.92rem] font-medium">Validade da proposta (dias)</label>
+                <label htmlFor={`${baseId}-validade`} className="text-[0.92rem] font-medium">{T.review.validity}</label>
                 <input
                   id={`${baseId}-validade`}
                   inputMode="numeric"
@@ -339,16 +343,16 @@ export default function OrcaFacilDemo() {
 
             <dl className="mt-5 space-y-1.5 border-t border-(--orca-line) pt-4 text-[1rem]">
               <div className="flex justify-between gap-3">
-                <dt>Subtotal</dt>
+                <dt>{T.review.subtotal}</dt>
                 <dd className="orca-num" data-subtotal>{money(t.subtotal)}</dd>
               </div>
               <div className="flex justify-between gap-3">
-                <dt>Desconto{t.discountBp && !discount.error ? ` (${formatPercent(t.discountBp)})` : ''}</dt>
-                <dd className="orca-num" data-discount>{discount.error ? 'Não calculado' : t.discount ? `−${money(t.discount)}` : money(0)}</dd>
+                <dt>{T.review.discountLabel}{t.discountBp && !discount.error ? ` (${percent(t.discountBp)})` : ''}</dt>
+                <dd className="orca-num" data-discount>{discount.error ? T.review.notCalculated : t.discount ? `−${money(t.discount)}` : money(0)}</dd>
               </div>
               <div className="flex justify-between gap-3 text-[1.35rem] font-bold">
-                <dt>Total</dt>
-                <dd className="orca-num" data-total>{discount.error ? 'Não calculado' : money(t.total)}</dd>
+                <dt>{T.review.total}</dt>
+                <dd className="orca-num" data-total>{discount.error ? T.review.notCalculated : money(t.total)}</dd>
               </div>
             </dl>
           </section>
@@ -356,15 +360,15 @@ export default function OrcaFacilDemo() {
 
         {/* ------------------------------------------------ proposta */}
         <section aria-labelledby={`${baseId}-proposta`} className="mt-6 rounded-2xl bg-white p-5 ring-1 ring-(--orca-line) sm:p-6">
-          <h2 id={`${baseId}-proposta`} className="text-[1.3rem] font-semibold">3. Gere a proposta</h2>
+          <h2 id={`${baseId}-proposta`} className="text-[1.3rem] font-semibold">{T.issue.title}</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 [&>*]:min-w-0">
             <div>
-              <label htmlFor={`${baseId}-cliente`} className="text-[0.92rem] font-medium">Cliente <span className="font-normal text-(--orca-muted)">(opcional)</span></label>
-              <input id={`${baseId}-cliente`} value={client} maxLength={80} onChange={(e) => setClient(e.target.value)} placeholder="Ex.: Padaria Sol" className="mt-1 h-11 w-full rounded-lg bg-white px-3 ring-1 ring-(--orca-line) outline-none focus-visible:ring-2 focus-visible:ring-(--orca-blue)" />
+              <label htmlFor={`${baseId}-cliente`} className="text-[0.92rem] font-medium">{T.issue.client} <span className="font-normal text-(--orca-muted)">{T.issue.optional}</span></label>
+              <input id={`${baseId}-cliente`} value={client} maxLength={80} onChange={(e) => setClient(e.target.value)} placeholder={T.issue.clientPh} className="mt-1 h-11 w-full rounded-lg bg-white px-3 ring-1 ring-(--orca-line) outline-none focus-visible:ring-2 focus-visible:ring-(--orca-blue)" />
             </div>
             <div>
-              <label htmlFor={`${baseId}-obs`} className="text-[0.92rem] font-medium">Observações <span className="font-normal text-(--orca-muted)">(opcional)</span></label>
-              <input id={`${baseId}-obs`} value={notes} maxLength={300} onChange={(e) => setNotes(e.target.value)} placeholder="Ex.: arte enviada pelo cliente" className="mt-1 h-11 w-full rounded-lg bg-white px-3 ring-1 ring-(--orca-line) outline-none focus-visible:ring-2 focus-visible:ring-(--orca-blue)" />
+              <label htmlFor={`${baseId}-obs`} className="text-[0.92rem] font-medium">{T.issue.notes} <span className="font-normal text-(--orca-muted)">{T.issue.optional}</span></label>
+              <input id={`${baseId}-obs`} value={notes} maxLength={300} onChange={(e) => setNotes(e.target.value)} placeholder={T.issue.notesPh} className="mt-1 h-11 w-full rounded-lg bg-white px-3 ring-1 ring-(--orca-line) outline-none focus-visible:ring-2 focus-visible:ring-(--orca-blue)" />
             </div>
           </div>
 
@@ -376,7 +380,7 @@ export default function OrcaFacilDemo() {
               className="inline-flex items-center gap-2 rounded-full bg-(--orca-blue) px-5 py-2.5 font-semibold text-white hover:bg-(--orca-blue-2) disabled:cursor-not-allowed disabled:opacity-45"
             >
               <Printer aria-hidden="true" className="h-4 w-4" />
-              Imprimir ou salvar em PDF
+              {T.issue.print}
             </button>
             <button
               type="button"
@@ -385,24 +389,24 @@ export default function OrcaFacilDemo() {
               className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-(--orca-blue) ring-1 ring-(--orca-blue) hover:bg-(--orca-wash) disabled:cursor-not-allowed disabled:opacity-45"
             >
               <Copy aria-hidden="true" className="h-4 w-4" />
-              Copiar resumo
+              {T.issue.copy}
             </button>
           </div>
           <p className="mt-2 text-[0.85rem] text-(--orca-muted)">
             {canIssue
-              ? 'Para gerar um PDF, escolha “Salvar como PDF” no destino da janela de impressão do navegador. Só a proposta é impressa.'
+              ? T.issue.pdfHint
               : t.rows.length === 0
-                ? 'Adicione pelo menos um item para gerar a proposta.'
-                : 'Corrija o desconto ou a validade para gerar a proposta.'}
+                ? T.issue.needItem
+                : T.issue.fix}
           </p>
           <p role="status" aria-live="polite" className="mt-2 min-h-[1.25rem] text-[0.9rem] font-medium text-(--orca-blue)">{copyStatus}</p>
           {copyFallback && (
-            <textarea id={`${baseId}-resumo-texto`} readOnly value={copyFallback} rows={8} aria-label="Resumo do orçamento" className="orca-num mt-2 w-full rounded-lg bg-(--orca-bg) p-3 text-[0.85rem] ring-1 ring-(--orca-line)" />
+            <textarea id={`${baseId}-resumo-texto`} readOnly value={copyFallback} rows={8} aria-label={T.issue.summaryLabel} className="orca-num mt-2 w-full rounded-lg bg-(--orca-bg) p-3 text-[0.85rem] ring-1 ring-(--orca-line)" />
           )}
 
           {t.rows.length > 0 && !discount.error && (
             <div className="mt-6">
-              <p className="mb-2 text-[0.85rem] font-medium text-(--orca-muted)">Pré-visualização</p>
+              <p className="mb-2 text-[0.85rem] font-medium text-(--orca-muted)">{T.issue.preview}</p>
               <div className="rounded-2xl bg-(--orca-bg) p-2 sm:p-4">
                 <Proposal t={t} info={info} idPrefix={`${baseId}-tela`} />
               </div>
@@ -431,11 +435,11 @@ export default function OrcaFacilDemo() {
       <footer className="orca-on-dark bg-(--orca-ink) text-white/80">
         <div className="mx-auto flex max-w-[76rem] flex-col gap-3 px-4 py-8 text-[0.9rem] sm:px-6 md:flex-row md:justify-between lg:px-8">
           <p className="max-w-xl">
-            {BUSINESS.name}, preços e clientes são fictícios. Nada é enviado a servidores: o catálogo fica salvo apenas neste navegador.
+            {T.footer(BUSINESS.name)}
           </p>
           <p>
-            Projeto demonstrativo de {site.name}.{' '}
-            <Link to={{ pathname: '/', hash: '#projetos' }} className="rounded font-semibold text-white underline underline-offset-2">Ver outros projetos</Link>
+            {T.footerBy(site.name)}{' '}
+            <Link to={{ pathname: lp('/'), hash: '#projetos' }} className="rounded font-semibold text-white underline underline-offset-2">{T.otherProjects}</Link>
           </p>
         </div>
       </footer>
@@ -447,7 +451,7 @@ export default function OrcaFacilDemo() {
             {canIssue ? (
               <Proposal t={t} info={info} idPrefix={`${baseId}-impressao`} />
             ) : (
-              <p>Nenhuma proposta para imprimir: adicione itens ao orçamento no OrçaFácil.</p>
+              <p>{T.issue.nothingToPrint}</p>
             )}
           </div>
         </div>,

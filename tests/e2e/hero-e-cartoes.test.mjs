@@ -66,7 +66,7 @@ ok(dq.length === 2 && dq.every(h => h === '/?projeto=orcafacil#contato'), 'detal
 // mobile: botões com área de toque e sem estouro
 const m = await b.newPage({ viewport: { width: 320, height: 700 } });
 await m.goto(B + '/'); await m.waitForTimeout(600);
-const btns = await m.$$eval('#projetos article', as => as.map(a => [...a.querySelectorAll('a')].filter(x => /Testar demonstração|Ver detalhes/.test(x.textContent)).map(x => { const r = x.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; })));
+const btns = await m.$$eval('#projetos article', as => as.map(a => [...a.querySelectorAll('a')].filter(x => /Testar demonstração|Estudo de caso/.test(x.textContent)).map(x => { const r = x.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; })));
 ok(btns.every(bs => bs.length === 2 && bs.every(([w, h]) => h >= 44 && w >= 240)), '320px: dois botões largos e altos ' + JSON.stringify(btns[0]));
 ok(await m.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), '320px: sem rolagem horizontal');
 const m2 = await b.newPage({ viewport: { width: 390, height: 844 } });

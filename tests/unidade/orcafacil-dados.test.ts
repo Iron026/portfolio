@@ -88,4 +88,13 @@ ok(!/\n\n\n/.test(s0) && !/Subtotal: [^\n]+\n\nTotal/.test(s0), 'resumo sem linh
 ok(s0.includes('Total: R$ 626,92') && !s0.includes('Desconto') && !s0.includes('Cliente'), 'resumo sem desconto e sem cliente');
 const s1 = nb(D.summaryText(D.quoteTotals(lines, C, 1000), { ...info, client: 'Padaria Sol', notes: 'Arte do cliente' }));
 ok(s1.includes('Cliente: Padaria Sol') && s1.includes('Desconto (10%): −R$ 62,69') && s1.includes('Total: R$ 564,23') && s1.endsWith('Observações: Arte do cliente'), 'resumo completo:\n' + s1);
+// inglês: mesma conta, só a escrita muda
+eq(D.parseDecimal('2.5', 'en'), 250, 'EN: 2.5'); eq(D.parseDecimal('1,250.75', 'en'), 125075, 'EN: milhar com vírgula'); eq(D.parseDecimal('2,5', 'en'), null, 'EN: vírgula decimal recusada');
+eq(D.validateQty('2.5', 'm2', 'en').qty, 250, 'EN: quantidade decimal'); ok(/whole number/.test(D.validateQty('2.5', 'pacote', 'en').error ?? ''), 'EN: pacote exige inteiro');
+eq(D.validatePrice('89.90', 'en').cents, 8990, 'EN: preço 89.90'); eq(D.validateDiscount('7.5', 'en').bp, 750, 'EN: desconto 7.5');
+eq(D.money(62692, 'en'), 'R$626.92', 'EN: continua em reais'); eq(D.formatQty(300, 'pacote', 'en'), '3 packs', 'EN: plural'); eq(D.formatPercent(4550, 'en'), '45.5%', 'EN: percentual');
+eq(D.itemName(C[0], 'en'), 'Business cards (pack of 500)', 'EN: item de exemplo traduzido'); eq(D.itemName({ ...C[0], name: 'Meu cartão' }, 'en'), 'Meu cartão', 'EN: nome editado fica como digitado');
+eq(D.validateItemName('vinyl banner', C, undefined, 'en'), 'An item with this name already exists.', 'EN: duplicado pelo nome exibido');
+const se = D.summaryText(D.quoteTotals(lines, C, 1000), { ...info, client: 'Sun Bakery' }, 'en');
+ok(se.startsWith('Proposal ORC-1: Ponto Gráfico') && se.includes('Valid for: 7 days') && se.includes('Client: Sun Bakery') && se.includes('Discount (10%): −R$62.69') && se.includes('Total: R$564.23') && !/Prazo|Desconto|Cliente/.test(se), 'EN: resumo em inglês:\n' + se);
 console.log(`\n${pass} passaram, ${fail} falharam`); if (fail) process.exit(1);
