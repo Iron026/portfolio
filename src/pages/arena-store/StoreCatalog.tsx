@@ -4,25 +4,27 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import {
-  CATEGORIES, CATEGORY_LABELS, DEFAULT_FILTERS, SORT_LABELS,
-  filterCatalog, filtersFromParams, filtersToParams, formatCents, hasSizes, products, totalStock,
+  CATEGORIES, DEFAULT_FILTERS,
+  filterCatalog, filtersFromParams, filtersToParams, hasSizes, products, totalStock,
   type CatalogFilters, type Category, type Product, type Sort,
 } from './store-data';
 import { ProductArt } from './store-art';
 import { StockBadge } from './store-ui';
-import { STORE_PATH } from './StoreLayout';
+import { useStore } from './store-i18n';
 
 export default function StoreCatalog() {
-  useDocumentTitle('Arena Store: artigos esportivos', 'Loja virtual demonstrativa com produtos fictícios, carrinho salvo no navegador e checkout simulado.');
+  const { t: all, locale, categories: CATEGORY_LABELS, sorts: SORT_LABELS } = useStore();
+  const t = all.catalog;
+  useDocumentTitle(t.docTitle, t.docDescription);
   const [params, setParams] = useSearchParams();
   const filters = useMemo(() => filtersFromParams(params), [params]);
-  const results = useMemo(() => filterCatalog(products, filters), [filters]);
+  const results = useMemo(() => filterCatalog(products, filters, locale), [filters, locale]);
 
   function update(patch: Partial<CatalogFilters>, replace = false) {
     setParams(filtersToParams({ ...filters, ...patch }), { replace });
   }
   const isDefault = !filters.q.trim() && !filters.category && filters.sort === 'relevancia';
-  const heading = filters.category ? CATEGORY_LABELS[filters.category] : 'Todos os produtos';
+  const heading = filters.category ? CATEGORY_LABELS[filters.category] : t.all;
 
   return (
     <>
@@ -31,11 +33,11 @@ export default function StoreCatalog() {
           <h1 id="as-titulo" className="text-[2.2rem] font-bold tracking-tight sm:text-[2.8rem]">
             {heading}
           </h1>
-          <p className="mt-1 text-(--as-muted)">Calçados, roupas e acessórios para treino e jogo.</p>
+          <p className="mt-1 text-(--as-muted)">{t.intro}</p>
         </div>
         <form role="search" onSubmit={(e) => e.preventDefault()} className="w-full md:max-w-sm">
           <label htmlFor="as-q" className="mb-1.5 block text-[0.92rem] font-medium">
-            Buscar produtos
+            {t.search}
           </label>
           <div className="flex items-center gap-2 rounded-xl bg-(--as-card) px-3 ring-1 ring-(--as-line) focus-within:ring-2 focus-within:ring-(--as-orange-text)">
             <Search aria-hidden="true" className="h-5 w-5 shrink-0 text-(--as-muted)" />
@@ -44,7 +46,7 @@ export default function StoreCatalog() {
               type="search"
               value={filters.q}
               onChange={(e) => update({ q: e.target.value }, true)}
-              placeholder="Ex.: tênis, garrafa, corrida"
+              placeholder={t.placeholder}
               autoComplete="off"
               className="h-11 w-full min-w-0 bg-transparent outline-none placeholder:text-(--as-muted)"
             />
@@ -54,9 +56,9 @@ export default function StoreCatalog() {
 
       <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border-b border-(--as-line) pb-4">
         <fieldset>
-          <legend className="sr-only">Categoria</legend>
+          <legend className="sr-only">{t.category}</legend>
           <div className="flex flex-wrap gap-2">
-            {([['', 'Todos'], ...CATEGORIES.map((c) => [c, CATEGORY_LABELS[c]])] as Array<[Category | '', string]>).map(([value, label]) => (
+            {([['', t.allShort], ...CATEGORIES.map((c) => [c, CATEGORY_LABELS[c]])] as Array<[Category | '', string]>).map(([value, label]) => (
               <button
                 key={label}
                 type="button"
@@ -75,7 +77,7 @@ export default function StoreCatalog() {
         </fieldset>
         <div className="flex items-center gap-2">
           <label htmlFor="as-ordem" className="text-[0.92rem] font-medium">
-            Ordenar por
+            {t.sortBy}
           </label>
           <select
             id="as-ordem"
@@ -93,8 +95,8 @@ export default function StoreCatalog() {
       </div>
 
       <p className="mt-4 text-[0.95rem] text-(--as-muted)" aria-live="polite" id="as-contagem">
-        {results.length === 1 ? '1 produto' : `${results.length} produtos`}
-        {filters.q.trim() ? ` para “${filters.q.trim()}”` : ''}
+        {t.count(results.length)}
+        {filters.q.trim() ? t.forQuery(filters.q.trim()) : ''}
       </p>
 
       {results.length ? (
@@ -107,15 +109,15 @@ export default function StoreCatalog() {
         </ul>
       ) : (
         <div className="mt-6 rounded-2xl bg-(--as-card) p-8 text-center ring-1 ring-(--as-line)">
-          <p className="text-lg font-semibold">Nenhum produto encontrado.</p>
-          <p className="mt-1 text-(--as-muted)">Confira a busca ou veja todos os produtos da loja.</p>
+          <p className="text-lg font-semibold">{t.emptyTitle}</p>
+          <p className="mt-1 text-(--as-muted)">{t.emptyText}</p>
           <button
             type="button"
             onClick={() => setParams(filtersToParams(DEFAULT_FILTERS))}
             disabled={isDefault}
             className="mt-5 rounded-full bg-(--as-orange-text) px-5 py-2.5 font-semibold text-white hover:brightness-95"
           >
-            Ver todos os produtos
+            {t.seeAll}
           </button>
         </div>
       )}
@@ -123,7 +125,9 @@ export default function StoreCatalog() {
   );
 }
 
-function ProductCard({ product: p }: { product: Product }) {
+function ProductCard({ product }: { product: Product }) {
+  const { t, cents, paths, categories: CATEGORY_LABELS, product: shown } = useStore();
+  const p = shown(product);
   const units = totalStock(p);
   return (
     <article className={`as-card group flex h-full flex-col overflow-hidden rounded-2xl bg-(--as-card) ring-1 ring-(--as-line) transition-shadow hover:shadow-[0_14px_30px_-18px_rgba(21,25,28,0.45)]`}>
@@ -133,14 +137,14 @@ function ProductCard({ product: p }: { product: Product }) {
       <div className="flex flex-1 flex-col p-3 sm:p-4">
         <p className="text-[0.8rem] font-medium text-(--as-muted)">{CATEGORY_LABELS[p.category]}</p>
         <h2 className="mt-0.5 font-sans text-[1rem] leading-snug font-semibold tracking-normal">
-          <Link to={`${STORE_PATH}/produto/${p.id}`} className="as-card-link" data-product={p.id}>
+          <Link to={paths.product(p.id)} className="as-card-link" data-product={p.id}>
             {p.name}
           </Link>
         </h2>
-        <p className="mt-1 font-display text-[1.2rem] font-bold tabular-nums">{formatCents(p.price)}</p>
+        <p className="mt-1 font-display text-[1.2rem] font-bold tabular-nums">{cents(p.price)}</p>
         <div className="mt-auto flex flex-wrap items-center gap-2 pt-3">
           <StockBadge units={units} />
-          {hasSizes(p) && <span className="text-[0.8rem] text-(--as-muted)">{p.sizes.length} tamanhos</span>}
+          {hasSizes(p) && <span className="text-[0.8rem] text-(--as-muted)">{t.catalog.sizes(p.sizes.length)}</span>}
         </div>
       </div>
     </article>

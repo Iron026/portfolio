@@ -84,6 +84,41 @@ export const products: Product[] = [
   },
 ];
 
+/* ------------------------------------------------------------ inglês
+ * Textos de exibição em inglês. Códigos, categorias, tamanhos e parâmetros
+ * da URL são identificadores e não mudam (o carrinho salvo usa os mesmos).
+ */
+export type StoreLocale = 'pt' | 'en';
+
+const CATEGORY_LABELS_EN: Record<Category, string> = { calcados: 'Footwear', roupas: 'Apparel', acessorios: 'Accessories' };
+const SORT_LABELS_EN: Record<Sort, string> = { relevancia: 'Featured', 'menor-preco': 'Lowest price', 'maior-preco': 'Highest price' };
+const PAYMENT_LABELS_EN: Record<PaymentMethod, string> = { pix: 'Pix instant payment (simulated)', cartao: 'Credit card (simulated)', boleto: 'Bank slip (simulated)' };
+/** Tamanhos de roupa brasileiros exibidos no padrão em inglês; numeração de calçado não muda. */
+const SIZE_EN: Record<string, string> = { P: 'S', M: 'M', G: 'L', GG: 'XL' };
+
+const PRODUCT_EN: Record<string, { name: string; description: string; highlights: string[] }> = {
+  'AR-01': { name: 'Lightweight Running Shoe', description: 'Running shoe with a breathable mesh upper and a soft midsole for daily runs of up to 10 km.', highlights: ['Breathable mesh upper', 'Cushioned midsole', 'Approximate weight: 240 g (size 40)'] },
+  'AR-02': { name: 'Society Pro Turf Boot', description: 'Boot for artificial turf with low studs, good traction and a low collar for more mobility.', highlights: ['Studs for artificial turf', 'Low collar', 'Removable insole'] },
+  'AR-03': { name: 'Dry Training Shirt', description: 'Training shirt in a light, quick-drying fabric, with flat seams to prevent chafing.', highlights: ['Quick-drying fabric', 'Flat seams', 'UV protection 30'] },
+  'AR-04': { name: 'Running Shorts', description: 'Running shorts with inner compression shorts, a drawstring waist and a zippered back pocket for keys.', highlights: ['Inner compression shorts', 'Zippered pocket', 'Reflective details'] },
+  'AR-05': { name: 'Windbreaker Jacket', description: 'Light, wind-resistant jacket with an adjustable hood. Packs into its own pocket.', highlights: ['Wind and drizzle resistant', 'Adjustable hood', 'Packs into its own pocket'] },
+  'AR-06': { name: 'Pro Soccer Ball', description: 'Official size field ball, with 32 stitched panels and a butyl bladder that holds pressure longer.', highlights: ['Official size and weight', '32 stitched panels', 'Butyl bladder'] },
+  'AR-07': { name: 'Insulated Bottle 750 ml', description: 'Double-wall stainless steel bottle: keeps drinks cold for up to 12 hours. Lid with handle.', highlights: ['Double-wall stainless steel', 'Cold for up to 12 hours', 'BPA free'] },
+  'AR-08': { name: 'Sports Backpack 25 L', description: 'Backpack with a shoe compartment, a pocket for laptops up to 15 inches and padded straps.', highlights: ['Ventilated shoe compartment', 'Laptop pocket', 'Padded straps'] },
+};
+
+export const categoryLabels = (locale: StoreLocale = 'pt') => (locale === 'en' ? CATEGORY_LABELS_EN : CATEGORY_LABELS);
+export const sortLabels = (locale: StoreLocale = 'pt'): Record<Sort, string> => (locale === 'en' ? SORT_LABELS_EN : SORT_LABELS);
+export const paymentLabels = (locale: StoreLocale = 'pt'): Record<PaymentMethod, string> => (locale === 'en' ? PAYMENT_LABELS_EN : PAYMENT_LABELS);
+export const sizeLabel = (size: string, locale: StoreLocale = 'pt') => (locale === 'en' ? (SIZE_EN[size] ?? size) : size);
+
+/** Produto com os textos do idioma pedido (código, preço, tamanhos e estoque não mudam). */
+export function localizeProduct(p: Product, locale: StoreLocale = 'pt'): Product {
+  if (locale === 'pt') return p;
+  const t = PRODUCT_EN[p.id];
+  return t ? { ...p, name: t.name, description: t.description, highlights: t.highlights } : p;
+}
+
 export function getProduct(id: string | undefined) {
   if (!id) return undefined;
   return products.find((p) => p.id.toLowerCase() === id.toLowerCase());
@@ -126,12 +161,14 @@ export const DEFAULT_FILTERS: CatalogFilters = { q: '', category: '', sort: 'rel
 
 const normalize = (v: string) => v.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
 
-export function filterCatalog(list: Product[], f: CatalogFilters): Product[] {
+/** A busca considera o texto exibido no idioma da página. */
+export function filterCatalog(list: Product[], f: CatalogFilters, locale: StoreLocale = 'pt'): Product[] {
   const words = normalize(f.q).split(' ').filter(Boolean);
   const result = list.filter((p) => {
     if (f.category && p.category !== f.category) return false;
     if (!words.length) return true;
-    const text = normalize([p.name, p.id, CATEGORY_LABELS[p.category], p.description, ...p.highlights].join(' '));
+    const shown = localizeProduct(p, locale);
+    const text = normalize([shown.name, p.id, categoryLabels(locale)[p.category], shown.description, ...shown.highlights].join(' '));
     return words.every((w) => text.includes(w));
   });
   if (f.sort === 'menor-preco') return [...result].sort((a, b) => a.price - b.price);
@@ -295,8 +332,10 @@ export function serializeCart(lines: CartLine[]) {
 
 /* ------------------------------------------------------------ formatação e checkout */
 
+/** Preços sempre em reais (loja fictícia brasileira); o formato acompanha o idioma. */
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-export const formatCents = (cents: number) => brl.format(cents / 100);
+const brlEn = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BRL' });
+export const formatCents = (cents: number, locale: StoreLocale = 'pt') => (locale === 'en' ? brlEn : brl).format(cents / 100);
 
 export type PaymentMethod = 'pix' | 'cartao' | 'boleto';
 export const PAYMENT_LABELS: Record<PaymentMethod, string> = {

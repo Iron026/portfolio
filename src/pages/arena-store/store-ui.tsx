@@ -1,15 +1,17 @@
 /** Peças pequenas reutilizadas nas telas da Arena Store. */
 import { Minus, Plus } from 'lucide-react';
 import { stockLevel } from './store-data';
+import { useStore } from './store-i18n';
 
 export function StockBadge({ units, className = '' }: { units: number; className?: string }) {
   const level = stockLevel(units);
+  const t = useStore().t.stock;
   const styles = {
     esgotado: 'bg-(--as-line) text-(--as-muted)',
     ultimas: 'bg-(--as-low-bg) text-(--as-low)',
     disponivel: 'bg-(--as-ok-bg) text-(--as-ok)',
   }[level];
-  const text = { esgotado: 'Esgotado', ultimas: units === 1 ? 'Última unidade' : `Últimas ${units} unidades`, disponivel: 'Em estoque' }[level];
+  const text = { esgotado: t.out, ultimas: t.last(units), disponivel: t.in }[level];
   return <span className={`inline-block rounded-full px-2.5 py-0.5 text-[0.8rem] font-semibold ${styles} ${className}`}>{text}</span>;
 }
 
@@ -19,6 +21,7 @@ export function QtyStepper({
 }: {
   id: string; value: number; min?: number; max: number; onChange: (n: number) => void; label: string; size?: 'sm' | 'md';
 }) {
+  const t = useStore().t.qty;
   const h = size === 'sm' ? 'h-9' : 'h-11';
   const w = size === 'sm' ? 'w-9' : 'w-11';
   const clamp = (n: number) => Math.min(Math.max(min, Math.floor(n) || min), Math.max(min, max));
@@ -28,13 +31,13 @@ export function QtyStepper({
         type="button"
         onClick={() => onChange(clamp(value - 1))}
         disabled={value <= min}
-        aria-label={`Diminuir quantidade de ${label}`}
+        aria-label={t.less(label)}
         className={`grid ${h} ${w} place-items-center rounded-full disabled:cursor-not-allowed disabled:opacity-35`}
       >
         <Minus aria-hidden="true" className="h-4 w-4" />
       </button>
       <label htmlFor={id} className="sr-only">
-        Quantidade de {label}
+        {t.label(label)}
       </label>
       <input
         id={id}
@@ -50,7 +53,7 @@ export function QtyStepper({
         type="button"
         onClick={() => onChange(clamp(value + 1))}
         disabled={value >= max}
-        aria-label={`Aumentar quantidade de ${label}`}
+        aria-label={t.more(label)}
         className={`grid ${h} ${w} place-items-center rounded-full disabled:cursor-not-allowed disabled:opacity-35`}
       >
         <Plus aria-hidden="true" className="h-4 w-4" />

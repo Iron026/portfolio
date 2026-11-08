@@ -3,6 +3,8 @@
  * Persiste apenas no localStorage deste navegador. Ao carregar, os dados
  * salvos passam por `restoreCart`, que descarta o que for inválido.
  */
+import { useLocale } from '@/i18n/useLocale';
+import { restoreNotice } from './store-i18n';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   STORAGE_KEY, addToCart, removeLine, restoreCart, serializeCart, setLineQty,
@@ -26,13 +28,6 @@ function writeStorage(value: string | null) {
   }
 }
 
-function describeRestore(r: ReturnType<typeof restoreCart>) {
-  if (r.corrupted) return 'Não foi possível ler o carrinho salvo neste navegador, então ele foi reiniciado.';
-  const parts: string[] = [];
-  if (r.dropped) parts.push(r.dropped === 1 ? '1 item salvo foi removido por não estar mais disponível' : `${r.dropped} itens salvos foram removidos por não estarem mais disponíveis`);
-  if (r.adjusted) parts.push(r.adjusted === 1 ? '1 quantidade foi ajustada ao estoque' : `${r.adjusted} quantidades foram ajustadas ao estoque`);
-  return parts.length ? `Carrinho recuperado: ${parts.join(' e ')}.` : '';
-}
 
 interface CartContextValue {
   lines: CartLine[];
@@ -51,7 +46,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const initial = useRef<ReturnType<typeof restoreCart> | null>(null);
   if (initial.current === null) initial.current = restoreCart(readStorage());
   const [lines, setLines] = useState<CartLine[]>(initial.current.lines);
-  const [notice, setNotice] = useState(() => describeRestore(initial.current!));
+  // O aviso é montado no idioma da página (e muda junto se a pessoa trocar o idioma)
+  const { locale } = useLocale();
+  const [showNotice, setShowNotice] = useState(true);
+  const notice = showNotice ? restoreNotice(initial.current, locale) : '';
   const [storageAvailable, setStorageAvailable] = useState(true);
 
   // Salva a cada mudança (somente produto, tamanho e quantidade).
@@ -91,7 +89,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       remove: (key) => setLines((c) => removeLine(c, key)),
       clear: () => setLines([]),
       notice,
-      dismissNotice: () => setNotice(''),
+      dismissNotice: () => setShowNotice(false),
       storageAvailable,
     }),
     [lines, add, notice, storageAvailable],
