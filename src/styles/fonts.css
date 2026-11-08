@@ -1,29 +1,32 @@
 /* ==================================================================
    FONTES DA MARCA ALTO CODE — carregamento local (sem Google Fonts)
 
-   Sora        → títulos            (pesos 400–700)
-   Onest       → textos e interface (pesos 400–700)
-   Azeret Mono → detalhes técnicos  (pesos 400–600)
+   Space Grotesk → títulos            (pesos 400–700; usado 600)
+   DM Sans       → textos e interface (pesos 400–700)
+   Azeret Mono   → detalhes técnicos  (pesos 400–600)
 
    Arquivos em public/fonts: WOFF2 variáveis com o subconjunto latino
    (cobre todo o português: á à â ã é ê í ó ô õ ú ü ç, aspas, travessões,
-   € e ™). Os três são pré-carregados no index.html. O sufixo "-v1" no
-   nome permite cache longo: ao trocar um arquivo, mude para "-v2" aqui e
-   no index.html. Licença SIL OFL 1.1 em public/fonts/licencas.
+   € e ™). Space Grotesk e DM Sans vêm do Fontsource 5.3.0, reduzidas ao
+   eixo de peso 400–700; o DM Sans tem o tamanho óptico fixado em 14
+   (textos de 15 a 17 px). Os três são pré-carregados no index.html. O
+   sufixo "-v1" no nome permite cache longo: ao trocar um arquivo, mude
+   para "-v2" aqui e no index.html. Licença SIL OFL 1.1 (uso comercial
+   permitido) em public/fonts/licencas.
 
    As demonstrações continuam com as próprias fontes (Bricolage/Plex).
 ================================================================== */
 
 @font-face {
-  font-family: 'Sora';
-  src: url('/fonts/sora-latin-wght-v1.woff2') format('woff2');
+  font-family: 'Space Grotesk';
+  src: url('/fonts/space-grotesk-latin-wght-v1.woff2') format('woff2');
   font-weight: 400 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Onest';
-  src: url('/fonts/onest-latin-wght-v1.woff2') format('woff2');
+  font-family: 'DM Sans';
+  src: url('/fonts/dm-sans-latin-wght-v1.woff2') format('woff2');
   font-weight: 400 700;
   font-style: normal;
   font-display: swap;
@@ -37,24 +40,25 @@
 }
 
 /*
- * Fontes de reserva com métricas ajustadas (largura média e altura de linha
- * calculadas a partir dos arquivos) para o texto não "pular" enquanto a
- * fonte da marca carrega.
+ * Fontes de reserva com métricas ajustadas (largura média de um texto em
+ * português e altura de linha, calculadas a partir dos arquivos, no peso
+ * usado: 600 nos títulos e 400 nos textos) para o texto não "pular"
+ * enquanto a fonte da marca carrega.
  */
 @font-face {
-  font-family: 'Sora Fallback';
+  font-family: 'Space Grotesk Fallback';
   src: local('Arial'), local('Liberation Sans'), local('Helvetica');
-  size-adjust: 113%;
-  ascent-override: 85.8%;
-  descent-override: 25.7%;
+  size-adjust: 101.6%;
+  ascent-override: 96.9%;
+  descent-override: 28.7%;
   line-gap-override: 0%;
 }
 @font-face {
-  font-family: 'Onest Fallback';
+  font-family: 'DM Sans Fallback';
   src: local('Arial'), local('Liberation Sans'), local('Helvetica');
   size-adjust: 104%;
-  ascent-override: 93.3%;
-  descent-override: 29.3%;
+  ascent-override: 95.3%;
+  descent-override: 29.8%;
   line-gap-override: 0%;
 }
 @font-face {

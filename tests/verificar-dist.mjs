@@ -23,7 +23,7 @@ const siteUrl = (siteSrc.match(/url: '(https?:\/\/[^']+)'/) || [])[1]?.replace(/
 // Capturas: cada { src, device } vira <src>-800/-1600.webp (computador) ou <src>-390/-780.webp (celular)
 const images = [...projectsSrc.matchAll(/src: '(\/projetos\/[^']+)', device: '(desktop|mobile)'/g)]
   .flatMap(([, src, device]) => (device === 'mobile' ? [390, 780] : [800, 1600]).map((w) => `${src}-${w}.webp`));
-const fonts = ['sora-latin-wght-v1.woff2', 'onest-latin-wght-v1.woff2', 'azeret-mono-latin-wght-v1.woff2'];
+const fonts = ['space-grotesk-latin-wght-v1.woff2', 'dm-sans-latin-wght-v1.woff2', 'azeret-mono-latin-wght-v1.woff2'];
 
 ok(slugs.length === 5, `5 projetos em src/data/projects.ts (${slugs})`);
 ok(!!siteUrl, `URL do site definida em src/config/site.ts (${siteUrl})`);
@@ -44,11 +44,13 @@ ok(!!cssFile && has(cssFile), `CSS do build presente (${cssFile})`);
 if (cssFile) {
   const css = read(cssFile);
   for (const f of fonts) ok(css.includes(`/fonts/${f}`), `@font-face de ${f} no CSS do build`);
-  ok(/Sora/.test(css) && /Onest/.test(css) && /Azeret Mono/.test(css), 'famílias da marca no CSS');
+  ok(/Space Grotesk/.test(css) && /DM Sans/.test(css) && /Azeret Mono/.test(css), 'famílias da marca no CSS');
+  ok(!/Sora|Onest/.test(css), 'fontes antigas (Sora, Onest) fora do CSS');
   ok(/\.woff2/.test(css), 'fontes das demonstrações (@fontsource) empacotadas no CSS');
 }
 for (const f of fonts) ok(has(`fonts/${f}`), `arquivo fonts/${f}`);
-ok(has('fonts/licencas/Sora-OFL.txt') && has('fonts/licencas/Onest-OFL.txt') && has('fonts/licencas/Azeret_Mono-OFL.txt'), 'licenças OFL das fontes');
+ok(has('fonts/licencas/Space_Grotesk-OFL.txt') && has('fonts/licencas/DM_Sans-OFL.txt') && has('fonts/licencas/Azeret_Mono-OFL.txt'), 'licenças OFL das fontes');
+ok(!has('fonts/sora-latin-wght-v1.woff2') && !has('fonts/onest-latin-wght-v1.woff2'), 'arquivos das fontes antigas fora do pacote');
 
 // Estudos de caso: HTML próprio com título, descrição, canonical e imagem de compartilhamento
 for (const s of slugs) {

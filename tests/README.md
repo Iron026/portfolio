@@ -39,7 +39,7 @@ Variáveis opcionais: `TEST_OUT` (pasta das capturas geradas, padrão `tests/sai
 | `links-antigos.test.mjs` | links antigos com `#/` continuam funcionando |
 | `contato.test.mjs` | formulário: validação, WhatsApp/e-mail, máscara, cópia manual |
 | `bancada.test.mjs` | abas da bancada por mouse e teclado, painéis e fórmulas |
-| `fontes.test.mjs` | todo texto em Sora/Onest/Azeret Mono, arquivos carregados, nenhum caractere sem glifo |
+| `fontes.test.mjs` | todo texto em Space Grotesk/DM Sans/Azeret Mono, arquivos carregados, nenhum caractere sem glifo |
 | `responsivo.test.mjs` | sem rolagem lateral em 320, 390, 768, 1024 e 1440 px (portfólio e demos) |
 | `acessibilidade.test.mjs` | idioma, títulos, nomes de controles, rótulos, ids, alvos de toque, link de pular |
 | `movimento.test.mjs` | botão "Pausar animações", lembrança da escolha, "reduzir movimento", pausa fora da tela, uma prévia em vídeo por vez, botões das prévias, formulário sem interferência |

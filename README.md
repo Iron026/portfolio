@@ -314,22 +314,23 @@ campos, imagens) e 12 px (cartões).
 latino com todos os acentos do português, `font-display: swap`, pré-carregadas no `index.html`,
 cache de um ano via `public/_headers`). `@font-face` e fontes de reserva com métricas ajustadas
 ficam em `src/styles/fonts.css`; a escala, em `src/styles/index.css`. Licenças OFL em
-`public/fonts/licencas/`. Total: cerca de 77 KB (Sora 27 KB, Onest 27 KB, Azeret Mono 22 KB).
+`public/fonts/licencas/`. Total: cerca de 65 KB (Space Grotesk 21 KB, DM Sans 22 KB, Azeret Mono 22 KB).
 
 | Classe | Família | Tamanho (fluido) | Uso |
 | --- | --- | --- | --- |
-| `type-h1` | Sora 600 | 34 → 68 px, entrelinha 1,08, −0,035em | título principal |
-| `type-h2` | Sora 600 | 28 → 46 px, 1,12, −0,03em | títulos de seção |
-| `type-h3` | Sora 600 | 20 → 26 px, 1,22, −0,02em | títulos de projeto |
-| `type-h4` | Sora 600 | 18 px, 1,32, −0,01em | cartões de serviço, perguntas |
-| `type-lead` | Onest 400 | 17 → 19,5 px, 1,58 | textos de abertura |
-| `type-body` | Onest 400 | 17 px, 1,62 | texto corrido |
-| `type-small` | Onest 400 | 15 px, 1,55 | apoio, legendas, rodapé |
+| `type-h1` | Space Grotesk 600 | 34 → 68 px, entrelinha 1,08, −0,035em | título principal |
+| `type-h2` | Space Grotesk 600 | 28 → 46 px, 1,12, −0,03em | títulos de seção |
+| `type-h3` | Space Grotesk 600 | 20 → 26 px, 1,22, −0,02em | títulos de projeto |
+| `type-h4` | Space Grotesk 600 | 18 px, 1,32, −0,01em | cartões de serviço, perguntas |
+| `type-lead` | DM Sans 400 | 17 → 19,5 px, 1,58 | textos de abertura |
+| `type-body` | DM Sans 400 | 17 px, 1,62 | texto corrido |
+| `type-small` | DM Sans 400 | 15 px, 1,55 | apoio, legendas, rodapé |
 | `type-label` | Azeret Mono 500 | 12 px, maiúsculas, +0,07em | índices de seção, categorias |
 | `type-tag` | Azeret Mono 400 | 12,5 px | tecnologias, rotas, identificadores |
 
-A Sora é geométrica e limpa: o tracking fica mais negativo nos títulos grandes e quase
-neutro nos pequenos. O logotipo usa Sora 600. Menus, botões e formulários usam Onest 500/600.
+A Space Grotesk tem desenho técnico, que conversa com a Azeret Mono e com as molduras de
+seleção: o tracking fica mais negativo nos títulos grandes e quase neutro nos pequenos. O
+logotipo usa Space Grotesk 600. Menus, botões e formulários usam DM Sans 500/600.
 
 **Para trocar um arquivo de fonte:** gere o novo WOFF2, renomeie para `-v2` e atualize o nome
 em `src/styles/fonts.css` e nos `<link rel="preload">` do `index.html` (o sufixo evita que

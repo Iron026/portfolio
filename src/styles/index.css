@@ -51,8 +51,8 @@
    * src/styles/fonts.css). As demonstrações continuam com
    * --font-display/--font-sans/--font-mono, para manter a identidade de cada uma.
    */
-  --font-title: 'Sora', 'Sora Fallback', ui-sans-serif, system-ui, sans-serif;
-  --font-text: 'Onest', 'Onest Fallback', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-title: 'Space Grotesk', 'Space Grotesk Fallback', ui-sans-serif, system-ui, sans-serif;
+  --font-text: 'DM Sans', 'DM Sans Fallback', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-code: 'Azeret Mono', 'Azeret Mono Fallback', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
   /* Uma única sombra de apoio + uma de destaque no hover */
@@ -165,9 +165,10 @@
 
 /* ------------------------------------------------------------------
    ESCALA TIPOGRÁFICA (somente portfólio — as demos têm a sua)
-   Sora (600): títulos — geométrica e limpa; tracking negativo moderado
-   nos corpos grandes e quase neutro nos pequenos.
-   Onest (400/500/600): textos, menus, botões e formulários.
+   Space Grotesk (600): títulos — desenho técnico que conversa com a Azeret
+   Mono; tracking negativo moderado nos corpos grandes e quase neutro nos
+   pequenos.
+   DM Sans (400/500/600): textos, menus, botões e formulários.
    Azeret Mono (400/500/600): etiquetas, identificadores e tecnologias.
    Tamanhos fluidos com clamp(): crescem com a tela sem saltos.
 ------------------------------------------------------------------- */

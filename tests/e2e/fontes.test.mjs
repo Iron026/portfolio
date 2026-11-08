@@ -1,11 +1,11 @@
-// Fontes da marca: todo texto do portfólio usa Sora, Onest ou Azeret Mono,
+// Fontes da marca: todo texto do portfólio usa Space Grotesk, DM Sans ou Azeret Mono,
 // os três arquivos WOFF2 carregam (uma vez, com status 200) e cobrem todos os caracteres usados.
 import { readFileSync } from 'node:fs';
 import { chromium, BASE, LAUNCH } from '../helpers.mjs';
 let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : (fail++, console.log('FAIL:', m)); };
 const b = await chromium.launch(LAUNCH);
-const BRAND = ['Sora', 'Onest', 'Azeret Mono'];
-const FILES = ['sora-latin-wght-v1.woff2', 'onest-latin-wght-v1.woff2', 'azeret-mono-latin-wght-v1.woff2'];
+const BRAND = ['Space Grotesk', 'DM Sans', 'Azeret Mono'];
+const FILES = ['space-grotesk-latin-wght-v1.woff2', 'dm-sans-latin-wght-v1.woff2', 'azeret-mono-latin-wght-v1.woff2'];
 
 // Os preloads do index.html e o fonts.css apontam para os mesmos arquivos
 const html = readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
