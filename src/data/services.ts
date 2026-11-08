@@ -8,6 +8,9 @@
  * ids existentes para não quebrar links já compartilhados.
  */
 
+import type { Locale } from '@/i18n/locale';
+import { serviceCategoriesEn, servicesEn } from './services.en';
+
 export interface Service {
   id: string;
   category: CategoryId;
@@ -24,6 +27,9 @@ export interface Service {
 }
 
 export type CategoryId = 'presenca' | 'gestao' | 'processos';
+
+/** Campos de texto de um serviço, traduzidos em services.<idioma>.ts. */
+export type ServiceText = Pick<Service, 'name' | 'benefit' | 'description' | 'applications' | 'cta'>;
 
 export const serviceCategories: Record<CategoryId, string> = {
   presenca: 'Presença online',
@@ -129,3 +135,11 @@ export const services: Service[] = [
     cta: 'Pedir orçamento de ferramenta',
   },
 ];
+
+/** Serviços e categorias no idioma pedido. Ids, categorias e provas (`proof`) não mudam. */
+export function getServices(locale: Locale): Service[] {
+  return locale === 'pt' ? services : services.map((s) => ({ ...s, ...servicesEn[s.id] }));
+}
+export function getServiceCategories(locale: Locale): Record<CategoryId, string> {
+  return locale === 'pt' ? serviceCategories : serviceCategoriesEn;
+}

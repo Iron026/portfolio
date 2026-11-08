@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { site } from '@/config/site';
+import { useLocale } from '@/i18n/useLocale';
+import { useUi } from '@/i18n/ui';
 import { cn } from '@/utils/cn';
 
 interface LogoProps {
@@ -13,7 +15,9 @@ interface LogoProps {
  * (para perfis, capas e apresentações) ficam em public/marca/.
  */
 export function LogoMark({ tone = 'dark', className }: LogoProps) {
-  const fg = tone === 'dark' ? 'var(--color-ink)' : '#ffffff';
+  // currentColor: o monograma acompanha a cor do texto do tom da seção
+  void tone;
+  const fg = 'currentColor';
   return (
     <svg viewBox="0 0 40 40" aria-hidden="true" className={cn('h-9 w-9 shrink-0', className)}>
       {/* Moldura de seleção: linha fina e quatro alças */}
@@ -37,19 +41,16 @@ export function LogoMark({ tone = 'dark', className }: LogoProps) {
 }
 
 export function Logo({ tone = 'dark', className }: LogoProps) {
+  const { lp } = useLocale();
+  const ui = useUi();
   return (
     <Link
-      to="/"
-      className={cn('group inline-flex items-center gap-2.5 rounded-lg', className)}
-      aria-label={`${site.name}, página inicial`}
+      to={lp('/')}
+      className={cn('group inline-flex items-center gap-2.5 rounded-lg text-fg', className)}
+      aria-label={ui.common.homeLabel(site.name)}
     >
       <LogoMark tone={tone} />
-      <span
-        className={cn(
-          'font-title text-[1.2rem] font-semibold tracking-[-0.03em]',
-          tone === 'dark' ? 'text-ink' : 'text-white',
-        )}
-      >
+      <span className="font-title text-[1.2rem] font-semibold tracking-[-0.03em]">
         {site.name}
       </span>
     </Link>

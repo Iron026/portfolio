@@ -1,5 +1,8 @@
 import { useLocation } from 'react-router-dom';
 import { projects } from '@/data/projects';
+import { canonicalPath } from '@/i18n/locale';
+import { useLocale } from '@/i18n/useLocale';
+import { useUi } from '@/i18n/ui';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ButtonLink } from '@/components/ui/Button';
 import NotFound from './NotFound';
@@ -12,21 +15,22 @@ import NotFound from './NotFound';
  */
 export default function DemoPending() {
   const { pathname } = useLocation();
-  const project = projects.find((p) => p.demo.url === pathname);
-  useDocumentTitle(project ? `Demonstração ${project.name}` : undefined);
+  const { lp } = useLocale();
+  const ui = useUi();
+  const t = ui.demoPending;
+  const project = projects.find((p) => p.demo.url === canonicalPath(pathname));
+  useDocumentTitle(project ? t.title(project.name) : undefined);
   if (!project) return <NotFound />;
 
   return (
-    <section className="flex min-h-[70vh] items-center bg-paper pt-32 pb-20">
+    <section className="tone-light on-light flex min-h-[70vh] items-center pt-32 pb-20">
       <div className="container-site max-w-2xl">
-        <h1 className="type-h2">A demonstração de {project.name} está em produção</h1>
-        <p className="type-lead mt-4 text-slate">
-          Enquanto isso, você pode ver os detalhes do projeto: o problema que ele resolve, as funcionalidades previstas e as tecnologias utilizadas.
-        </p>
+        <h1 className="type-h2 text-fg">{t.heading(project.name)}</h1>
+        <p className="type-lead mt-4 text-fg-muted">{t.text}</p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink to={`/projetos/${project.slug}`}>Ver detalhes do projeto</ButtonLink>
-          <ButtonLink to={{ pathname: '/', hash: '#projetos' }} variant="secondary">
-            Todos os projetos
+          <ButtonLink to={lp(`/projetos/${project.slug}`)}>{t.details}</ButtonLink>
+          <ButtonLink to={{ pathname: lp('/'), hash: '#projetos' }} variant="secondary">
+            {t.all}
           </ButtonLink>
         </div>
       </div>

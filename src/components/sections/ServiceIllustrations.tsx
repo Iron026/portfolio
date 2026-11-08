@@ -1,6 +1,8 @@
 import { useState, type CSSProperties, type ReactNode } from 'react';
 import { useTicker } from '@/hooks/useMotion';
 import { cn } from '@/utils/cn';
+import { useLocale } from '@/i18n/useLocale';
+import type { Locale } from '@/i18n/locale';
 
 /**
  * Ilustrações técnicas animadas dos seis serviços. Cada uma mostra, em pequena
@@ -14,7 +16,57 @@ import { cn } from '@/utils/cn';
  */
 
 type Props = { active: boolean };
-const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+/** Textos visíveis das ilustrações (decorativas, mas legíveis na tela). Valores em reais nos dois idiomas. */
+const ART = {
+  pt: {
+    orders: ['Cartões 500 un.', 'Banner 2 m²', 'Adesivos 100 un.', 'Folhetos 1.000 un.', 'Placa em PVC', 'Crachás 40 un.'],
+    status: ['Novo', 'Em produção', 'Concluído'],
+    ordersTitle: 'Pedidos',
+    records: (n: number) => `${n} registros`,
+    revenue: 'Receita no período',
+    sheetItems: [['Cartões', 'Banner', 'Adesivos'], ['Folhetos', 'Placa', 'Crachás']],
+    sheetHead: ['Item', 'Qtd', 'Preço', 'Total'],
+    sum: 'SOMA',
+    total: 'Total',
+    flow: ['Pedido', 'Planilha', 'Aviso', 'Relatório'],
+    qty: 'Quantidade',
+    packs: 'pct.',
+    material: 'Material',
+    standard: 'Padrão',
+    premium: 'Premium',
+    turnaround: 'Prazo',
+    normal: 'Normal',
+    rush: 'Rápido',
+    quoteTotal: 'Total do orçamento',
+  },
+  en: {
+    orders: ['Business cards ×500', 'Banner 2 m²', 'Stickers ×100', 'Flyers ×1,000', 'PVC sign', 'Badges ×40'],
+    status: ['New', 'In production', 'Done'],
+    ordersTitle: 'Orders',
+    records: (n: number) => `${n} records`,
+    revenue: 'Revenue this period',
+    sheetItems: [['Cards', 'Banner', 'Stickers'], ['Flyers', 'Sign', 'Badges']],
+    sheetHead: ['Item', 'Qty', 'Price', 'Total'],
+    sum: 'SUM',
+    total: 'Total',
+    flow: ['Order', 'Sheet', 'Notice', 'Report'],
+    qty: 'Quantity',
+    packs: 'packs',
+    material: 'Material',
+    standard: 'Standard',
+    premium: 'Premium',
+    turnaround: 'Turnaround',
+    normal: 'Normal',
+    rush: 'Rush',
+    quoteTotal: 'Quote total',
+  },
+} satisfies Record<Locale, unknown>;
+
+function useArt() {
+  const { locale, intl } = useLocale();
+  return { t: ART[locale], brl: new Intl.NumberFormat(intl, { style: 'currency', currency: 'BRL' }), dec: (n: number) => n.toLocaleString(intl, { minimumFractionDigits: 1, maximumFractionDigits: 1 }), num: (n: number, d = 2) => n.toLocaleString(intl, { minimumFractionDigits: d, maximumFractionDigits: d }) };
+}
 
 /* ------------------------------------------------------------ sites (CSS) */
 /** Blocos de uma página chegando ao lugar, um a um, com a moldura de seleção. */
@@ -47,32 +99,23 @@ export function SitesIllustration() {
 }
 
 /* ------------------------------------------------------- sistemas (ticker) */
-const ORDERS = [
-  ['#2051', 'Cartões 500 un.'],
-  ['#2052', 'Banner 2 m²'],
-  ['#2053', 'Adesivos 100 un.'],
-  ['#2054', 'Folhetos 1.000 un.'],
-  ['#2055', 'Placa em PVC'],
-  ['#2056', 'Crachás 40 un.'],
-];
-const STATUS = [
-  { label: 'Novo', cls: 'bg-amber/20 text-amber' },
-  { label: 'Em produção', cls: 'bg-lavender-glow/25 text-lavender-2' },
-  { label: 'Concluído', cls: 'bg-tide/15 text-tide' },
-];
+const ORDER_IDS = ['#2051', '#2052', '#2053', '#2054', '#2055', '#2056'];
+const STATUS_CLS = ['bg-amber/20 text-amber', 'bg-lavender-glow/25 text-lavender-2', 'bg-tide/15 text-tide'];
 /** Painel de pedidos: um registro novo entra e os anteriores avançam de status. */
 export function SystemsIllustration({ active }: Props) {
+  const { t } = useArt();
   const [n, setN] = useState(3);
   useTicker(active, 2400, () => setN((v) => v + 1));
   const rows = [0, 1, 2].map((k) => {
     const idx = n - 1 - k;
-    return { key: idx, order: ORDERS[idx % ORDERS.length], status: STATUS[Math.min(k, 2)] };
+    const o = idx % ORDER_IDS.length;
+    return { key: idx, order: [ORDER_IDS[o], t.orders[o]], status: { label: t.status[Math.min(k, 2)], cls: STATUS_CLS[Math.min(k, 2)] } };
   });
   return (
     <div className="flex h-full flex-col px-4 py-3 text-[10.5px] leading-none text-mist">
       <div className="flex items-center justify-between font-code text-[9.5px] tracking-wide text-mist/80">
-        <span>Pedidos</span>
-        <span className="text-tide">{n + 2047} registros</span>
+        <span>{t.ordersTitle}</span>
+        <span className="text-tide">{t.records(n + 2047)}</span>
       </div>
       <div className="mt-2 grid flex-1 content-start gap-1 overflow-hidden">
         {rows.map((r, k) => (
@@ -96,6 +139,7 @@ const SERIES = [
 ];
 /** Barras e indicador se atualizando quando o "filtro" muda. */
 export function DashboardIllustration({ active }: Props) {
+  const { t, brl, dec } = useArt();
   const [i, setI] = useState(0);
   useTicker(active, 2200, () => setI((v) => (v + 1) % SERIES.length));
   const data = SERIES[i];
@@ -105,11 +149,11 @@ export function DashboardIllustration({ active }: Props) {
   return (
     <div className="flex h-full items-stretch gap-4 px-4 py-3">
       <div className="flex w-[38%] flex-col justify-between">
-        <span className="font-code text-[9.5px] text-slate">Receita no período</span>
-        <span key={i} className="svc-value-in font-title text-[17px] font-semibold tracking-[-0.02em] text-ink">{brl.format(total).replace(',00', '')}</span>
+        <span className="font-code text-[9.5px] text-slate">{t.revenue}</span>
+        <span key={i} className="svc-value-in font-title text-[17px] font-semibold tracking-[-0.02em] text-ink">{brl.format(total).replace(/[.,]00$/, '')}</span>
         <span className={cn('w-fit rounded-full px-2 py-0.5 font-code text-[9.5px]', delta >= 0 ? 'bg-tide-wash text-tide-deep' : 'bg-amber/15 text-amber-deep')}>
           {delta >= 0 ? '+' : ''}
-          {delta.toFixed(1).replace('.', ',')}%
+          {dec(delta)}%
         </span>
       </div>
       <div className="flex flex-1 items-end gap-[6%] border-b border-l border-ice-2 pb-px pl-px">
@@ -126,15 +170,18 @@ export function DashboardIllustration({ active }: Props) {
 }
 
 /* ------------------------------------------------------ planilhas (ticker) */
+/** Quantidade e preço de cada linha; os nomes dos itens vêm de ART. */
 const SHEETS = [
-  [['Cartões', 2, 89], ['Banner', 3, 65], ['Adesivos', 4, 32]],
-  [['Folhetos', 5, 48], ['Placa', 1, 120], ['Crachás', 6, 12]],
+  [[2, 89], [3, 65], [4, 32]],
+  [[5, 48], [1, 120], [6, 12]],
 ];
 /** Células recebendo dados e a fórmula recalculando o total. */
 export function SheetIllustration({ active }: Props) {
+  const { t, brl } = useArt();
   const [step, setStep] = useState(0); // 0..6: linhas aparecem; 7..9: total em destaque
   useTicker(active, 900, () => setStep((s) => (s + 1) % 20));
-  const sheet = SHEETS[Math.floor(step / 10) % SHEETS.length];
+  const which = Math.floor(step / 10) % SHEETS.length;
+  const sheet = SHEETS[which].map((r, k) => [t.sheetItems[which][k], r[0], r[1]] as const);
   const local = step % 10;
   const shown = Math.min(local, 3);
   const total = sheet.slice(0, shown).reduce((a, r) => a + Number(r[1]) * Number(r[2]), 0);
@@ -143,10 +190,10 @@ export function SheetIllustration({ active }: Props) {
     <div className="flex h-full flex-col px-4 py-2.5 font-code text-[9.5px] text-mist">
       <div className="flex items-center gap-2 rounded bg-white/[0.05] px-2 py-1 ring-1 ring-white/[0.08]">
         <span className="text-tide">fx</span>
-        <span className="text-white/90">{done ? '=SOMA(D2:D4)' : shown ? `=B${shown + 1}*C${shown + 1}` : '...'}</span>
+        <span className="text-white/90">{done ? `=${t.sum}(D2:D4)` : shown ? `=B${shown + 1}*C${shown + 1}` : '...'}</span>
       </div>
       <div className="mt-1.5 grid flex-1 grid-cols-[1.3fr_0.6fr_0.8fr_1fr] content-start gap-px overflow-hidden rounded bg-white/[0.08]">
-        {['Item', 'Qtd', 'Preço', 'Total'].map((h) => (
+        {t.sheetHead.map((h) => (
           <span key={h} className="bg-ink-2 px-1.5 py-[2px] text-mist/80">{h}</span>
         ))}
         {sheet.map((r, k) => {
@@ -160,7 +207,7 @@ export function SheetIllustration({ active }: Props) {
             </span>
           );
         })}
-        <span className="col-span-3 bg-ink-2 px-1.5 py-[2px] text-mist/80">Total</span>
+        <span className="col-span-3 bg-ink-2 px-1.5 py-[2px] text-mist/80">{t.total}</span>
         <span className={cn('bg-ink-2 px-1.5 py-[2px] text-right text-white transition-colors duration-300', done && 'svc-total-on')}>{total ? brl.format(total) : ''}</span>
       </div>
     </div>
@@ -170,7 +217,7 @@ export function SheetIllustration({ active }: Props) {
 /* --------------------------------------------------------- automação (CSS) */
 /** Um registro percorrendo as etapas de um fluxo; cada etapa acende na passagem. */
 export function AutomationIllustration() {
-  const steps = ['Pedido', 'Planilha', 'Aviso', 'Relatório'];
+  const steps = useArt().t.flow;
   const xs = [40, 120, 200, 280];
   return (
     <svg viewBox="0 0 320 128" className="h-full w-full" preserveAspectRatio="xMidYMid meet">
@@ -204,6 +251,7 @@ const SCENARIOS = [
 ];
 /** Variáveis mudando e o valor do orçamento sendo recalculado (preço × qtd × fatores). */
 export function CalculatorIllustration({ active }: Props) {
+  const { t, brl, num } = useArt();
   const [i, setI] = useState(0);
   useTicker(active, 2000, () => setI((v) => (v + 1) % SCENARIOS.length));
   const s = SCENARIOS[i];
@@ -214,35 +262,35 @@ export function CalculatorIllustration({ active }: Props) {
       <div className="grid content-center gap-2.5">
         <div>
           <div className="flex justify-between font-code text-[9.5px]">
-            <span>Quantidade</span>
-            <span className="text-white">{s.qty} pct.</span>
+            <span>{t.qty}</span>
+            <span className="text-white">{s.qty} {t.packs}</span>
           </div>
           <div className="relative mt-1.5 h-1 rounded-full bg-white/10">
             <span className="absolute inset-y-0 left-0 w-full origin-left rounded-full bg-tide transition-transform duration-500" style={{ transform: `scaleX(${s.qty / 4})` }} />
           </div>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <span className="font-code text-[9.5px]">Material</span>
+          <span className="font-code text-[9.5px]">{t.material}</span>
           <span className="flex rounded bg-white/[0.06] p-0.5">
-            <span className={seg(!s.premium)}>Padrão</span>
-            <span className={seg(s.premium)}>Premium</span>
+            <span className={seg(!s.premium)}>{t.standard}</span>
+            <span className={seg(s.premium)}>{t.premium}</span>
           </span>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <span className="font-code text-[9.5px]">Prazo</span>
+          <span className="font-code text-[9.5px]">{t.turnaround}</span>
           <span className="flex rounded bg-white/[0.06] p-0.5">
-            <span className={seg(!s.rapido)}>Normal</span>
-            <span className={seg(s.rapido)}>Rápido</span>
+            <span className={seg(!s.rapido)}>{t.normal}</span>
+            <span className={seg(s.rapido)}>{t.rush}</span>
           </span>
         </div>
       </div>
       <div className="flex flex-col justify-center rounded-lg bg-white/[0.05] px-3 ring-1 ring-white/[0.08]">
-        <span className="font-code text-[9.5px]">Total do orçamento</span>
+        <span className="font-code text-[9.5px]">{t.quoteTotal}</span>
         <span key={i} className="svc-value-in mt-1 font-title text-[17px] font-semibold tracking-[-0.02em] text-white">{brl.format(total)}</span>
         <span className="mt-1 font-code text-[9px] text-mist/70">
           89 × {s.qty}
-          {s.premium ? ' × 1,30' : ''}
-          {s.rapido ? ' × 1,15' : ''}
+          {s.premium ? ` × ${num(1.3)}` : ''}
+          {s.rapido ? ` × ${num(1.15)}` : ''}
         </span>
       </div>
     </div>

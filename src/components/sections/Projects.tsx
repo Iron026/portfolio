@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
-import { projects, type Project } from '@/data/projects';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
+import type { CSSProperties } from 'react';
+import type { Project } from '@/data/projects';
 import { Section, SectionHeading } from '@/components/ui/Section';
 import { DemoBadge } from '@/components/ui/DemoBadge';
 import { ButtonLink } from '@/components/ui/Button';
@@ -8,136 +9,124 @@ import { Capture } from '@/components/ui/Capture';
 import { ProjectCover } from './ProjectCover';
 import { DemoButton, QuoteLink } from './ProjectActions';
 import { PreviewVideoButton, PreviewVideoLayer, usePreviewVideo } from '@/components/ui/PreviewVideo';
-import type { CSSProperties } from 'react';
+import { useProjects } from '@/i18n/content';
+import { useLocale } from '@/i18n/useLocale';
+import { useUi } from '@/i18n/ui';
+import { getDirection } from '@/design/direction';
 import { cn } from '@/utils/cn';
 
 const num = (n: number) => String(n).padStart(2, '0');
 
 /**
- * Composição editorial da grade (12 colunas no desktop). Cada posição define
- * a largura do cartão e se ele é horizontal ("wide") ou vertical ("tall").
- * Com mais ou menos projetos, os extras usam o formato vertical em meia largura.
+ * Vitrine em grade assimétrica (12 colunas no desktop):
+ * - o primeiro projeto é o destaque (7 colunas, captura do computador e do celular);
+ * - o segundo divide a linha com ele (5 colunas);
+ * - os três seguintes ocupam 4 colunas cada.
+ * A mídia de cada cartão usa a cor da identidade da própria demonstração.
  */
-const LAYOUT: Array<{ span: string; shape: 'wide' | 'tall'; flip?: boolean; phone?: boolean }> = [
-  { span: 'lg:col-span-12', shape: 'wide' },
-  { span: 'lg:col-span-7', shape: 'tall' },
-  { span: 'lg:col-span-5', shape: 'tall' },
-  { span: 'lg:col-span-12', shape: 'wide', flip: true, phone: true },
-  { span: 'lg:col-span-7', shape: 'tall' },
+const LAYOUT: Array<{ span: string; feature?: boolean }> = [
+  { span: 'lg:col-span-7', feature: true },
+  { span: 'lg:col-span-5' },
+  { span: 'md:col-span-1 lg:col-span-4' },
+  { span: 'md:col-span-1 lg:col-span-4' },
+  { span: 'md:col-span-2 lg:col-span-4' },
 ];
 
 export function Projects() {
-  return (
-    <Section id="projetos" labelledBy="projetos-title" className="bg-ice">
-      <SectionHeading
-        id="projetos-title"
-        index="01"
-        label="Projetos"
-        title="Projetos para explorar e testar"
-        intro={`${projects.length} projetos autorais, com empresas e dados fictícios e funcionalidades reais. Teste qualquer um no navegador, sem cadastro; as prévias em vídeo são gravações das próprias demonstrações.`}
-      />
+  const projects = useProjects();
+  const ui = useUi();
+  const { lp } = useLocale();
+  const uniform = getDirection() === 'a';
+  const home = lp('/');
 
-      <div className="mt-14 grid gap-5 sm:mt-16 lg:grid-cols-12 lg:gap-6">
+  return (
+    <Section id="projetos" labelledBy="projetos-title" className="bg-surface-2!">
+      <SectionHeading id="projetos-title" index="01" label={ui.sections.projects.label} title={ui.sections.projects.title} intro={ui.sections.projects.intro(projects.length)} />
+
+      <div className={cn('mt-14 grid gap-5 sm:mt-16 lg:gap-6', uniform ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-12')}>
         {projects.map((project, i) => (
-          <ProjectCard key={project.slug} project={project} index={i} total={projects.length} layout={LAYOUT[i] ?? { span: 'lg:col-span-6', shape: 'tall' }} />
+          <ProjectCard key={project.slug} project={project} index={i} total={projects.length} span={uniform ? '' : (LAYOUT[i]?.span ?? 'lg:col-span-6')} feature={!uniform && !!LAYOUT[i]?.feature} />
         ))}
-        <QuoteCard />
+
+        {/* Faixa final: chamada real para o formulário */}
+        <div className={cn('tone-dark on-dark relative flex flex-col justify-between gap-6 overflow-hidden rounded-[14px] p-6 sm:flex-row sm:items-center sm:p-8', uniform ? 'md:col-span-2' : 'md:col-span-2 lg:col-span-12')}>
+          <div className="max-w-2xl">
+            <p className="type-h3 text-fg">{ui.projects.quoteBandTitle}</p>
+            <p className="type-body mt-2 text-fg-muted">{ui.projects.quoteBandText}</p>
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-3">
+            <ButtonLink to={{ pathname: home, hash: '#contato' }}>
+              {ui.common.requestQuote}
+              <ArrowRight aria-hidden="true" className="arrow h-4 w-4" />
+            </ButtonLink>
+            <ButtonLink to={{ pathname: home, hash: '#servicos' }} variant="onDarkOutline">
+              {ui.projects.seeServices}
+            </ButtonLink>
+          </div>
+        </div>
       </div>
     </Section>
   );
 }
 
-function ProjectCard({
-  project,
-  index,
-  total,
-  layout,
-}: {
-  project: Project;
-  index: number;
-  total: number;
-  layout: (typeof LAYOUT)[number];
-}) {
+function ProjectCard({ project, index, total, span, feature }: { project: Project; index: number; total: number; span: string; feature: boolean }) {
+  const ui = useUi();
+  const { lp } = useLocale();
   const titleId = `projeto-${project.slug}`;
-  const wide = layout.shape === 'wide';
-  const phone = layout.phone ? project.screens.find((s) => s.device === 'mobile') : undefined;
-  const cover = project.screens[0];
-
+  const phone = feature ? project.screens.find((s) => s.device === 'mobile') : undefined;
   const preview = usePreviewVideo(project.video?.src);
-  const accent = { '--accent': project.accent.base, '--accent-2': project.accent.detail } as CSSProperties;
+  const accent = { '--accent-base': project.accent.base, '--accent-detail': project.accent.detail, '--dot': project.accent.detail } as CSSProperties;
+  const caseUrl = lp(`/projetos/${project.slug}`);
 
   return (
-    <article
-      id={`projetos-${project.slug}`}
-      aria-labelledby={titleId}
-      style={accent}
-      className={cn(
-        'grid scroll-mt-24 overflow-hidden rounded-xl bg-card shadow-[inset_0_0_0_1px_var(--color-ice-2)] [&>*]:min-w-0',
-        layout.span,
-        wide && 'lg:grid-cols-12',
-      )}
-    >
+    <article id={`projetos-${project.slug}`} aria-labelledby={titleId} style={accent} className={cn('pcard group/card flex scroll-mt-24 flex-col overflow-hidden', span)}>
       {/* Mídia: captura real por baixo e a prévia gravada da demonstração por cima */}
-      <div
-        className={cn(
-          'project-media relative p-4 sm:p-6',
-          wide && 'lg:col-span-7 lg:p-10',
-          wide && layout.flip && 'lg:order-2',
-        )}
-      >
-        {/* faixa com a cor de destaque da identidade do projeto */}
-        <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[3px] bg-(--accent-2)" />
-        <Link to={`/projetos/${project.slug}`} aria-label={`Ver o estudo de caso de ${project.name}`} className="group relative block">
-          <div className="frame-sel frame-sel-hover">
-            <div ref={preview.boxRef} className="relative overflow-hidden rounded-lg shadow-soft">
-              <ProjectCover
-                project={project}
-                sizes={wide ? '(min-width: 1024px) 55vw, 100vw' : '(min-width: 1024px) 45vw, 100vw'}
-              />
-              {project.video && <PreviewVideoLayer preview={preview} label={`Prévia de ${project.name}: ${project.video.shows}`} />}
+      <div className={cn('pcard-media relative', feature ? 'px-5 pt-10 pb-6 sm:px-9 sm:pt-12 sm:pb-9' : 'px-5 pt-9 pb-5 sm:px-6 sm:pt-10')}>
+        <span aria-hidden="true" className="pcard-route">{project.demo.url.replace(/^\/demos\//, '')}</span>
+        <Link to={caseUrl} aria-label={ui.common.seeCaseStudy(project.name)} className="group relative block">
+          <div className="browser frame-sel frame-sel-hover transition-transform duration-300 ease-out group-hover/card:-translate-y-1">
+            <div className="browser-bar" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </div>
+            <div ref={preview.boxRef} className="relative overflow-hidden">
+              <ProjectCover project={project} className="rounded-none" sizes={feature ? '(min-width: 1024px) 50vw, 100vw' : '(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw'} />
+              {project.video && <PreviewVideoLayer preview={preview} label={ui.video.layer(project.name, project.video.shows)} />}
             </div>
           </div>
           {phone && (
-            <div className="absolute right-2 -bottom-2 hidden w-[22%] max-w-[9.5rem] overflow-hidden rounded-lg shadow-lift ring-4 ring-(--accent-ring) lg:block">
-              <Capture screen={phone} sizes="10rem" />
+            <div className="phone absolute right-3 -bottom-4 hidden w-[23%] max-w-[10rem] transition-transform duration-300 ease-out group-hover/card:-translate-y-2 sm:block">
+              <div>
+                <Capture screen={phone} sizes="10rem" />
+              </div>
             </div>
           )}
         </Link>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-          {cover && (
-            <p className="type-tag text-slate">
-              {project.video ? 'Gravação da demonstração' : 'Captura'} <span aria-hidden="true">·</span> {cover.route}
-            </p>
-          )}
-          {project.video && <PreviewVideoButton preview={preview} name={project.name} />}
-        </div>
-        {project.video && <p className="type-small mt-2 max-w-[60ch] text-slate">{project.video.shows}</p>}
+        {project.video && <PreviewVideoButton preview={preview} name={project.name} className="absolute bottom-3 left-3 z-10 sm:bottom-4 sm:left-4" />}
       </div>
 
-      <div className={cn('flex flex-col p-6 sm:p-8', wide && 'lg:col-span-5 lg:justify-center lg:p-10')}>
+      <div className={cn('flex flex-1 flex-col', feature ? 'p-6 sm:p-8' : 'p-6')}>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <span aria-hidden="true" className="type-label text-tide-deep">
+          <span aria-hidden="true" className="type-label text-accent">
             {num(index + 1)} / {num(total)}
           </span>
-          <span className="type-small inline-flex items-center gap-2 text-slate">
-            {/* as duas cores da identidade do projeto */}
-            <span aria-hidden="true" className="inline-flex">
-              <i className="h-2.5 w-2.5 rounded-full bg-(--accent) ring-2 ring-card" />
-              <i className="-ml-1 h-2.5 w-2.5 rounded-full bg-(--accent-2) ring-2 ring-card" />
-            </span>
+          <span className="chip">
+            <span aria-hidden="true" className="chip-dot" />
             {project.category}
           </span>
           <DemoBadge kind={project.kind} />
         </div>
-        <h3 id={titleId} className="type-h3 mt-3">
-          {project.name}
+        <h3 id={titleId} className={cn('mt-4 text-fg', feature ? 'type-h2' : 'type-h3')}>
+          <Link to={caseUrl} className="hover:text-accent">
+            {project.name}
+          </Link>
         </h3>
-        <p className="type-body mt-3 text-slate">{project.teaser}</p>
+        <p className="type-body mt-3 max-w-[56ch] text-fg-muted">{project.teaser}</p>
 
-        <h4 className="sr-only">Tecnologias</h4>
-        <ul className="mt-5 flex flex-wrap gap-x-3 gap-y-1" aria-label="Tecnologias utilizadas">
+        <ul className="mt-5 flex flex-wrap gap-x-3 gap-y-1" aria-label={ui.projects.tech}>
           {project.technologies.map((tech) => (
-            <li key={tech} className="type-tag text-slate">
+            <li key={tech} className="type-tag text-fg-muted">
               {tech}
             </li>
           ))}
@@ -146,36 +135,14 @@ function ProjectCard({
         <div className="mt-auto pt-7">
           <div className="grid gap-2.5 min-[420px]:grid-cols-2 sm:flex sm:flex-wrap">
             <DemoButton project={project} />
-            <ButtonLink to={`/projetos/${project.slug}`} variant="secondary">
-              Ver detalhes
-              <ArrowRight aria-hidden="true" className="arrow h-4 w-4" />
+            <ButtonLink to={caseUrl} variant="secondary">
+              {ui.common.caseStudy}
+              <ArrowUpRight aria-hidden="true" className="arrow h-4 w-4" />
             </ButtonLink>
           </div>
           <QuoteLink project={project} className="type-small mt-3" />
         </div>
       </div>
     </article>
-  );
-}
-
-/** Cartão final da grade: chamada real para o formulário de orçamento. */
-function QuoteCard() {
-  return (
-    <div className="on-dark flex flex-col justify-between rounded-xl bg-night p-6 text-white sm:p-8 lg:col-span-5">
-      <div>
-        <p className="type-label text-tide">Seu projeto</p>
-        <p className="type-h3 mt-4 text-white">Precisa de algo parecido ou de uma solução diferente?</p>
-        <p className="type-body mt-3 text-mist">Conte o que você precisa resolver ou veja os seis serviços.</p>
-      </div>
-      <div className="mt-8 flex flex-wrap gap-3">
-        <ButtonLink to={{ pathname: '/', hash: '#contato' }} variant="onDark">
-          Solicitar orçamento
-          <ArrowRight aria-hidden="true" className="arrow h-4 w-4" />
-        </ButtonLink>
-        <ButtonLink to={{ pathname: '/', hash: '#servicos' }} variant="onDarkOutline">
-          Ver serviços
-        </ButtonLink>
-      </div>
-    </div>
   );
 }

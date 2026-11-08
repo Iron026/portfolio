@@ -1,9 +1,14 @@
 import { useEffect } from 'react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ButtonLink } from '@/components/ui/Button';
+import { useLocale } from '@/i18n/useLocale';
+import { useUi } from '@/i18n/ui';
 
 export default function NotFound() {
-  useDocumentTitle('Página não encontrada');
+  const ui = useUi();
+  const { lp } = useLocale();
+  const t = ui.notFound;
+  useDocumentTitle(t.title);
   // Página de erro não deve aparecer nos resultados de busca
   useEffect(() => {
     const meta = document.createElement('meta');
@@ -13,17 +18,17 @@ export default function NotFound() {
     return () => meta.remove();
   }, []);
   return (
-    <section className="flex min-h-[70vh] items-center bg-paper pt-32 pb-20">
+    <section className="tone-light on-light flex min-h-[70vh] items-center pt-32 pb-20">
       <div className="container-site">
-        <p className="type-label text-tide-deep">Erro 404</p>
-        <h1 className="type-h1 mt-4">Esta página não existe</h1>
-        <p className="type-lead mt-5 max-w-xl text-slate">
-          O endereço pode ter sido digitado errado ou a página mudou de lugar. Volte para o início ou veja os projetos.
-        </p>
+        <p className="type-label text-accent">{t.label}</p>
+        <h1 className="type-h1 mt-4 text-fg">
+          <span className="frame-sel frame-word">404</span> {t.heading}
+        </h1>
+        <p className="type-lead mt-5 max-w-xl text-fg-muted">{t.text}</p>
         <div className="mt-9 flex flex-wrap gap-3">
-          <ButtonLink to="/">Ir para o início</ButtonLink>
-          <ButtonLink to={{ pathname: '/', hash: '#projetos' }} variant="secondary">
-            Ver projetos
+          <ButtonLink to={lp('/')}>{t.home}</ButtonLink>
+          <ButtonLink to={{ pathname: lp('/'), hash: '#projetos' }} variant="secondary">
+            {t.projects}
           </ButtonLink>
         </div>
       </div>

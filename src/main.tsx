@@ -16,6 +16,9 @@ import './styles/fonts.css'; // fontes da marca Alto Code (WOFF2 locais em publi
 import './styles/index.css';
 
 import App from './App';
+import { initDirection } from './design/direction';
+
+initDirection();
 import { AppErrorBoundary } from './components/layout/AppErrorBoundary';
 
 /**

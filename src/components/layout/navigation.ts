@@ -1,8 +1,2 @@
-/** Itens do menu principal. `hash` é o id da seção na página inicial. O logotipo leva ao início. */
-export const navItems = [
-  { label: 'Projetos', hash: '#projetos' },
-  { label: 'Serviços', hash: '#servicos' },
-  { label: 'Processo', hash: '#como-trabalho' },
-  { label: 'Sobre', hash: '#sobre' },
-  { label: 'Contato', hash: '#contato' },
-] as const;
+/** Itens do menu principal: `hash` é o id da seção na página inicial (o rótulo vem de src/i18n/ui.ts). */
+export const navItems = [{ hash: '#projetos' }, { hash: '#servicos' }, { hash: '#como-trabalho' }, { hash: '#sobre' }, { hash: '#contato' }] as const;

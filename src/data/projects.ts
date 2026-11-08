@@ -17,6 +17,8 @@
  * - `demo.url`: rota interna (ex.: '/demos/imoveis') ou link externo.
  */
 import type { PreviewKind } from '@/components/previews/ProjectPreview';
+import type { Locale } from '@/i18n/locale';
+import { projectsEn } from './projects.en';
 
 export interface Decision {
   title: string;
@@ -363,4 +365,42 @@ export const projects: Project[] = [
 
 export function getProject(slug: string | undefined) {
   return projects.find((project) => project.slug === slug);
+}
+
+/** Campos de texto de um projeto, traduzidos em src/data/projects.<idioma>.ts. */
+export type ProjectText = Pick<
+  Project,
+  'category' | 'teaser' | 'summary' | 'problem' | 'features' | 'technologies' | 'quoteCta' | 'goal' | 'decisions' | 'needs' | 'tryIt' | 'adaptations'
+> & {
+  /** Texto alternativo e legenda de cada captura, na mesma ordem de `screens`. */
+  screens: Array<{ alt: string; caption: string }>;
+  /** Frase que descreve a prévia em vídeo. */
+  videoShows?: string;
+};
+
+/**
+ * Capturas e vídeos da versão em inglês ficam em /projetos/<slug>/en/,
+ * gravados da própria demonstração em inglês (scripts/capturas.mjs e scripts/previas.mjs).
+ */
+export const englishMedia = (src: string) => src.replace(/^(\/projetos\/[^/]+)\//, '$1/en/');
+
+/** Projeto com os textos, capturas e rotas do idioma pedido. Regras e identificadores não mudam. */
+export function localizeProject(project: Project, locale: Locale): Project {
+  if (locale === 'pt') return project;
+  const t = projectsEn[project.slug];
+  return {
+    ...project,
+    ...t,
+    screens: project.screens.map((screen, i) => ({ ...screen, ...t.screens[i], src: englishMedia(screen.src) })),
+    video: project.video && { src: englishMedia(project.video.src), shows: t.videoShows ?? project.video.shows },
+  };
+}
+
+export function getProjects(locale: Locale) {
+  return projects.map((p) => localizeProject(p, locale));
+}
+
+export function getLocalizedProject(slug: string | undefined, locale: Locale) {
+  const project = getProject(slug);
+  return project ? localizeProject(project, locale) : undefined;
 }

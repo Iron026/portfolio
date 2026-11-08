@@ -1,3 +1,4 @@
+import { useUi } from '@/i18n/ui';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Pause, Play } from 'lucide-react';
 import { useMotion, usePageVisible } from '@/hooks/useMotion';
@@ -163,12 +164,13 @@ export function PreviewVideoLayer({ preview, label }: { preview: ReturnType<type
 
 /** Botão de pausar/reproduzir a prévia de um projeto. */
 export function PreviewVideoButton({ preview, name, className }: { preview: ReturnType<typeof usePreviewVideo>; name: string; className?: string }): ReactNode {
-  const label = preview.showsPause ? `Pausar a prévia em vídeo de ${name}` : `Reproduzir a prévia em vídeo de ${name}`;
+  const ui = useUi();
+  const label = preview.showsPause ? ui.video.pauseFor(name) : ui.video.playFor(name);
+  // Nome acessível = texto visível + de qual projeto é a prévia (WCAG 2.5.3)
   return (
     <button
       type="button"
       onClick={preview.toggle}
-      aria-label={label}
       title={label}
       data-preview-toggle
       className={cn(
@@ -177,7 +179,8 @@ export function PreviewVideoButton({ preview, name, className }: { preview: Retu
       )}
     >
       {preview.showsPause ? <Pause aria-hidden="true" className="h-3.5 w-3.5 text-tide" /> : <Play aria-hidden="true" className="h-3.5 w-3.5 text-tide" />}
-      <span aria-hidden="true">{preview.showsPause ? 'Pausar' : 'Ver em movimento'}</span>
+      <span>{preview.showsPause ? ui.video.pause : ui.video.play}</span>
+      <span className="sr-only"> {ui.video.previewOf(name)}</span>
     </button>
   );
 }

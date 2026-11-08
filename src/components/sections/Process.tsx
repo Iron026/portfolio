@@ -1,23 +1,27 @@
 import { useEffect, useRef, useState } from 'react';
-import { processSteps } from '@/data/content';
+import { Check } from 'lucide-react';
 import { Section, SectionHeading } from '@/components/ui/Section';
 import { AmbientBackground } from '@/components/ui/AmbientBackground';
-import { MotionArea } from '@/components/ui/MotionArea';
+import { useProcessSteps } from '@/i18n/content';
+import { useUi } from '@/i18n/ui';
 import { cn } from '@/utils/cn';
 
 /**
- * Processo como um fluxo: as etapas acendem uma a uma quando a seção entra na
- * tela e, depois, um sinal percorre a linha que liga as cinco etapas; cada
- * marcador pulsa quando o sinal passa por ele.
+ * Processo como uma linha de progresso: as etapas acendem uma a uma quando
+ * entram na tela, e a linha que as liga se preenche até a última etapa
+ * alcançada (horizontal no desktop, vertical no celular). Sem rolagem
+ * controlada: tudo é legível de imediato, com ou sem animação.
  */
 export function Process() {
+  const steps = useProcessSteps();
+  const ui = useUi();
   const listRef = useRef<HTMLOListElement>(null);
   const [reached, setReached] = useState(0);
 
   useEffect(() => {
     const el = listRef.current;
     if (!el || typeof IntersectionObserver === 'undefined') {
-      setReached(processSteps.length);
+      setReached(steps.length);
       return;
     }
     const items = [...el.querySelectorAll('li')];
@@ -33,56 +37,61 @@ export function Process() {
     );
     items.forEach((li) => io.observe(li));
     return () => io.disconnect();
-  }, []);
+  }, [steps.length]);
+
+  const progress = steps.length > 1 ? Math.max(0, reached - 1) / (steps.length - 1) : 1;
 
   return (
-    <Section id="como-trabalho" labelledBy="processo-title" className="on-dark bg-night text-white" background={<AmbientBackground variant="process" />}>
-      <SectionHeading
-        id="processo-title"
-        tone="light"
-        index="03"
-        label="Processo"
-        title="Como um projeto acontece"
-        intro="Do primeiro contato à entrega, cada etapa é combinada com você antes de começar."
-      />
-      <MotionArea className="relative mt-12 sm:mt-16">
-        {/* Linha que liga as etapas (telas largas) e o sinal que a percorre */}
-        <div aria-hidden="true" className="process-track absolute inset-x-0 hidden lg:block">
-          <div className="process-runner">
-            <span className="process-signal" />
-          </div>
+    <Section id="como-trabalho" labelledBy="processo-title" tone="dark" background={<AmbientBackground variant="process" />}>
+      <SectionHeading id="processo-title" index="03" label={ui.sections.process.label} title={ui.sections.process.title} intro={ui.sections.process.intro} />
+
+      <div className="relative mt-14 sm:mt-16">
+        {/* trilho e preenchimento (decorativos) */}
+        <div aria-hidden="true" className="absolute top-5 right-[10%] left-[10%] hidden h-px bg-white/15 lg:block">
+          <div className="h-full origin-left bg-tide transition-transform duration-1000 ease-out" style={{ transform: `scaleX(${progress})` }} />
         </div>
-        <ol ref={listRef} className="grid gap-x-6 gap-y-8 sm:grid-cols-2 sm:gap-y-10 lg:grid-cols-5">
-          {processSteps.map((step, i) => {
+        <div aria-hidden="true" className="absolute top-5 bottom-5 left-5 w-px bg-white/15 lg:hidden">
+          <div className="w-full origin-top bg-tide transition-transform duration-1000 ease-out" style={{ height: '100%', transform: `scaleY(${progress})` }} />
+        </div>
+
+        <ol ref={listRef} className="relative grid gap-8 lg:grid-cols-5 lg:gap-6">
+          {steps.map((step, i) => {
             const on = i < reached;
             return (
-              <li
-                key={step.title}
-                data-reached={on ? '' : undefined}
-                className="process-step relative border-t border-white/15 pt-6 lg:border-t-0"
-                style={{ transitionDelay: `${i * 90}ms` }}
-              >
-                <span aria-hidden="true" className="process-marker absolute -top-[4px] left-0 h-[7px] w-[7px] bg-tide" style={{ animationDelay: `${i * 1.6}s` }} />
+              <li key={step.title} className="relative grid grid-cols-[2.5rem_1fr] gap-4 lg:block lg:text-center" data-reached={on ? '' : undefined}>
                 <span
                   aria-hidden="true"
                   className={cn(
-                    'block font-title text-[1.75rem] leading-none font-medium tracking-[-0.03em] tabular-nums transition-colors duration-700 sm:text-[2.5rem]',
-                    on ? 'text-tide' : 'text-tide/45',
+                    'relative z-10 grid h-10 w-10 place-items-center rounded-full font-code text-[0.85rem] font-medium tabular-nums ring-1 transition-[background-color,color,box-shadow] duration-500 lg:mx-auto',
+                    on ? 'bg-tide text-night ring-tide shadow-[0_0_0_6px_rgb(34_195_176/0.12)]' : 'bg-night text-tide ring-white/20',
                   )}
                   style={{ transitionDelay: `${i * 120}ms` }}
                 >
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <h3 className="type-h4 mt-3 text-white sm:mt-5">
-                  <span className="sr-only">Etapa {i + 1}: </span>
-                  {step.title}
-                </h3>
-                <p className="type-small mt-2 text-mist">{step.description}</p>
+                <div className="lg:mt-6">
+                  <h3 className="type-h4 text-fg">
+                    <span className="sr-only">
+                      {ui.sections.process.step} {i + 1}:{' '}
+                    </span>
+                    {step.title}
+                  </h3>
+                  <p className="type-small mt-2 text-fg-muted lg:mx-auto lg:max-w-[24ch]">{step.description}</p>
+                </div>
               </li>
             );
           })}
         </ol>
-      </MotionArea>
+      </div>
+
+      <ul className="mt-14 flex flex-wrap gap-2.5 border-t border-edge pt-8 lg:justify-center">
+        {ui.sections.process.assurances.map((a) => (
+          <li key={a} className="chip h-9 border-edge-strong! text-fg!">
+            <Check aria-hidden="true" className="h-3.5 w-3.5 text-tide" strokeWidth={2.5} />
+            <span className="font-text text-[0.9rem]">{a}</span>
+          </li>
+        ))}
+      </ul>
     </Section>
   );
 }

@@ -13,9 +13,9 @@ export const site = {
   name: 'Alto Code',
 
   /** Seu nome (opcional). Se preenchido, aparece na seção "Sobre". */
-  ownerName: '',
+  ownerName: 'Iron Cruz',
   /** Sua função, exibida junto do nome (opcional). */
-  ownerRole: 'Desenvolvedor independente',
+  ownerRole: 'Desenvolvedor de software',
   /** Foto (opcional): coloque o arquivo em public/ e informe o caminho, ex.: '/foto.webp'. */
   ownerPhoto: '',
 
@@ -62,17 +62,15 @@ export const site = {
     title: 'Quem está por trás da Alto Code',
     /** Texto em primeira pessoa. O primeiro parágrafo aparece em destaque. */
     paragraphs: [
-      'Sou formado em Análise e Desenvolvimento de Software e atuo há dois anos na área de desenvolvimento. À frente da Alto Code, desenvolvo sites, sistemas web, planilhas e automações para as necessidades de pequenos negócios.',
-      'Meu trabalho une conhecimento técnico, planejamento e atenção aos detalhes para criar soluções funcionais, organizadas e fáceis de usar.',
+      'Sou Iron Cruz, formado em Análise e Desenvolvimento de Software, com dois anos de atuação na área de desenvolvimento.',
+      'À frente da Alto Code, desenvolvo sites, sistemas web, planilhas e automações para pequenos negócios. Meu trabalho combina conhecimento técnico, planejamento e atenção aos detalhes para criar soluções funcionais, organizadas e fáceis de usar.',
       'Os projetos deste portfólio são demonstrações autorais, com empresas e dados fictícios, criadas para mostrar na prática diferentes funcionalidades e possibilidades de aplicação.',
     ],
-    /** Compromissos de trabalho exibidos em lista. */
+    /** Compromissos de trabalho (os combinados de proposta e suporte ficam no Processo e nas Dúvidas). */
     principles: [
-      { title: 'Atendimento direto', text: 'Você fala com quem desenvolve, sem intermediários.' },
+      { title: 'Atendimento direto', text: 'Você fala com quem desenvolve, do primeiro contato à entrega.' },
       { title: 'Entender antes de propor', text: 'A solução parte de como o seu negócio funciona hoje.' },
-      { title: 'Combinado por escrito', text: 'Escopo, prazo e valor ficam claros antes do início, assim como o que não está incluído.' },
       { title: 'Revisado e testado', text: 'Uso inteligência artificial como apoio, mas todo código, texto e planilha é revisado e testado antes da entrega.' },
-      { title: 'Fácil de manter', text: 'Soluções organizadas, com orientações por escrito para usar e atualizar.' },
       { title: 'Linguagem clara', text: 'Explicações sem termos técnicos desnecessários, para você decidir com segurança.' },
     ],
   },

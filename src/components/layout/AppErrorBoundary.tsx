@@ -3,11 +3,17 @@ import { useLocation } from 'react-router-dom';
 import { LogoMark } from '@/components/ui/Logo';
 import { buttonClass } from '@/components/ui/Button';
 import { isChunkLoadError } from '@/utils/lazyPage';
+import { UI, type UiText } from '@/i18n/ui';
+import { localeFromPath, localizePath, HTML_LANG } from '@/i18n/locale';
 
 interface Props {
   /** Muda a cada navegação: ao trocar de página (inclusive com Voltar/Avançar), o erro é descartado. */
   resetKey: string;
   children: ReactNode;
+  /** Textos no idioma da página (o componente de classe não usa hooks). */
+  text: UiText['error'];
+  home: string;
+  lang: string;
 }
 interface State {
   error: unknown;
@@ -40,23 +46,21 @@ class Boundary extends Component<Props, State> {
     if (!error) return this.props.children;
     const version = isChunkLoadError(error);
     return (
-      <main role="alert" className="brand font-text grid min-h-screen place-items-center bg-paper px-5 py-16 text-ink">
+      <main role="alert" lang={this.props.lang} className="brand font-text grid min-h-screen place-items-center bg-paper px-5 py-16 text-ink">
         <div className="w-full max-w-lg">
-          <a href="/" className="inline-flex items-center gap-3 font-title text-lg font-semibold tracking-[-0.02em]">
+          <a href={this.props.home} className="inline-flex items-center gap-3 font-title text-lg font-semibold tracking-[-0.02em]">
             <LogoMark /> Alto Code
           </a>
-          <h1 className="type-h2 mt-10">Não foi possível abrir esta página</h1>
+          <h1 className="type-h2 mt-10">{this.props.text.heading}</h1>
           <p className="type-lead mt-4 text-slate">
-            {version
-              ? 'O site foi atualizado enquanto esta aba estava aberta. Recarregue para usar a versão mais recente.'
-              : 'Algo deu errado ao exibir este conteúdo. Tente de novo ou volte para o início.'}
+            {version ? this.props.text.updated : this.props.text.generic}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <button type="button" className={buttonClass('primary')} onClick={() => window.location.reload()}>
-              Tentar novamente
+              {this.props.text.retry}
             </button>
-            <a href="/" className={buttonClass('secondary')}>
-              Voltar para o início
+            <a href={this.props.home} className={buttonClass('secondary')}>
+              {this.props.text.home}
             </a>
           </div>
         </div>
@@ -67,5 +71,10 @@ class Boundary extends Component<Props, State> {
 
 export function AppErrorBoundary({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
-  return <Boundary resetKey={pathname}>{children}</Boundary>;
+  const locale = localeFromPath(pathname);
+  return (
+    <Boundary resetKey={pathname} text={UI[locale].error} home={localizePath('/', locale)} lang={HTML_LANG[locale]}>
+      {children}
+    </Boundary>
+  );
 }
