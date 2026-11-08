@@ -1,9 +1,15 @@
+import { lazy, Suspense } from 'react';
 import type { Project } from '@/data/projects';
-import { ProjectPreview } from '@/components/previews/ProjectPreview';
 import { Capture } from '@/components/ui/Capture';
 import { cn } from '@/utils/cn';
 import { PreviewVideoButton, PreviewVideoLayer, usePreviewVideo } from '@/components/ui/PreviewVideo';
 import { useUi } from '@/i18n/ui';
+
+/**
+ * Prévia desenhada em código: só para projetos ainda sem capturas. Carregada à parte
+ * porque usa os dados das demonstrações, que não devem pesar no carregamento da página inicial.
+ */
+const ProjectPreview = lazy(() => import('@/components/previews/ProjectPreview').then((m) => ({ default: m.ProjectPreview })));
 
 /**
  * Imagem principal do projeto: a primeira captura real (`screens[0]`).
@@ -23,7 +29,13 @@ export function ProjectCover({
   const screen = project.screens[0];
   return (
     <div className={cn('overflow-hidden rounded-lg', className)}>
-      {screen ? <Capture screen={screen} sizes={sizes} priority={priority} /> : <ProjectPreview kind={project.preview} />}
+      {screen ? (
+        <Capture screen={screen} sizes={sizes} priority={priority} />
+      ) : (
+        <Suspense fallback={<div className="aspect-[16/10] bg-surface-2" />}>
+          <ProjectPreview kind={project.preview} />
+        </Suspense>
+      )}
     </div>
   );
 }
