@@ -142,3 +142,32 @@ complexidade do build. Fica como proposta, não foi feito.
 ## 6. Sugestões não aplicadas
 - **Exemplos para Planilhas e Automação:** enquanto não houver projeto, esses cartões poderiam apontar para as abas "Planilha" e "Automação" da bancada do topo.
 - **Pré-renderizar a página inicial** para melhorar o LCP (ver a seção 3).
+
+## 7. Publicação verificada no Netlify (08/11/2026)
+
+Deploy `6aefd32a491606fbb44d7ef5` (Netlify Drop, produção), publicado às 01:41 UTC sem erros.
+
+**Pacote e endereços**
+- Os 184 arquivos do pacote estão no ar e respondem 200. O JavaScript publicado (`index-D4Gz049i.js`) é o mesmo do build gerado.
+- As 2 regras de redirecionamento e as 2 de cabeçalhos foram processadas sem erro.
+- `/demos/<nome>` responde 200 sem redirecionar, com título próprio, nas cinco demonstrações. `/demos/imoveis/PI-101` responde 200.
+- `/projetos/<slug>` responde 301 para `/projetos/<slug>/` e depois 200. Arquivo antigo em `/assets` responde 404. `sitemap.xml` e `robots.txt` respondem 200.
+
+**Testes de navegador contra `https://altocode.netlify.app`:** os 20 arquivos passaram, incluindo Voltar e Avançar (254/254) e o novo `comercial` (61/61). Três arquivos caíram na primeira rodada e passaram ao repetir:
+- `comercial`: o `fetch` do Node precisava do proxy deste ambiente;
+- `orcafacil` e `navegacao-historico`: oscilação de rede.
+
+**Teste de digitação corrigido:** o "maior evento" acima de 200 ms não era digitação. Era um `pointerover` gerado pelo mouse do Playwright durante a inicialização do app (CPU 4× mais lenta), que esperava na fila. O teste agora mede só a partir do início da digitação. Resultado: 32 a 48 ms no site publicado e 24 a 32 ms localmente.
+
+**Lighthouse 12.6 no site publicado** (laboratório, a partir deste ambiente na nuvem; não são dados de campo do Chrome UX Report):
+
+| Perfil | Desempenho | FCP | LCP | TBT | CLS | Transferido |
+| --- | --- | --- | --- | --- | --- | --- |
+| Celular (2 execuções) | 97 e 95 | 1,7 s | 2,1 e 2,2 s | 120 e 210 ms | 0 | 293 KiB |
+| Computador (2 execuções) | 100 e 100 | 0,4 s | 0,5 s | 0 ms | 0,001 | 358 KiB |
+
+Acessibilidade 97, Boas práticas 100 e SEO 100. Os pontos que ainda aparecem já existiam antes desta versão:
+- contraste dos números animados das ilustrações de serviço (decorativos);
+- `label-content-name-mismatch`: botões de fórmula da bancada e de reprodução das prévias com `aria-label` que não contém o texto visível.
+
+**Selo "Powered by Netlify":** o Netlify injeta no site publicado o script `/.netlify/scripts/hud?variant=public`. Ele mostra um selo fixo de 201 × 64 px no canto inferior direito, no celular e no computador, sobre o conteúdo. Não faz parte do código da Alto Code e não afetou os testes nem o tempo de digitação (medido com o script bloqueado). Tirá-lo depende das configurações da conta ou do projeto no Netlify.

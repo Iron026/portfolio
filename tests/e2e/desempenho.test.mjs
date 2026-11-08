@@ -16,7 +16,7 @@ for (const [name, vp, cpu] of [['computador', { width: 1440, height: 900 }, 1], 
     window.__perf = { cls: 0, long: [], events: [] };
     new PerformanceObserver((l) => l.getEntries().forEach((e) => { if (!e.hadRecentInput) window.__perf.cls += e.value; })).observe({ type: 'layout-shift', buffered: true });
     new PerformanceObserver((l) => l.getEntries().forEach((e) => window.__perf.long.push(Math.round(e.duration)))).observe({ type: 'longtask', buffered: true });
-    new PerformanceObserver((l) => l.getEntries().forEach((e) => window.__perf.events.push(Math.round(e.duration)))).observe({ type: 'event', buffered: true, durationThreshold: 16 });
+    new PerformanceObserver((l) => l.getEntries().forEach((e) => window.__perf.events.push({ name: e.name, start: e.startTime, ms: Math.round(e.duration) }))).observe({ type: 'event', buffered: true, durationThreshold: 16 });
   });
   let bytes = 0, videoReqs = 0;
   p.on('response', async (r) => { const len = +(r.headers()['content-length'] || 0); bytes += len; if (/\.(mp4|webm)$/.test(r.url())) videoReqs++; });
@@ -51,11 +51,16 @@ for (const [name, vp, cpu] of [['computador', { width: 1440, height: 900 }, 1], 
   // digitação no formulário com animações na tela
   await p.evaluate(() => document.getElementById('contato').scrollIntoView({ block: 'start' }));
   await p.waitForTimeout(500);
+  // Mede só a partir daqui: antes, o mouse do Playwright pode gerar um "pointerover" durante a
+  // inicialização do app (CPU 4×), que espera na fila e não tem relação com a digitação.
+  const typingStart = await p.evaluate(() => performance.now());
   await p.click('#contato input[name="nome"]');
   await p.keyboard.type('Maria Oliveira Santos', { delay: 40 });
   await p.waitForTimeout(500);
   const perf = await p.evaluate(() => window.__perf);
-  const maxEvent = Math.max(0, ...perf.events);
+  const typing = perf.events.filter((e) => e.start >= typingStart);
+  const maxEvent = Math.max(0, ...typing.map((e) => e.ms));
+  const slowest = typing.find((e) => e.ms === maxEvent)?.name ?? '-';
 
   report.push({ aparelho: name, 'carregamento (ms)': loadMs, 'KB baixados': Math.round(bytes / 1024), 'vídeos no início': initialVideos, CLS: +perf.cls.toFixed(3),
     'thread principal: Hero (ms/s)': heroBusy.msPerSecond, 'Projetos (ms/s)': projBusy.msPerSecond, 'Serviços (ms/s)': svcBusy.msPerSecond,
@@ -66,7 +71,7 @@ for (const [name, vp, cpu] of [['computador', { width: 1440, height: 900 }, 1], 
   ok(heroBusy.layouts === 0, `${name}: animações do Hero não recalculam layout (${heroBusy.layouts})`);
   ok(heroBusy.msPerSecond < 60, `${name}: Hero ocupa pouco a thread principal (${heroBusy.msPerSecond} ms/s)`);
   ok(svcBusy.msPerSecond < 120, `${name}: ilustrações dos serviços leves (${svcBusy.msPerSecond} ms/s)`);
-  ok(maxEvent < 200, `${name}: digitação responde rápido (maior evento ${maxEvent} ms)`);
+  ok(maxEvent < 200, `${name}: digitação responde rápido (maior evento ${maxEvent} ms, ${slowest})`);
   await ctx.close();
 }
 console.table(report);
