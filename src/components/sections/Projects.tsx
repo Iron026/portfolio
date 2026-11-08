@@ -12,7 +12,6 @@ import { PreviewVideoButton, PreviewVideoLayer, usePreviewVideo } from '@/compon
 import { useProjects } from '@/i18n/content';
 import { useLocale } from '@/i18n/useLocale';
 import { useUi } from '@/i18n/ui';
-import { getDirection } from '@/design/direction';
 import { cn } from '@/utils/cn';
 
 const num = (n: number) => String(n).padStart(2, '0');
@@ -36,20 +35,19 @@ export function Projects() {
   const projects = useProjects();
   const ui = useUi();
   const { lp } = useLocale();
-  const uniform = getDirection() === 'a';
   const home = lp('/');
 
   return (
     <Section id="projetos" labelledBy="projetos-title" className="bg-surface-2!">
       <SectionHeading id="projetos-title" index="01" label={ui.sections.projects.label} title={ui.sections.projects.title} intro={ui.sections.projects.intro(projects.length)} />
 
-      <div className={cn('mt-14 grid gap-5 sm:mt-16 lg:gap-6', uniform ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-12')}>
+      <div className="mt-14 grid gap-5 sm:mt-16 md:grid-cols-2 lg:grid-cols-12 lg:gap-6">
         {projects.map((project, i) => (
-          <ProjectCard key={project.slug} project={project} index={i} total={projects.length} span={uniform ? '' : (LAYOUT[i]?.span ?? 'lg:col-span-6')} feature={!uniform && !!LAYOUT[i]?.feature} />
+          <ProjectCard key={project.slug} project={project} index={i} total={projects.length} span={LAYOUT[i]?.span ?? 'lg:col-span-6'} feature={!!LAYOUT[i]?.feature} />
         ))}
 
         {/* Faixa final: chamada real para o formulário */}
-        <div className={cn('tone-dark on-dark relative flex flex-col justify-between gap-6 overflow-hidden rounded-[14px] p-6 sm:flex-row sm:items-center sm:p-8', uniform ? 'md:col-span-2' : 'md:col-span-2 lg:col-span-12')}>
+        <div className="tone-dark on-dark relative flex flex-col justify-between gap-6 overflow-hidden rounded-[14px] p-6 sm:flex-row sm:items-center sm:p-8 md:col-span-2 lg:col-span-12">
           <div className="max-w-2xl">
             <p className="type-h3 text-fg">{ui.projects.quoteBandTitle}</p>
             <p className="type-body mt-2 text-fg-muted">{ui.projects.quoteBandText}</p>

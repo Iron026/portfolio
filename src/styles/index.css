@@ -126,23 +126,6 @@
 }
 .tone-light, .tone-dark { background-color: var(--bg); }
 
-/* Direção A (Premium Tech) — usada só na comparação de direções: todas as
-   seções claras passam a escuras, com superfícies bem marcadas. */
-[data-dir='a'] .tone-light {
-  --bg: #08111f;
-  --surface: #0e1b32;
-  --surface-2: #132442;
-  --fg: #f3f6fb;
-  --fg-muted: #a9b6cc;
-  --edge: rgb(255 255 255 / 0.11);
-  --edge-strong: rgb(255 255 255 / 0.24);
-  --accent: #22c3b0;
-  --accent-fill: #22c3b0;
-  --on-accent: #052520;
-  --frame-color: #22c3b0;
-  --elev: 0 1px 0 rgb(255 255 255 / 0.05) inset, 0 18px 40px -24px rgb(0 0 0 / 0.7);
-  --elev-hover: 0 1px 0 rgb(255 255 255 / 0.07) inset, 0 28px 56px -26px rgb(0 0 0 / 0.85);
-}
 
 @layer base {
   html {
@@ -926,11 +909,6 @@
     background: var(--cat);
   }
   .svc-card:hover, .svc-card:focus-within { box-shadow: var(--elev-hover); border-color: var(--edge-strong); }
-  [data-dir='a'] .svc-card { --cat-text: var(--cat); }
-  [data-dir='a'] #sobre { background-color: var(--bg) !important; }
-  [data-dir='a'] #sobre .text-lavender-deep { color: var(--fg-muted); }
-  [data-dir='a'] #sobre .border-lavender-2, [data-dir='a'] #sobre .ring-lavender-2 { border-color: var(--edge); --tw-ring-color: var(--edge); }
-  [data-dir='a'] header.tone-light { background-color: rgb(8 17 31 / 0.88) !important; }
   /* Assinatura grande no rodapé: o nome da marca cortado pela borda inferior */
   .footer-mark {
     font-family: var(--font-title);

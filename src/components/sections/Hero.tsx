@@ -7,8 +7,6 @@ import { useProjects, useSiteText } from '@/i18n/content';
 import { useLocale } from '@/i18n/useLocale';
 import { useUi } from '@/i18n/ui';
 import { site } from '@/config/site';
-import { getDirection } from '@/design/direction';
-import { cn } from '@/utils/cn';
 
 /** Divide o título para aplicar a moldura de seleção ao trecho de destaque. */
 function splitTitle(title: string, accent: string) {
@@ -22,30 +20,29 @@ export function Hero() {
   const { lp } = useLocale();
   const projects = useProjects();
   const [before, accent, after] = splitTitle(text.hero.title, text.hero.titleAccent);
-  const centered = getDirection() === 'a';
   const home = lp('/');
 
   return (
     <section id="inicio" aria-labelledby="hero-title" className="tone-dark on-dark relative isolate overflow-hidden pt-24 sm:pt-32">
       <AmbientBackground variant="hero" />
 
-      <div className={cn('container-site', centered && 'text-center')}>
-        <p className={cn('type-label flex flex-wrap items-center gap-x-3 gap-y-1 text-fg-muted', centered && 'justify-center')}>
+      <div className="container-site">
+        <p className="type-label flex flex-wrap items-center gap-x-3 gap-y-1 text-fg-muted">
           <span className="text-accent">{site.name}</span>
           <span aria-hidden="true" className="h-px w-6 bg-white/25" />
           {ui.hero.eyebrow}
         </p>
 
-        <h1 id="hero-title" className={cn('hero-title mt-4 animate-rise text-balance sm:mt-6', centered ? 'mx-auto max-w-[19ch]' : 'max-w-[19ch]')}>
+        <h1 id="hero-title" className="hero-title mt-4 max-w-[19ch] animate-rise text-balance sm:mt-6">
           {before}
           {accent && <span className="frame-sel frame-word text-tide">{accent}</span>}
           {after}
         </h1>
 
-        <div className={cn('mt-6 grid gap-10 pb-12 sm:mt-10 lg:pb-20 [&>*]:min-w-0', centered ? 'lg:mt-10' : 'lg:mt-14 lg:grid-cols-12 lg:gap-12')}>
-          <div className={cn(centered ? 'mx-auto max-w-2xl' : 'lg:col-span-5 lg:pt-2')}>
+        <div className="mt-6 grid gap-10 pb-12 sm:mt-10 lg:mt-14 lg:grid-cols-12 lg:gap-12 lg:pb-20 [&>*]:min-w-0">
+          <div className="lg:col-span-5 lg:pt-2">
             <p className="type-lead text-fg-muted">{text.hero.subtitle}</p>
-            <div className={cn('mt-6 grid gap-3 min-[380px]:grid-cols-2 sm:mt-8 sm:flex', centered && 'sm:justify-center')}>
+            <div className="mt-6 grid gap-3 min-[380px]:grid-cols-2 sm:mt-8 sm:flex">
               <ButtonLink to={{ pathname: home, hash: '#projetos' }} size="hero">
                 {ui.hero.primary}
                 <ArrowRight aria-hidden="true" className="arrow h-5 w-5" />
@@ -55,7 +52,7 @@ export function Hero() {
               </ButtonLink>
             </div>
             {/* Fatos verificáveis no próprio site — nenhuma métrica inventada */}
-            <ul className={cn('mt-6 flex flex-wrap gap-x-5 gap-y-2 sm:mt-8', centered && 'justify-center')}>
+            <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 sm:mt-8">
               {ui.hero.facts.map((fact) => (
                 <li key={fact} className="type-small inline-flex items-center gap-2 text-fg">
                   <Check aria-hidden="true" className="h-4 w-4 text-tide" strokeWidth={2.5} />
@@ -65,7 +62,7 @@ export function Hero() {
             </ul>
           </div>
 
-          <div className={cn(centered ? 'mx-auto w-full max-w-4xl text-left' : 'lg:col-span-7')}>
+          <div className="lg:col-span-7">
             {/* A bancada é um "objeto selecionado": moldura com alças e rótulo, como numa ferramenta de design */}
             <div className="frame-sel bench-canvas relative mt-7 p-1.5 sm:p-2" style={{ ['--frame-color' as string]: 'rgb(34 195 176 / 0.6)' }}>
               <span className="frame-label">
