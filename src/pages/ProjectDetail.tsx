@@ -23,7 +23,7 @@ export default function ProjectDetail() {
   const project = getProject(slug);
   useDocumentTitle(
     project ? `${project.name}: estudo de caso` : 'Projeto não encontrado',
-    project ? `${project.summary} Projeto demonstrativo autoral da ${site.name}.` : undefined,
+    project ? `${project.teaser} Projeto demonstrativo da ${site.name}.` : undefined,
     project?.screens[0] ? `/projetos/${project.slug}/og.jpg` : undefined,
   );
 

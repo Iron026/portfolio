@@ -43,7 +43,7 @@ export function Process() {
         index="03"
         label="Processo"
         title="Como um projeto acontece"
-        intro="Um processo simples e transparente, com você acompanhando cada etapa e aprovando antes de seguir para a próxima."
+        intro="Do primeiro contato à entrega, cada etapa é combinada com você antes de começar."
       />
       <MotionArea className="relative mt-12 sm:mt-16">
         {/* Linha que liga as etapas (telas largas) e o sinal que a percorre */}

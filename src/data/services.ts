@@ -1,8 +1,8 @@
 /**
  * SERVIÇOS
- * Organizados em categorias. Cada serviço parte de um problema comum do
- * cliente e, quando existir, aponta para o projeto demonstrativo que mostra
- * esse tipo de solução funcionando (`proof`, com o `slug` do projeto).
+ * Organizados em categorias. Cada serviço apresenta o benefício principal
+ * (`benefit`), como funciona (`description`) e, quando existir, aponta para o
+ * projeto demonstrativo que mostra esse tipo de solução (`proof`, com o `slug`).
  *
  * O `id` é usado no formulário de contato (?servico=<id>): não altere os
  * ids existentes para não quebrar links já compartilhados.
@@ -12,11 +12,9 @@ export interface Service {
   id: string;
   category: CategoryId;
   name: string;
-  /** Frase curta usada no topo da página. */
-  short: string;
-  /** O problema do cliente, em uma frase. */
-  problem: string;
-  /** Como a solução resolve. */
+  /** Benefício principal, em uma frase (destaque do cartão). */
+  benefit: string;
+  /** Como funciona ou o que inclui: complementa o benefício, sem repeti-lo. */
   description: string;
   applications: string[];
   /** Projetos demonstrativos relacionados (slugs de src/data/projects.ts). */
@@ -38,10 +36,9 @@ export const services: Service[] = [
     id: 'sites',
     category: 'presenca',
     name: 'Sites e landing pages',
-    short: 'Presença profissional, pronta para o celular',
-    problem: 'O cliente procura pelo celular e não entende rápido o que você oferece nem como pedir um orçamento.',
+    benefit: 'Sites que apresentam seu negócio com clareza, valorizam seus serviços e facilitam o contato com novos clientes.',
     description:
-      'Sites, landing pages, catálogos e lojas responsivos, com a informação na ordem em que o visitante decide e o contato a um toque de distância.',
+      'Pensados primeiro para o celular, com as informações na ordem certa e contato por WhatsApp ou formulário. Também atendo catálogos e lojas virtuais.',
     applications: [
       'Site institucional para empresas e profissionais',
       'Landing page para divulgar um serviço ou campanha',
@@ -55,10 +52,9 @@ export const services: Service[] = [
     id: 'sistemas',
     category: 'gestao',
     name: 'Sistemas web',
-    short: 'Ferramentas de gestão no navegador',
-    problem: 'Cadastros, pedidos e controles espalhados em cadernos, mensagens e arquivos diferentes.',
+    benefit: 'Organize cadastros, pedidos e controles em um sistema desenvolvido para a rotina do seu negócio.',
     description:
-      'Ferramentas acessadas pelo navegador, com escopo definido junto com você para atender exatamente ao que o negócio precisa.',
+      'Acesso pelo navegador, no computador ou no celular, com o escopo definido junto com você.',
     applications: [
       'Painéis administrativos',
       'Catálogos digitais com busca e filtros',
@@ -72,10 +68,9 @@ export const services: Service[] = [
     id: 'dashboards',
     category: 'gestao',
     name: 'Dashboards e análise de dados',
-    short: 'Os números do negócio em um só lugar',
-    problem: 'Você registra vendas e gastos, mas não consegue ver com rapidez o resultado do período.',
+    benefit: 'Acompanhe receitas, despesas e resultados em painéis com indicadores e gráficos fáceis de consultar.',
     description:
-      'Painéis que transformam listas de lançamentos em indicadores e gráficos filtráveis, com exportação para o Excel.',
+      'Os dados podem vir das planilhas ou dos registros que você já usa, com filtros por período e exportação para o Excel.',
     applications: [
       'Indicadores de receitas, despesas e resultado',
       'Gráficos por período e por categoria',
@@ -89,10 +84,9 @@ export const services: Service[] = [
     id: 'planilhas',
     category: 'gestao',
     name: 'Planilhas inteligentes',
-    short: 'Controles com fórmulas e números à vista',
-    problem: 'Planilhas com contas manuais, que quebram com facilidade e que só uma pessoa sabe usar.',
+    benefit: 'Simplifique seus controles com planilhas organizadas, cálculos automáticos e informações sempre à mão.',
     description:
-      'Planilhas de controle com fórmulas, validações e relatórios que se atualizam sozinhos, em Excel ou Google Planilhas.',
+      'Em Excel ou Google Planilhas, com listas para evitar erros de digitação e resumos que se atualizam a cada lançamento.',
     applications: [
       'Controle financeiro de entradas e saídas',
       'Controle de estoque e de vendas',
@@ -106,10 +100,9 @@ export const services: Service[] = [
     id: 'automacoes',
     category: 'processos',
     name: 'Automação de processos',
-    short: 'Menos tarefas repetitivas e cópia manual',
-    problem: 'Horas por semana copiando dados de um lugar para outro e refazendo os mesmos documentos.',
+    benefit: 'Reduza tarefas repetitivas e organize o fluxo de informações com soluções de automação.',
     description:
-      'Rotinas que passam a acontecer com menos cliques: dados que vão de um lugar para outro e documentos gerados em um padrão.',
+      'O trabalho começa pelo mapeamento da rotina atual, para automatizar só o que faz sentido no seu caso.',
     applications: [
       'Formulários que alimentam planilhas automaticamente',
       'Geração de relatórios e documentos padronizados',
@@ -123,10 +116,9 @@ export const services: Service[] = [
     id: 'ferramentas',
     category: 'processos',
     name: 'Ferramentas e calculadoras comerciais',
-    short: 'Preço certo, do mesmo jeito, toda vez',
-    problem: 'Orçamentos montados de cabeça, com preços diferentes para o mesmo serviço.',
+    benefit: 'Calcule preços, padronize orçamentos e prepare propostas com mais agilidade e consistência.',
     description:
-      'Calculadoras e geradores de propostas com as regras do seu negócio, a conta explicada e o documento pronto para enviar.',
+      'As regras de preço do seu negócio ficam na ferramenta: cada orçamento mostra a conta e gera um documento pronto para enviar.',
     applications: [
       'Calculadora de orçamento com variáveis de preço',
       'Gerador de propostas para imprimir ou salvar em PDF',

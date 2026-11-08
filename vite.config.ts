@@ -56,7 +56,7 @@ function seoPagesPlugin(): Plugin {
           // O canonical aponta para a URL final, que responde 200.
           path: `/projetos/${p.slug}/`,
           title: `${p.name}: estudo de caso | ${site.name}`,
-          description: `${p.summary} Projeto demonstrativo autoral da ${site.name}.`,
+          description: `${p.teaser} Projeto demonstrativo da ${site.name}.`,
           image: p.screens.length ? `/projetos/${p.slug}/og.jpg` : '/og-image.png',
         });
         mkdirSync(join(outDir, 'projetos', p.slug), { recursive: true });

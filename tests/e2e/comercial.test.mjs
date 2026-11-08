@@ -23,7 +23,10 @@ const settle = async (p) => { await p.waitForTimeout(300); let last = -1; for (l
   const tools = await p.$$eval('#sobre li', (els) => els.map((e) => e.textContent.trim()));
   ok(tools.includes('Controle de versões (Git)'), 'ferramentas: versionamento citado sem o GitHub');
   const principles = await p.$$eval('#sobre ol > li p.type-h4', (els) => els.map((e) => e.textContent.trim()));
-  ok(principles.length === 6 && principles.includes('Atendimento direto') && principles.includes('Transparência') && principles.includes('Proposta por escrito'), 'Sobre: seis compromissos de trabalho ' + principles);
+  ok(principles.length === 6 && principles.includes('Atendimento direto') && principles.includes('Combinado por escrito') && principles.includes('Linguagem clara'), 'Sobre: seis compromissos de trabalho ' + principles);
+  const about = await p.$eval('#sobre', (el) => el.innerText);
+  ok(/formado em Análise e Desenvolvimento de Software/.test(about) && /há dois anos na área de desenvolvimento/.test(about), 'Sobre: formação e tempo de atuação');
+  ok(!/freelancer/i.test(about) && /demonstrações autorais/.test(about), 'Sobre: sem "freelancer" e com a transparência sobre as demonstrações');
   ok((await p.$$('#sobre aside, #projetos aside')).length === 0, 'Sobre: sem landmark complementar aninhado');
   await p.close();
 }

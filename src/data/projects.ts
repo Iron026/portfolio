@@ -45,6 +45,9 @@ export interface Project {
   kind: 'demo' | 'cliente';
   name: string;
   category: string;
+  /** Resumo curto do cartão na página inicial (até ~120 caracteres). */
+  teaser: string;
+  /** Resumo completo, usado no topo do estudo de caso. */
   summary: string;
   problem: string;
   features: string[];
@@ -85,10 +88,11 @@ export const projects: Project[] = [
     kind: 'demo',
     name: 'Prime Imóveis',
     category: 'Portal imobiliário',
+    teaser: 'Catálogo de imóveis com busca, filtros combinados e página de cada imóvel com galeria e consulta pronta.',
     summary:
-      'Site para imobiliárias e corretores com catálogo de imóveis, busca por palavras-chave, filtros combinados e página individual com galeria de imagens ilustrativas.',
+      'Site para imobiliárias e corretores com catálogo de imóveis, busca, filtros combinados e uma página para cada imóvel, com galeria ilustrativa e mensagem de consulta pronta.',
     problem:
-      'Corretores costumam divulgar imóveis em mensagens e redes sociais soltas, o que dificulta para o cliente comparar opções. Um catálogo organizado reúne tudo em um endereço só, com filtros e uma mensagem de consulta pronta em cada anúncio.',
+      'Imóveis divulgados em mensagens e redes sociais soltas são difíceis de comparar. Um catálogo reúne tudo em um só endereço, com filtros e consulta direta em cada anúncio.',
     features: [
       'Catálogo com 12 imóveis fictícios',
       'Filtros por finalidade, localização, tipo, faixa de preço e quartos',
@@ -139,10 +143,11 @@ export const projects: Project[] = [
     kind: 'demo',
     name: 'Gestão360',
     category: 'Dashboard financeiro e comercial',
+    teaser: 'Painel financeiro com receitas, despesas e resultado, gráficos que seguem os filtros e exportação para o Excel.',
     summary:
-      'Painel de gestão com receitas, despesas, resultado e número de transações calculados a partir dos dados, gráficos que reagem aos filtros e exportação em CSV para o Excel.',
+      'Painel de gestão que calcula receitas, despesas, resultado e número de transações, com gráficos que acompanham os filtros e exportação em CSV para o Excel.',
     problem:
-      'Muitos pequenos negócios anotam vendas e gastos, mas não conseguem enxergar o resultado do período com rapidez. O painel transforma a lista de transações em indicadores e gráficos que se atualizam conforme o período e os filtros escolhidos.',
+      'Muitos negócios anotam vendas e gastos, mas não enxergam o resultado do período com rapidez. O painel transforma a lista de transações em indicadores e gráficos que mudam conforme o período e os filtros.',
     features: [
       'Indicadores calculados a partir das transações filtradas',
       'Evolução de receitas e despesas por semana (30 e 90 dias) ou por mês (12 meses)',
@@ -193,10 +198,11 @@ export const projects: Project[] = [
     kind: 'demo',
     name: 'Nova Serviços',
     category: 'Landing page de serviços',
+    teaser: 'Página de serviços que conduz o visitante até um pedido de orçamento completo, com formulário validado.',
     summary:
-      'Página de apresentação para uma empresa de serviços, com seções que conduzem o visitante até um formulário de orçamento validado.',
+      'Página de apresentação para uma empresa de serviços, organizada para levar o visitante até um pedido de orçamento com formulário validado.',
     problem:
-      'Prestadores de serviço perdem contatos quando o visitante não encontra rápido o que é oferecido e como pedir um orçamento. A página organiza a informação na ordem em que o cliente decide e deixa o pedido a um toque de distância.',
+      'Quem procura um prestador de serviço desiste quando não encontra rápido o que é oferecido e como pedir orçamento. A página apresenta as informações na ordem em que o cliente decide e deixa o pedido a um toque.',
     features: [
       'Estrutura pensada para conversão',
       'Seções de serviços, vantagens e etapas',
@@ -247,10 +253,11 @@ export const projects: Project[] = [
     kind: 'demo',
     name: 'Arena Store',
     category: 'Loja virtual demonstrativa',
+    teaser: 'Loja virtual com busca, tamanhos e estoque, carrinho salvo no navegador e checkout simulado.',
     summary:
-      'Loja de artigos esportivos com busca, filtros, escolha de tamanho e quantidade, carrinho que fica salvo no navegador e checkout simulado.',
+      'Loja de artigos esportivos com busca, filtros, escolha de tamanho e quantidade, carrinho salvo no navegador e checkout simulado, sem cobrança.',
     problem:
-      'Uma loja virtual precisa deixar claro o que está sendo comprado, em qual tamanho e por quanto. A demonstração cobre o caminho completo do produto ao carrinho, com cálculo de subtotal e sem cobrança real.',
+      'Em uma loja virtual, o cliente precisa saber exatamente o que está comprando, em qual tamanho e por quanto. A demonstração cobre o caminho completo, do produto ao carrinho, com o total calculado.',
     features: [
       'Catálogo com 8 produtos fictícios e estoque ilustrativo',
       'Busca, filtros por categoria e ordenação por preço',
@@ -302,10 +309,11 @@ export const projects: Project[] = [
     kind: 'demo',
     name: 'OrçaFácil',
     category: 'Calculadora comercial',
+    teaser: 'Calculadora de orçamentos com regras de preço fixas, desconto e proposta pronta para imprimir ou salvar em PDF.',
     summary:
-      'Calculadora de orçamentos para pequenas empresas, configurada para uma gráfica fictícia: monta o preço com material, acabamento e prazo, aplica desconto e gera a proposta para imprimir ou salvar em PDF.',
+      'Calculadora de orçamentos configurada para uma gráfica fictícia: aplica material, acabamento, prazo e desconto e gera a proposta para imprimir ou salvar em PDF.',
     problem:
-      'Muitos pequenos negócios montam orçamentos de cabeça ou em planilhas diferentes a cada cliente, e o mesmo serviço sai com preços diferentes. A calculadora aplica sempre as mesmas regras, mostra o cálculo de cada linha e entrega a proposta pronta em poucos minutos.',
+      'Orçamentos montados de cabeça ou em planilhas diferentes fazem o mesmo serviço sair com preços diferentes. A calculadora aplica sempre as mesmas regras, mostra a conta de cada linha e prepara a proposta.',
     features: [
       'Catálogo editável com até 10 produtos ou serviços',
       'Três variáveis de cálculo: material, acabamento e prazo',

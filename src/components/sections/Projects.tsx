@@ -33,8 +33,8 @@ export function Projects() {
         id="projetos-title"
         index="01"
         label="Projetos"
-        title="Trabalhos para explorar e testar"
-        intro={`${projects.length} projetos demonstrativos autorais, com empresas e dados fictícios e funcionalidades reais. Abra qualquer demonstração e teste no navegador, sem cadastro. As prévias em movimento são gravações das próprias demonstrações.`}
+        title="Projetos para explorar e testar"
+        intro={`${projects.length} projetos autorais, com empresas e dados fictícios e funcionalidades reais. Teste qualquer um no navegador, sem cadastro; as prévias em vídeo são gravações das próprias demonstrações.`}
       />
 
       <div className="mt-14 grid gap-5 sm:mt-16 lg:grid-cols-12 lg:gap-6">
@@ -132,7 +132,7 @@ function ProjectCard({
         <h3 id={titleId} className="type-h3 mt-3">
           {project.name}
         </h3>
-        <p className="type-body mt-3 text-slate">{project.summary}</p>
+        <p className="type-body mt-3 text-slate">{project.teaser}</p>
 
         <h4 className="sr-only">Tecnologias</h4>
         <ul className="mt-5 flex flex-wrap gap-x-3 gap-y-1" aria-label="Tecnologias utilizadas">
@@ -165,7 +165,7 @@ function QuoteCard() {
       <div>
         <p className="type-label text-tide">Seu projeto</p>
         <p className="type-h3 mt-4 text-white">Precisa de algo parecido ou de uma solução diferente?</p>
-        <p className="type-body mt-3 text-mist">Conte o problema que você quer resolver ou veja as seis frentes de trabalho.</p>
+        <p className="type-body mt-3 text-mist">Conte o que você precisa resolver ou veja os seis serviços.</p>
       </div>
       <div className="mt-8 flex flex-wrap gap-3">
         <ButtonLink to={{ pathname: '/', hash: '#contato' }} variant="onDark">

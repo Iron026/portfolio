@@ -37,7 +37,7 @@ export const site = {
     title: 'Sites, sistemas e planilhas sob medida para pequenos negócios.',
     titleAccent: 'sob medida',
     subtitle:
-      'Desenvolvedor independente: você fala direto com quem desenvolve, aprova escopo, prazo e valor antes de começar e recebe a solução testada no celular e no computador.',
+      'Desenvolvo soluções para apresentar seus serviços, organizar informações e simplificar tarefas. Você acompanha o projeto diretamente comigo, da proposta à entrega.',
   },
 
   contact: {
@@ -62,17 +62,18 @@ export const site = {
     title: 'Quem está por trás da Alto Code',
     /** Texto em primeira pessoa. O primeiro parágrafo aparece em destaque. */
     paragraphs: [
-      'Sou desenvolvedor independente e respondo pessoalmente por cada projeto da Alto Code, da primeira conversa à entrega. Crio sites, sistemas web, dashboards, planilhas e automações para pequenos negócios.',
-      'Estou construindo meu histórico como freelancer. Por isso, os cinco projetos deste portfólio são demonstrativos autorais: criei cada um, com empresas e dados fictícios, para mostrar na prática o que consigo entregar.',
+      'Sou formado em Análise e Desenvolvimento de Software e atuo há dois anos na área de desenvolvimento. À frente da Alto Code, desenvolvo sites, sistemas web, planilhas e automações para as necessidades de pequenos negócios.',
+      'Meu trabalho une conhecimento técnico, planejamento e atenção aos detalhes para criar soluções funcionais, organizadas e fáceis de usar.',
+      'Os projetos deste portfólio são demonstrações autorais, com empresas e dados fictícios, criadas para mostrar na prática diferentes funcionalidades e possibilidades de aplicação.',
     ],
     /** Compromissos de trabalho exibidos em lista. */
     principles: [
-      { title: 'Atendimento direto', text: 'Você conversa com quem desenvolve, sem intermediários, do primeiro contato ao suporte combinado.' },
-      { title: 'Entender antes de propor', text: 'O ponto de partida é como o seu negócio funciona no dia a dia e o que você usa hoje.' },
-      { title: 'Proposta por escrito', text: 'Escopo, etapas, prazo e valor ficam claros antes de qualquer desenvolvimento começar.' },
-      { title: 'Revisado e testado', text: 'Uso inteligência artificial como apoio, mas todo código, texto e planilha é revisado e testado no celular e no computador antes da entrega.' },
-      { title: 'Fácil de manter', text: 'Soluções organizadas, com orientações por escrito para você usar e atualizar depois.' },
-      { title: 'Transparência', text: 'Os projetos deste portfólio são demonstrativos e estão identificados assim. Não exibo clientes, depoimentos ou resultados que não existem.' },
+      { title: 'Atendimento direto', text: 'Você fala com quem desenvolve, sem intermediários.' },
+      { title: 'Entender antes de propor', text: 'A solução parte de como o seu negócio funciona hoje.' },
+      { title: 'Combinado por escrito', text: 'Escopo, prazo e valor ficam claros antes do início, assim como o que não está incluído.' },
+      { title: 'Revisado e testado', text: 'Uso inteligência artificial como apoio, mas todo código, texto e planilha é revisado e testado antes da entrega.' },
+      { title: 'Fácil de manter', text: 'Soluções organizadas, com orientações por escrito para usar e atualizar.' },
+      { title: 'Linguagem clara', text: 'Explicações sem termos técnicos desnecessários, para você decidir com segurança.' },
     ],
   },
 

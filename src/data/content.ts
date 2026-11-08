@@ -2,29 +2,29 @@
 
 export const processSteps = [
   {
-    title: 'Entendimento da necessidade',
+    title: 'Primeira conversa',
     description:
-      'Conversamos sobre o seu negócio, o problema a resolver e o que você espera do resultado.',
+      'Você conta o que precisa pelo formulário ou pelo WhatsApp. Se faltar alguma informação, faço perguntas antes de propor qualquer coisa.',
   },
   {
-    title: 'Planejamento da solução',
+    title: 'Proposta e orçamento',
     description:
-      'Você recebe uma proposta com escopo, etapas, prazo e valor antes de qualquer desenvolvimento.',
+      'Você recebe por escrito o escopo, as etapas, o prazo e o valor, definidos pelo tamanho e pela complexidade do projeto. O trabalho só começa com a sua aprovação.',
   },
   {
-    title: 'Desenvolvimento',
+    title: 'Desenvolvimento acompanhado',
     description:
-      'A solução é construída com atualizações de andamento, para que você acompanhe e opine durante o processo.',
+      'A cada etapa você recebe uma atualização, revisa e opina antes de seguir para a próxima.',
   },
   {
     title: 'Testes e ajustes',
     description:
-      'Tudo é testado no celular e no computador. Você revisa e os ajustes combinados são feitos.',
+      'Tudo é testado no celular e no computador. Você revisa a versão final, e os ajustes previstos na proposta são feitos.',
   },
   {
-    title: 'Entrega e orientações',
+    title: 'Entrega e suporte',
     description:
-      'Você recebe os arquivos, os acessos e instruções simples para usar e atualizar o que foi entregue.',
+      'Você recebe os arquivos, os acessos e orientações de uso. O período de suporte e as atualizações futuras seguem o que foi combinado na proposta.',
   },
 ];
 
@@ -32,12 +32,7 @@ export const faqs = [
   {
     question: 'Como solicito um orçamento?',
     answer:
-      'Preencha o formulário de contato ou chame pelo WhatsApp contando o que você precisa. Se tiver exemplos, prints ou planilhas atuais, envie junto. Com essas informações eu retorno com perguntas, se necessário, e com uma proposta de escopo, prazo e valor.',
-  },
-  {
-    question: 'Que tipos de projeto você atende?',
-    answer:
-      'Sites institucionais, landing pages, catálogos, planilhas de controle, dashboards, automações de tarefas repetitivas e sistemas web de escopo pequeno e médio, como painéis administrativos e cadastros.',
+      'Preencha o formulário ou chame no WhatsApp contando o que você precisa. Exemplos, prints ou planilhas que você já usa ajudam a entender o caso. Com essas informações, retorno com perguntas, se necessário, e com a proposta.',
   },
   {
     question: 'Quanto custa um projeto?',
@@ -45,23 +40,28 @@ export const faqs = [
       'Depende do que precisa ser feito: quantidade de páginas ou telas, funcionalidades e integrações. Por isso não há tabela fixa. Depois de entender a sua necessidade, você recebe uma proposta por escrito com escopo, prazo e valor, sem custo e sem compromisso.',
   },
   {
-    question: 'Como os prazos são definidos?',
+    question: 'Que tipos de projeto você atende?',
     answer:
-      'O prazo depende do tamanho do projeto e da rapidez com que conteúdos e aprovações chegam. Ele é informado na proposta, dividido por etapas, antes do início do trabalho.',
+      'Sites institucionais, landing pages, catálogos, planilhas de controle, dashboards, automações de tarefas repetitivas e sistemas web de escopo pequeno e médio, como painéis administrativos e cadastros.',
   },
   {
-    question: 'Vou conseguir atualizar o site depois?',
+    question: 'Como os prazos são definidos?',
     answer:
-      'Sim. Os projetos são organizados para facilitar a manutenção, com textos e dados centralizados. Na entrega você recebe orientações por escrito sobre como fazer as atualizações mais comuns.',
+      'O prazo depende do tamanho do projeto e do tempo de envio de conteúdos e aprovações. Ele vem na proposta, dividido por etapas, antes do início do trabalho.',
+  },
+  {
+    question: 'Vou conseguir atualizar o que foi entregue?',
+    answer:
+      'Sim, nas partes combinadas na proposta. Textos e dados ficam organizados para facilitar as mudanças mais comuns, e você recebe orientações por escrito para fazê-las.',
   },
   {
     question: 'Como funciona o suporte após a entrega?',
     answer:
-      'Após a entrega há um período combinado na proposta para corrigir qualquer problema no que foi desenvolvido. Melhorias e novas funcionalidades depois disso podem ser orçadas à parte.',
+      'A proposta define um período para corrigir problemas no que foi entregue. Melhorias, novas funcionalidades e manutenção contínua depois disso são orçadas à parte.',
   },
   {
     question: 'Os projetos do portfólio foram feitos para clientes?',
     answer:
-      'Não. Eles são projetos demonstrativos autorais, com empresas e dados fictícios, criados para mostrar na prática o que consigo desenvolver. Todas as funcionalidades indicadas podem ser testadas nas demonstrações.',
+      'Não. São demonstrações autorais, com empresas e dados fictícios, criadas para mostrar o que consigo desenvolver. As funcionalidades descritas funcionam de verdade e podem ser testadas.',
   },
 ];

@@ -10,7 +10,7 @@ import { SERVICE_ART } from './ServiceIllustrations';
 const num = (n: number) => String(n).padStart(2, '0');
 
 /**
- * Serviços em cartões compactos: problema do cliente, solução em uma frase,
+ * Serviços em cartões compactos: benefício em uma frase, como funciona,
  * aplicações sob demanda (abrir/fechar) e o caminho para o orçamento.
  */
 export function Services() {
@@ -21,15 +21,15 @@ export function Services() {
         index="02"
         label="Serviços"
         title="O que eu desenvolvo"
-        intro="Seis frentes de trabalho, cada uma partindo de um problema comum. Escolha a que mais se parece com o seu caso para pedir um orçamento."
+        intro="Seis tipos de solução para apresentar, organizar e agilizar o seu negócio. Escolha o mais próximo do que você precisa e peça um orçamento."
         aside={
           <p className="type-small mt-3 text-slate">
-            Não sabe por onde começar?{' '}
+            Não sabe qual escolher?{' '}
             <Link
               to={{ pathname: '/', search: '?servico=outro', hash: '#contato' }}
               className="font-semibold text-tide-deep underline decoration-tide-deep/35 underline-offset-4 hover:decoration-tide-deep"
             >
-              Descreva o problema
+              Descreva o que você precisa
             </Link>
             .
           </p>
@@ -62,7 +62,7 @@ export function Services() {
               <h3 id={`servico-${service.id}-titulo`} className="type-h4 mt-3">
                 {service.name}
               </h3>
-              <p className="type-small mt-2.5 font-medium text-ink">{service.problem}</p>
+              <p className="type-small mt-2.5 font-medium text-ink">{service.benefit}</p>
               {/* No celular a descrição fica dentro de "Detalhes" para encurtar a seção */}
               <p className="type-small mt-2 text-slate max-sm:hidden">{service.description}</p>
 

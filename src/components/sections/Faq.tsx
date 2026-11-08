@@ -12,7 +12,7 @@ export function Faq() {
         index="05"
         label="Dúvidas"
         title="Perguntas frequentes"
-        intro="O que normalmente surge antes de começar um projeto. Se sua dúvida não estiver aqui, é só perguntar."
+        intro="Dúvidas comuns antes de começar um projeto. Se a sua não estiver aqui, é só perguntar."
       />
       <div className="mt-14 grid gap-10 lg:grid-cols-12 lg:gap-10">
         <div className="order-2 lg:order-1 lg:col-span-4">

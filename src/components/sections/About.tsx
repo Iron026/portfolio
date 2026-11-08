@@ -64,7 +64,7 @@ export function About() {
               </div>
             </div>
 
-            <p className="type-small mt-6 text-ink">Quem conversa com você é quem desenvolve. Fale direto comigo:</p>
+            <p className="type-small mt-6 text-ink">Fale direto comigo:</p>
             <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
               {hasWhatsapp && (
                 <ButtonAnchor href={whatsappLink()}>
