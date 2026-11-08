@@ -244,7 +244,7 @@ export default function ProjectDetail() {
           <ol className="mt-12 grid gap-4 md:grid-cols-2">
             {project.decisions.map((d, i) => (
               <li key={d.title} className="rounded-[14px] border border-edge bg-white/[0.02] p-6 sm:p-7">
-                <span aria-hidden="true" className="type-label text-[var(--accent-detail)]">
+                <span aria-hidden="true" className="type-label text-[color-mix(in_srgb,var(--accent-detail)_45%,white)]">
                   {num(i + 1)}
                 </span>
                 <h3 className="type-h4 mt-3 text-fg">{d.title}</h3>

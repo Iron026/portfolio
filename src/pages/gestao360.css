@@ -67,7 +67,7 @@
 .g360-top-kicker a { color: var(--muted); border-radius: 4px; }
 .g360-top-kicker a:hover { color: var(--text); text-decoration: underline; }
 .g360-top-kicker [aria-current] { color: var(--text); font-weight: 600; }
-.g360-back { display: flex; align-items: center; gap: 6px; color: #486479; font-size: 12px; font-weight: 600; white-space: nowrap; border-radius: 6px; }
+.g360-back { display: flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 4px; color: #486479; font-size: 12px; font-weight: 600; white-space: nowrap; border-radius: 6px; }
 .g360-back:hover { text-decoration: underline; }
 .g360-content { max-width: 1480px; margin: 0 auto; padding: 36px 36px 28px; }
 

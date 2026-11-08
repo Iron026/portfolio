@@ -3,7 +3,11 @@ import { chromium, BASE, LAUNCH } from '../helpers.mjs';
 let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : (fail++, console.log('FAIL:', m)); };
 const b = await chromium.launch(LAUNCH);
 const p = await b.newPage({ viewport: { width: 1280, height: 800 } });
-const pages = ['/', '/projetos/prime-imoveis', '/projetos/gestao360', '/projetos/nova-servicos', '/projetos/arena-store', '/projetos/orcafacil', '/pagina-inexistente'];
+const ptPages = ['/', '/projetos/prime-imoveis', '/projetos/gestao360', '/projetos/nova-servicos', '/projetos/arena-store', '/projetos/orcafacil', '/pagina-inexistente'];
+// As mesmas páginas em inglês (/en/...), mais as cinco demonstrações nos dois idiomas
+const demos = ['/demos/imoveis', '/demos/gestao360', '/demos/nova-servicos', '/demos/arena-store', '/demos/orcafacil'];
+const toEn = (path) => '/en' + path.replace(/^\/projetos\//, '/projects/').replace(/^\/$/, '/').replace(/^\/pagina-inexistente$/, '/missing-page');
+const pages = [...ptPages, ...ptPages.map(toEn), ...demos, ...demos.map(toEn)];
 for (const path of pages) {
   await p.goto(BASE + path); await p.waitForTimeout(600);
   const r = await p.evaluate(() => {
@@ -28,7 +32,7 @@ for (const path of pages) {
       unlabeledFields: [...document.querySelectorAll('input:not([type=hidden]),select,textarea')].filter((f) => !(f.labels?.length || f.getAttribute('aria-label') || f.getAttribute('aria-labelledby'))).map((f) => f.name || f.id),
     };
   });
-  ok(r.lang === 'pt-BR', `${path}: lang ${r.lang}`);
+  ok(r.lang === (path.startsWith('/en/') ? 'en' : 'pt-BR'), `${path}: lang ${r.lang}`);
   ok(r.title.includes('Alto Code'), `${path}: título "${r.title}"`);
   ok(r.desc.length > 50, `${path}: meta description`);
   ok(r.imgsNoAlt === 0, `${path}: imagens sem alt (${r.imgsNoAlt})`);

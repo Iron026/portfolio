@@ -4,6 +4,8 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : (fail++, console.log
 const b = await chromium.launch(LAUNCH);
 const routes = ['/', '/projetos/prime-imoveis', '/projetos/gestao360', '/projetos/nova-servicos', '/projetos/arena-store', '/projetos/orcafacil',
   '/demos/imoveis', '/demos/gestao360', '/demos/nova-servicos', '/demos/arena-store', '/demos/orcafacil', '/pagina-inexistente'];
+// Versão em inglês: textos com outro comprimento, mesmas larguras
+routes.push(...routes.map((r) => '/en' + r.replace(/^\/projetos\//, '/projects/')), '/en/demos/arena-store/cart', '/en/demos/imoveis/PI-101');
 for (const w of [320, 390, 768, 1024, 1440]) {
   const p = await b.newPage({ viewport: { width: w, height: 800 } });
   for (const r of routes) {

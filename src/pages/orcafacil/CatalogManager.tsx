@@ -194,7 +194,7 @@ export function CatalogManager({ catalog, onSave, onRemove, onRestore, usedIds, 
             </button>
           </span>
         ) : (
-          <button type="button" onClick={() => setConfirmRestore(true)} className="inline-flex items-center gap-1.5 rounded font-medium text-(--orca-muted) underline underline-offset-2 hover:text-(--orca-ink)">
+          <button type="button" onClick={() => setConfirmRestore(true)} className="inline-flex min-h-8 items-center gap-1.5 rounded font-medium text-(--orca-muted) underline underline-offset-2 hover:text-(--orca-ink)">
             <RotateCcw aria-hidden="true" className="h-4 w-4" />
             {t.restoreSample}
           </button>
