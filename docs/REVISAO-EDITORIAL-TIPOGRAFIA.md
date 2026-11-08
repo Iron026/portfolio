@@ -110,3 +110,37 @@ harmonia com o desenho e no ajuste fino de espaçamento que cada uma exigiria.
 - `font-display: swap`, pré-carregamento das três fontes no `index.html` e fontes de reserva com métricas calculadas a partir dos arquivos (largura média de um texto em português, no peso usado: 600 nos títulos e 400 nos textos), para o texto não "pular" enquanto a fonte carrega.
 - Escala, pesos, alturas de linha e espaçamento entre letras foram mantidos. As medições mostraram que não precisavam de ajuste com a Space Grotesk.
 - O logotipo: o monograma AC é desenhado em traços e não mudou. O nome "Alto Code" ao lado dele segue a fonte de títulos, como antes, e agora aparece em Space Grotesk.
+
+## 5. Testes executados (build oficial do Vite, Chromium 153, localmente)
+
+| Suíte | Resultado |
+| --- | --- |
+| Unidade (`npm run test:unit`) | 305/305 |
+| Build oficial (`tsc` + Vite) | sem erros |
+| Verificação do dist (`npm run verify:dist`) | 134/134 (inclui: fontes novas presentes e antigas fora do pacote, licenças, preloads) |
+| Navegador (`npm run test:e2e`), 20 arquivos | todos passaram |
+| Fontes: todo texto em Space Grotesk, DM Sans ou Azeret Mono, cada arquivo baixado uma vez e nenhum caractere sem glifo, em 320, 390, 768, 1024 e 1440 px | 86/86 |
+| Voltar e Avançar nas cinco demonstrações (computador e celular, inclusive a rolagem do Chrome 150+) | 254/254 |
+| Responsividade (sem rolagem lateral de 320 a 1440 px) | 60/60 |
+| Acessibilidade | 78/78 |
+| Comercial (Sobre com formação e sem "freelancer", estudos de caso, formulário) | 63/63 |
+| Digitação no formulário (celular simulado, CPU 4×) | 32 ms (limite: 200 ms) |
+
+**Desempenho antes e depois da troca de fontes.** Mesma metodologia nas duas versões: Lighthouse
+12.6, perfil de celular, servidor local sem compressão e três execuções cada. É uma medição
+local, **não** do site publicado.
+
+| Versão | Desempenho | FCP | LCP | TBT | CLS | Fontes baixadas |
+| --- | --- | --- | --- | --- | --- | --- |
+| Antes (Sora + Onest, textos já revisados) | 76, 76, 76 | 3,6 s | 4,4 a 4,5 s | 50 a 60 ms | 0 | 76 KiB |
+| Depois (Space Grotesk + DM Sans) | 76, 76, 76 | 3,6 s | 4,5 s | 60 a 80 ms | 0 | 67 KiB |
+
+A troca não mudou o desempenho medido e reduziu 9 KiB de fontes. Os números do site publicado
+(95 a 97 no celular em 08/11) só podem ser comparados depois de publicar esta versão.
+
+## 6. Pendências
+- [ ] Revisar os textos novos, principalmente a seção Sobre, os seis compromissos e o Processo.
+- [ ] Aprovar a publicação. Nada foi publicado no site oficial.
+- [ ] Depois de publicar: rodar a verificação no ar (`docs/VERIFICACAO-POS-PUBLICACAO.md`) e conferir no celular real como as fontes novas aparecem.
+- [ ] Opcional: corrigir os nomes acessíveis dos botões da bancada e das prévias (`label-content-name-mismatch`, já existente antes).
+- [ ] Caixa em Dia: próxima demonstração, depois da publicação desta versão.
