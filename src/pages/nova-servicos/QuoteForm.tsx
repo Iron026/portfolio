@@ -7,20 +7,94 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Check, CircleAlert, Copy, Pencil, RotateCcw } from 'lucide-react';
 import {
-  DESCRIPTION_MAX, EMPTY_FORM, SERVICES, URGENCY_LABELS,
+  DESCRIPTION_MAX, EMPTY_FORM,
   FIELD_ORDER, firstError, mailtoLink, quoteMessage, validate,
   type Errors, type FieldName, type QuoteForm as Form, type Urgency,
 } from './ns-data';
+import { useNs } from './ns-i18n';
+import type { Locale } from '@/i18n/locale';
 
 const IDS: Record<FieldName, string> = {
   name: 'ns-nome', contact: 'ns-contato', service: 'ns-servico', area: 'ns-bairro', description: 'ns-descricao', consent: 'ns-consentimento',
 };
 
-const LABELS: Record<FieldName, string> = {
-  name: 'Nome', contact: 'Contato', service: 'Tipo de serviço', area: 'Bairro ou região', description: 'Descrição', consent: 'Autorização',
-};
+const FORM_TEXT = {
+  pt: {
+    labels: { name: 'Nome', contact: 'Contato', service: 'Tipo de serviço', area: 'Bairro ou região', description: 'Descrição', consent: 'Autorização' } as Record<FieldName, string>,
+    copied: 'Mensagem copiada. Lembre-se: nesta demonstração ela não foi enviada a ninguém.',
+    copyFailed: 'Não foi possível copiar automaticamente. O texto foi selecionado: use Ctrl+C (ou toque e segure) para copiar.',
+    checked: 'Dados conferidos',
+    readyTitle: 'Seu pedido está pronto, mas ainda não foi enviado',
+    readyText: 'Esta é uma página de demonstração, sem servidor e sem atendimento real. Copie a mensagem abaixo para ver como o pedido chegaria à empresa.',
+    prepared: 'Mensagem preparada',
+    copy: 'Copiar mensagem',
+    openEmail: 'Abrir no e-mail',
+    edit: 'Editar pedido',
+    restart: 'Começar outro pedido',
+    title: 'Pedir orçamento',
+    required: 'Campos marcados com * são obrigatórios.',
+    fix: (n: number) => (n === 1 ? 'Corrija 1 campo para continuar:' : `Corrija ${n} campos para continuar:`),
+    name: 'Seu nome *',
+    service: 'Tipo de serviço *',
+    select: 'Selecione',
+    method: 'Como prefere ser contatado? *',
+    whatsapp: 'WhatsApp',
+    email: 'E-mail',
+    emailLabel: 'Seu e-mail',
+    phoneLabel: 'Seu WhatsApp com DDD',
+    emailPlaceholder: 'nome@email.com',
+    area: 'Bairro ou região *',
+    areaHint: 'Não precisa do endereço completo. Ele só é combinado ao agendar.',
+    when: 'Para quando?',
+    what: 'O que precisa ser feito? *',
+    whatHint: 'Conte o problema, o cômodo e, se souber, as medidas ou o modelo do equipamento.',
+    chars: 'caracteres',
+    consent: 'Autorizo a Nova Serviços a usar estes dados somente para responder a este pedido de orçamento. *',
+    submit: 'Preparar pedido',
+    note: 'Demonstração sem servidor: ao preparar, você verá a mensagem pronta para copiar. Nenhum dado é enviado ou guardado.',
+  },
+  en: {
+    labels: { name: 'Name', contact: 'Contact', service: 'Service type', area: 'Neighborhood or area', description: 'Description', consent: 'Consent' },
+    copied: 'Message copied. Remember: in this demo it was not sent to anyone.',
+    copyFailed: 'Automatic copy is not available. The text is selected: use Ctrl+C (or tap and hold) to copy.',
+    checked: 'Details checked',
+    readyTitle: 'Your request is ready, but it has not been sent',
+    readyText: 'This is a demo page, with no server and no real service. Copy the message below to see how the request would reach the company.',
+    prepared: 'Prepared message',
+    copy: 'Copy message',
+    openEmail: 'Open in email',
+    edit: 'Edit request',
+    restart: 'Start another request',
+    title: 'Request a quote',
+    required: 'Fields marked with * are required.',
+    fix: (n: number) => (n === 1 ? 'Fix 1 field to continue:' : `Fix ${n} fields to continue:`),
+    name: 'Your name *',
+    service: 'Service type *',
+    select: 'Select',
+    method: 'How would you like to be contacted? *',
+    whatsapp: 'WhatsApp',
+    email: 'Email',
+    emailLabel: 'Your email',
+    phoneLabel: 'Your WhatsApp number with area code',
+    emailPlaceholder: 'name@email.com',
+    area: 'Neighborhood or area *',
+    areaHint: 'No need for the full address. It is only arranged when booking.',
+    when: 'When do you need it?',
+    what: 'What needs to be done? *',
+    whatHint: 'Describe the problem, the room and, if you know, the measurements or the equipment model.',
+    chars: 'characters',
+    consent: 'I allow Nova Serviços to use this information only to reply to this quote request. *',
+    submit: 'Prepare request',
+    note: 'Serverless demo: when you prepare it, you will see the message ready to copy. No data is sent or stored.',
+  },
+} satisfies Record<Locale, unknown>;
 
 export function QuoteForm({ form, setForm }: { form: Form; setForm: (updater: (f: Form) => Form) => void }) {
+  const { locale, content } = useNs();
+  const t = FORM_TEXT[locale];
+  const LABELS = t.labels;
+  const SERVICES = content.services;
+  const URGENCY_LABELS = content.urgency;
   const [errors, setErrors] = useState<Errors>({});
   const [attempted, setAttempted] = useState(false);
   const [prepared, setPrepared] = useState(false);
@@ -31,8 +105,8 @@ export function QuoteForm({ form, setForm }: { form: Form; setForm: (updater: (f
 
   // Depois da primeira tentativa, os erros acompanham a digitação.
   useEffect(() => {
-    if (attempted) setErrors(validate(form));
-  }, [form, attempted]);
+    if (attempted) setErrors(validate(form, locale));
+  }, [form, attempted, locale]);
 
   useEffect(() => {
     if (prepared) successRef.current?.focus();
@@ -44,7 +118,7 @@ export function QuoteForm({ form, setForm }: { form: Form; setForm: (updater: (f
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const found = validate(form);
+    const found = validate(form, locale);
     setAttempted(true);
     setErrors(found);
     const first = firstError(found);
@@ -71,57 +145,57 @@ export function QuoteForm({ form, setForm }: { form: Form; setForm: (updater: (f
 
   async function copy() {
     try {
-      await navigator.clipboard.writeText(quoteMessage(form));
-      setCopyStatus('Mensagem copiada. Lembre-se: nesta demonstração ela não foi enviada a ninguém.');
+      await navigator.clipboard.writeText(quoteMessage(form, locale));
+      setCopyStatus(t.copied);
     } catch {
       textRef.current?.focus();
       textRef.current?.select();
-      setCopyStatus('Não foi possível copiar automaticamente. O texto foi selecionado: use Ctrl+C (ou toque e segure) para copiar.');
+      setCopyStatus(t.copyFailed);
     }
   }
 
   if (prepared) {
-    const mailto = mailtoLink(form);
+    const mailto = mailtoLink(form, locale);
     return (
       <div className="rounded-3xl bg-white p-6 ring-1 ring-(--ns-line) sm:p-8">
         <p className="inline-flex items-center gap-2 rounded-full bg-(--ns-wash) px-3 py-1 text-sm font-semibold text-(--ns-petrol)">
           <Check aria-hidden="true" className="h-4 w-4" />
-          Dados conferidos
+          {t.checked}
         </p>
         <h3 ref={successRef} tabIndex={-1} className="mt-4 text-[1.6rem] font-semibold outline-none">
-          Seu pedido está pronto, mas ainda não foi enviado
+          {t.readyTitle}
         </h3>
         <p className="mt-2 max-w-[60ch] text-(--ns-muted)">
-          Esta é uma página de demonstração, sem servidor e sem atendimento real. Copie a mensagem abaixo para ver como o pedido chegaria à empresa.
+          {t.readyText}
         </p>
         <label htmlFor="ns-mensagem" className="mt-5 block text-[0.95rem] font-medium">
-          Mensagem preparada
+          {t.prepared}
         </label>
         <textarea
           id="ns-mensagem"
           ref={textRef}
           readOnly
-          value={quoteMessage(form)}
+          value={quoteMessage(form, locale)}
           rows={11}
           className="mt-2 w-full resize-none rounded-xl bg-(--ns-bg) p-4 text-[0.95rem] leading-relaxed ring-1 ring-(--ns-line) outline-none focus-visible:ring-2 focus-visible:ring-(--ns-petrol)"
         />
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <button type="button" onClick={copy} className="inline-flex items-center justify-center gap-2 rounded-full bg-(--ns-petrol) px-6 py-3 font-semibold text-white hover:bg-(--ns-petrol-2)">
             <Copy aria-hidden="true" className="h-5 w-5" />
-            Copiar mensagem
+            {t.copy}
           </button>
           {mailto && (
             <a href={mailto} className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold text-(--ns-petrol) ring-1 ring-(--ns-petrol)">
-              Abrir no e-mail
+              {t.openEmail}
             </a>
           )}
           <button type="button" onClick={edit} className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold text-(--ns-petrol) ring-1 ring-(--ns-petrol)/50 hover:bg-(--ns-wash)">
             <Pencil aria-hidden="true" className="h-4 w-4" />
-            Editar pedido
+            {t.edit}
           </button>
           <button type="button" onClick={restart} className="inline-flex items-center justify-center gap-2 rounded-full px-4 py-3 font-semibold text-(--ns-muted) hover:text-(--ns-ink)">
             <RotateCcw aria-hidden="true" className="h-4 w-4" />
-            Começar outro pedido
+            {t.restart}
           </button>
         </div>
         <p role="status" aria-live="polite" className="mt-4 min-h-[1.5rem] font-medium text-(--ns-petrol)">
@@ -143,15 +217,15 @@ export function QuoteForm({ form, setForm }: { form: Form; setForm: (updater: (f
   return (
     <form ref={formRef} noValidate onSubmit={onSubmit} aria-labelledby="ns-form-titulo" className="rounded-3xl bg-white p-6 ring-1 ring-(--ns-line) sm:p-8">
       <h3 id="ns-form-titulo" className="text-[1.5rem] font-semibold">
-        Pedir orçamento
+        {t.title}
       </h3>
-      <p className="mt-1 text-[0.95rem] text-(--ns-muted)">Campos marcados com * são obrigatórios.</p>
+      <p className="mt-1 text-[0.95rem] text-(--ns-muted)">{t.required}</p>
 
       {errorList.length > 0 && (
         <div className="mt-5 rounded-xl bg-[#fdecea] p-4 text-[0.95rem] text-(--ns-error) ring-1 ring-(--ns-error)/30">
           <p className="flex items-center gap-2 font-semibold">
             <CircleAlert aria-hidden="true" className="h-5 w-5" />
-            {errorList.length === 1 ? 'Corrija 1 campo para continuar:' : `Corrija ${errorList.length} campos para continuar:`}
+            {t.fix(errorList.length)}
           </p>
           <ul className="mt-2 list-disc space-y-0.5 pl-7">
             {errorList.map((f) => (
@@ -173,12 +247,12 @@ export function QuoteForm({ form, setForm }: { form: Form; setForm: (updater: (f
       )}
 
       <div className="mt-6 grid gap-5 sm:grid-cols-2 [&>*]:min-w-0">
-        <Field name="name" label="Seu nome *" error={errors.name}>
+        <Field name="name" label={t.name} error={errors.name}>
           <input id={IDS.name} name="name" autoComplete="name" value={form.name} onChange={(e) => set('name', e.target.value)} aria-invalid={!!errors.name} aria-describedby={describe('name')} className={fieldClass('name')} />
         </Field>
-        <Field name="service" label="Tipo de serviço *" error={errors.service}>
+        <Field name="service" label={t.service} error={errors.service}>
           <select id={IDS.service} name="service" value={form.service} onChange={(e) => set('service', e.target.value as Form['service'])} aria-invalid={!!errors.service} aria-describedby={describe('service')} className={fieldClass('service')}>
-            <option value="">Selecione</option>
+            <option value="">{t.select}</option>
             {SERVICES.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.name}
@@ -188,20 +262,20 @@ export function QuoteForm({ form, setForm }: { form: Form; setForm: (updater: (f
         </Field>
         <div className="sm:col-span-2">
           <fieldset>
-            <legend className="text-[0.95rem] font-medium">Como prefere ser contatado? *</legend>
+            <legend className="text-[0.95rem] font-medium">{t.method}</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {(['whatsapp', 'email'] as const).map((m) => (
                 <label key={m} className="cursor-pointer">
                   <input type="radio" name="method" value={m} checked={form.method === m} onChange={() => set('method', m)} className="peer sr-only" />
                   <span className="block rounded-full px-4 py-1.5 text-sm font-medium ring-1 ring-(--ns-line) peer-checked:bg-(--ns-petrol) peer-checked:text-white peer-checked:ring-(--ns-petrol) peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-(--ns-petrol)">
-                    {m === 'whatsapp' ? 'WhatsApp' : 'E-mail'}
+                    {m === 'whatsapp' ? t.whatsapp : t.email}
                   </span>
                 </label>
               ))}
             </div>
           </fieldset>
           <label htmlFor={IDS.contact} className="sr-only">
-            {isEmail ? 'Seu e-mail' : 'Seu WhatsApp com DDD'}
+            {isEmail ? t.emailLabel : t.phoneLabel}
           </label>
           <input
             id={IDS.contact}
@@ -209,7 +283,7 @@ export function QuoteForm({ form, setForm }: { form: Form; setForm: (updater: (f
             type={isEmail ? 'email' : 'tel'}
             inputMode={isEmail ? 'email' : 'tel'}
             autoComplete={isEmail ? 'email' : 'tel'}
-            placeholder={isEmail ? 'nome@email.com' : '(71) 98888-7777'}
+            placeholder={isEmail ? t.emailPlaceholder : '(71) 98888-7777'}
             value={form.contact}
             onChange={(e) => set('contact', e.target.value)}
             aria-invalid={!!errors.contact}
@@ -218,11 +292,11 @@ export function QuoteForm({ form, setForm }: { form: Form; setForm: (updater: (f
           />
           <FieldError id={IDS.contact} error={errors.contact} />
         </div>
-        <Field name="area" label="Bairro ou região *" error={errors.area} hintBelow hint="Não precisa do endereço completo. Ele só é combinado ao agendar.">
+        <Field name="area" label={t.area} error={errors.area} hintBelow hint={t.areaHint}>
           <input id={IDS.area} name="area" autoComplete="address-level3" value={form.area} onChange={(e) => set('area', e.target.value)} aria-invalid={!!errors.area} aria-describedby={describe('area', true)} className={fieldClass('area')} />
         </Field>
         <fieldset>
-          <legend className="text-[0.95rem] font-medium">Para quando?</legend>
+          <legend className="text-[0.95rem] font-medium">{t.when}</legend>
           <div className="mt-2 flex flex-wrap gap-2">
             {(Object.keys(URGENCY_LABELS) as Urgency[]).map((u) => (
               <label key={u} className="cursor-pointer">
@@ -237,7 +311,7 @@ export function QuoteForm({ form, setForm }: { form: Form; setForm: (updater: (f
       </div>
 
       <div className="mt-5">
-        <Field name="description" label="O que precisa ser feito? *" error={errors.description} hint="Conte o problema, o cômodo e, se souber, as medidas ou o modelo do equipamento.">
+        <Field name="description" label={t.what} error={errors.description} hint={t.whatHint}>
           <textarea
             id={IDS.description}
             name="description"
@@ -251,7 +325,7 @@ export function QuoteForm({ form, setForm }: { form: Form; setForm: (updater: (f
           />
         </Field>
         <p id="ns-descricao-contador" className={`mt-1 text-right text-sm tabular-nums ${form.description.trim().length > DESCRIPTION_MAX ? 'text-(--ns-error)' : 'text-(--ns-muted)'}`}>
-          {form.description.trim().length}/{DESCRIPTION_MAX} caracteres
+          {form.description.trim().length}/{DESCRIPTION_MAX} {t.chars}
         </p>
       </div>
 
@@ -266,17 +340,15 @@ export function QuoteForm({ form, setForm }: { form: Form; setForm: (updater: (f
             aria-describedby={describe('consent')}
             className="mt-1 h-5 w-5 shrink-0 accent-(--ns-petrol)"
           />
-          <span>Autorizo a Nova Serviços a usar estes dados somente para responder a este pedido de orçamento. *</span>
+          <span>{t.consent}</span>
         </label>
         <FieldError id={IDS.consent} error={errors.consent} />
       </div>
 
       <button type="submit" className="mt-6 w-full rounded-full bg-(--ns-petrol) px-6 py-3.5 text-lg font-semibold text-white hover:bg-(--ns-petrol-2) sm:w-auto">
-        Preparar pedido
+        {t.submit}
       </button>
-      <p className="mt-3 text-sm text-(--ns-muted)">
-        Demonstração sem servidor: ao preparar, você verá a mensagem pronta para copiar. Nenhum dado é enviado ou guardado.
-      </p>
+      <p className="mt-3 text-sm text-(--ns-muted)">{t.note}</p>
     </form>
   );
 }

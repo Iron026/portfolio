@@ -10,20 +10,16 @@ import { Link } from 'react-router-dom';
 import { ChevronDown, ClipboardCheck, Clock, Droplets, Hammer, MapPin, Menu, PaintRoller, ShieldCheck, Sparkles, X, Zap } from 'lucide-react';
 import { site } from '@/config/site';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
-import { BENEFITS, COMPANY, EMPTY_FORM, FAQS, REGION, SERVICES, STEPS, type QuoteForm as Form, type ServiceId } from './ns-data';
+import { COMPANY, EMPTY_FORM, type QuoteForm as Form, type ServiceId } from './ns-data';
+import { useNs } from './ns-i18n';
+import { LanguageSwitch } from '@/components/ui/LanguageSwitch';
 import { QuoteForm } from './QuoteForm';
 import './ns.css';
 
 const SERVICE_ICONS: Record<ServiceId, typeof Zap> = { eletrica: Zap, hidraulica: Droplets, pintura: PaintRoller, montagem: Hammer };
 const BENEFIT_ICONS = [ClipboardCheck, Clock, Sparkles, ShieldCheck];
 
-const NAV = [
-  { id: 'ns-servicos', label: 'Serviços' },
-  { id: 'ns-vantagens', label: 'Vantagens' },
-  { id: 'ns-como-funciona', label: 'Como funciona' },
-  { id: 'ns-duvidas', label: 'Dúvidas' },
-  { id: 'ns-orcamento', label: 'Contato' },
-];
+const NAV = ['ns-servicos', 'ns-vantagens', 'ns-como-funciona', 'ns-duvidas', 'ns-orcamento'];
 
 /** Rola até a seção e move o foco para o título dela (útil para teclado e leitor de tela). */
 function goTo(id: string, focusId?: string) {
@@ -53,10 +49,9 @@ function Anchor({ to, focus, className, children, onNavigate }: { to: string; fo
 }
 
 export default function NovaServicosDemo() {
-  useDocumentTitle(
-    'Nova Serviços: manutenção residencial com orçamento antes do serviço',
-    'Landing page demonstrativa de uma empresa fictícia de elétrica, hidráulica, pintura e montagem, com formulário de orçamento validado.',
-  );
+  const { t, lp, content } = useNs();
+  const { region: REGION, services: SERVICES, benefits: BENEFITS, steps: STEPS } = content;
+  useDocumentTitle(t.docTitle, t.docDescription);
   // Chaves obrigatórias: desde o Chrome 150, scrollTo devolve uma Promise, e um efeito
   // não pode devolver nada além de uma função de limpeza (o React chamaria a Promise ao sair).
   useEffect(() => {
@@ -87,23 +82,24 @@ export default function NovaServicosDemo() {
   return (
     <div className="ns-root font-sans">
       {/* Faixa do portfólio: caminho de volta para Alto Code / Projetos */}
-      <aside aria-label="Sobre esta demonstração" className="ns-on-dark bg-(--ns-ink) text-[0.8rem] text-white/85">
+      <aside aria-label={t.bar.region} className="ns-on-dark bg-(--ns-ink) text-[0.8rem] text-white/85">
         <div className="mx-auto flex max-w-[72rem] flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-2 sm:px-6">
-          <nav aria-label="Você está em">
+          <nav aria-label={t.bar.youAreHere}>
             <ol className="flex flex-wrap items-center gap-1.5">
-              <li><Link to="/" className="rounded hover:text-white hover:underline">{site.name}</Link></li>
+              <li><Link to={lp('/')} className="rounded hover:text-white hover:underline">{site.name}</Link></li>
               <li aria-hidden="true" className="text-white/50">/</li>
-              <li><Link to={{ pathname: '/', hash: '#projetos' }} className="rounded hover:text-white hover:underline">Projetos</Link></li>
+              <li><Link to={{ pathname: lp('/'), hash: '#projetos' }} className="rounded hover:text-white hover:underline">{t.bar.projects}</Link></li>
               <li aria-hidden="true" className="text-white/50">/</li>
               <li aria-current="page" className="font-semibold text-white">Nova Serviços</li>
             </ol>
           </nav>
-          <p className="flex flex-wrap items-center gap-x-3">
-            <span>Empresa fictícia, página demonstrativa</span>
-            <Link to="/projetos/nova-servicos" className="rounded font-semibold text-white underline underline-offset-2">
-              Ver detalhes do projeto
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span>{t.bar.note}</span>
+            <Link to={lp('/projetos/nova-servicos')} className="rounded font-semibold text-white underline underline-offset-2">
+              {t.bar.details}
             </Link>
-          </p>
+            <LanguageSwitch className="tone-dark bg-transparent! p-0.5! [&_a]:h-7! [&_span]:h-7!" />
+          </div>
         </div>
       </aside>
 
@@ -113,12 +109,12 @@ export default function NovaServicosDemo() {
             <NovaMark />
             <span className="font-display text-[1.15rem] font-semibold tracking-tight whitespace-nowrap max-[359px]:sr-only sm:text-[1.2rem]">{COMPANY}</span>
           </Anchor>
-          <nav aria-label="Seções da página" className="hidden lg:block">
+          <nav aria-label={t.sections} className="hidden lg:block">
             <ul className="flex items-center gap-1">
-              {NAV.map((item) => (
-                <li key={item.id}>
-                  <Anchor to={item.id} className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-(--ns-muted) hover:text-(--ns-ink)">
-                    {item.label}
+              {NAV.map((id) => (
+                <li key={id}>
+                  <Anchor to={id} className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-(--ns-muted) hover:text-(--ns-ink)">
+                    {t.nav[id]}
                   </Anchor>
                 </li>
               ))}
@@ -127,8 +123,8 @@ export default function NovaServicosDemo() {
           <div className="flex items-center gap-2">
             <Anchor to="ns-orcamento" focus="ns-nome" className="rounded-full bg-(--ns-yellow) px-4 py-2 text-[0.95rem] font-semibold whitespace-nowrap text-(--ns-ink) hover:brightness-95" onNavigate={() => setMenuOpen(false)}>
               {/* No celular o texto encurta para caber ao lado do nome e do menu. */}
-              <span className="sm:hidden">Orçamento</span>
-              <span className="hidden sm:inline">Pedir orçamento</span>
+              <span className="sm:hidden">{t.quoteShort}</span>
+              <span className="hidden sm:inline">{t.quote}</span>
             </Anchor>
             <button
               id="ns-menu-botao"
@@ -139,16 +135,16 @@ export default function NovaServicosDemo() {
               className="grid h-10 w-10 place-items-center rounded-full ring-1 ring-(--ns-line) lg:hidden"
             >
               {menuOpen ? <X aria-hidden="true" className="h-5 w-5" /> : <Menu aria-hidden="true" className="h-5 w-5" />}
-              <span className="sr-only">{menuOpen ? 'Fechar menu' : 'Abrir menu'}</span>
+              <span className="sr-only">{menuOpen ? t.closeMenu : t.openMenu}</span>
             </button>
           </div>
         </div>
-        <nav id="ns-menu" aria-label="Seções da página (menu)" hidden={!menuOpen} className="border-t border-(--ns-line) bg-white lg:hidden">
+        <nav id="ns-menu" aria-label={t.sectionsMenu} hidden={!menuOpen} className="border-t border-(--ns-line) bg-white lg:hidden">
           <ul className="mx-auto max-w-[72rem] px-4 py-2">
-            {NAV.map((item) => (
-              <li key={item.id}>
-                <Anchor to={item.id} className="block rounded-lg px-2 py-3 text-lg font-medium" onNavigate={() => setMenuOpen(false)}>
-                  {item.label}
+            {NAV.map((id) => (
+              <li key={id}>
+                <Anchor to={id} className="block rounded-lg px-2 py-3 text-lg font-medium" onNavigate={() => setMenuOpen(false)}>
+                  {t.nav[id]}
                 </Anchor>
               </li>
             ))}
@@ -163,27 +159,27 @@ export default function NovaServicosDemo() {
             <div>
               <p className="inline-flex items-center gap-1.5 text-[0.95rem] font-medium text-(--ns-petrol)">
                 <MapPin aria-hidden="true" className="h-4 w-4" />
-                Atendimento em {REGION}
+                {t.serving(REGION)}
               </p>
               <h1 id="ns-hero-titulo" tabIndex={-1} className="mt-3 max-w-[16ch] text-[2.5rem] leading-[1.05] font-semibold outline-none sm:text-[3.4rem]">
-                Manutenção residencial sem dor de cabeça
+                {t.heroTitle}
               </h1>
               <p className="mt-5 max-w-[48ch] text-lg text-(--ns-muted)">
-                Elétrica, hidráulica, pintura e montagem com horário marcado e orçamento aprovado por você antes do serviço.
+                {t.heroText}
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Anchor to="ns-orcamento" focus="ns-nome" className="rounded-full bg-(--ns-petrol) px-7 py-3.5 text-center text-lg font-semibold text-white hover:bg-(--ns-petrol-2)">
-                  Pedir orçamento
+                  {t.quote}
                 </Anchor>
                 <Anchor to="ns-servicos" className="rounded-full px-7 py-3.5 text-center text-lg font-semibold text-(--ns-petrol) ring-1 ring-(--ns-petrol)/40 hover:bg-white">
-                  Ver serviços
+                  {t.seeServices}
                 </Anchor>
               </div>
             </div>
 
             <div className="rounded-3xl bg-white p-6 ring-1 ring-(--ns-line) shadow-[0_24px_60px_-34px_rgba(18,35,43,0.45)]">
-              <h2 className="font-sans text-lg font-semibold tracking-normal">Do que você precisa?</h2>
-              <p className="mt-1 text-[0.95rem] text-(--ns-muted)">Escolha um serviço para começar o pedido.</p>
+              <h2 className="font-sans text-lg font-semibold tracking-normal">{t.pickTitle}</h2>
+              <p className="mt-1 text-[0.95rem] text-(--ns-muted)">{t.pickText}</p>
               <ul className="mt-5 grid grid-cols-2 gap-3">
                 {SERVICES.map((s) => {
                   const Icon = SERVICE_ICONS[s.id];
@@ -210,7 +206,7 @@ export default function NovaServicosDemo() {
         {/* ------------------------------------------------------------ serviços */}
         <section id="ns-servicos" aria-labelledby="ns-servicos-titulo" className="bg-white py-16 sm:py-20">
           <div className="mx-auto max-w-[72rem] px-4 sm:px-6">
-            <SectionTitle id="ns-servicos-titulo" title="Serviços" intro="Quatro especialidades para resolver o dia a dia da casa ou do pequeno comércio." />
+            <SectionTitle id="ns-servicos-titulo" title={t.servicesTitle} intro={t.servicesIntro} />
             <ul className="mt-10 grid gap-5 sm:grid-cols-2">
               {SERVICES.map((s) => {
                 const Icon = SERVICE_ICONS[s.id];
@@ -236,7 +232,7 @@ export default function NovaServicosDemo() {
                       onClick={() => requestService(s.id)}
                       className="mt-6 self-start rounded-full px-5 py-2.5 font-semibold text-(--ns-petrol) ring-1 ring-(--ns-petrol)/40 hover:bg-white"
                     >
-                      Pedir orçamento de {s.name.toLowerCase()}
+                      {t.quoteFor(s.name)}
                     </button>
                   </li>
                 );
@@ -248,7 +244,7 @@ export default function NovaServicosDemo() {
         {/* ------------------------------------------------------------ vantagens */}
         <section id="ns-vantagens" aria-labelledby="ns-vantagens-titulo" className="py-16 sm:py-20">
           <div className="mx-auto max-w-[72rem] px-4 sm:px-6">
-            <SectionTitle id="ns-vantagens-titulo" title="Por que pedir para a Nova Serviços" />
+            <SectionTitle id="ns-vantagens-titulo" title={t.whyTitle} />
             <ul className="mt-10 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
               {BENEFITS.map((b, i) => {
                 const Icon = BENEFIT_ICONS[i];
@@ -267,7 +263,7 @@ export default function NovaServicosDemo() {
         {/* ------------------------------------------------------------ etapas */}
         <section id="ns-como-funciona" aria-labelledby="ns-etapas-titulo" className="ns-on-dark bg-(--ns-petrol) py-16 text-white sm:py-20">
           <div className="mx-auto max-w-[72rem] px-4 sm:px-6">
-            <SectionTitle id="ns-etapas-titulo" title="Como funciona" intro="Do pedido ao serviço concluído, em quatro passos." tone="dark" />
+            <SectionTitle id="ns-etapas-titulo" title={t.howTitle} intro={t.howIntro} tone="dark" />
             <ol className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {STEPS.map((s, i) => (
                 <li key={s.title} className="border-t-2 border-(--ns-yellow) pt-4">
@@ -275,7 +271,9 @@ export default function NovaServicosDemo() {
                     {i + 1}
                   </span>
                   <h3 className="mt-3 font-sans text-[1.1rem] font-semibold tracking-normal">
-                    <span className="sr-only">Passo {i + 1}: </span>
+                    <span className="sr-only">
+                      {t.step} {i + 1}:{' '}
+                    </span>
                     {s.title}
                   </h3>
                   <p className="mt-1.5 text-white/80">{s.text}</p>
@@ -283,7 +281,7 @@ export default function NovaServicosDemo() {
               ))}
             </ol>
             <Anchor to="ns-orcamento" focus="ns-nome" className="mt-10 inline-flex rounded-full bg-(--ns-yellow) px-6 py-3 font-semibold text-(--ns-ink) hover:brightness-95">
-              Começar meu pedido
+              {t.start}
             </Anchor>
           </div>
         </section>
@@ -291,7 +289,7 @@ export default function NovaServicosDemo() {
         {/* ------------------------------------------------------------ dúvidas */}
         <section id="ns-duvidas" aria-labelledby="ns-duvidas-titulo" className="bg-white py-16 sm:py-20">
           <div className="mx-auto grid max-w-[72rem] gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_1.6fr] [&>*]:min-w-0">
-            <SectionTitle id="ns-duvidas-titulo" title="Perguntas frequentes" intro="Se a sua dúvida não estiver aqui, escreva no campo de descrição do pedido." />
+            <SectionTitle id="ns-duvidas-titulo" title={t.faqTitle} intro={t.faqIntro} />
             <Faq />
           </div>
         </section>
@@ -300,19 +298,19 @@ export default function NovaServicosDemo() {
         <section id="ns-orcamento" aria-labelledby="ns-orcamento-titulo" className="py-16 sm:py-20">
           <div className="mx-auto grid max-w-[72rem] gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_1.7fr] [&>*]:min-w-0">
             <div>
-              <SectionTitle id="ns-orcamento-titulo" title="Contato e orçamento" intro="Conte o que precisa e receba o valor antes de qualquer serviço." />
+              <SectionTitle id="ns-orcamento-titulo" title={t.contactTitle} intro={t.contactIntro} />
               <dl className="mt-8 space-y-4 text-[0.98rem]">
                 <div>
-                  <dt className="font-semibold">Região de atendimento</dt>
+                  <dt className="font-semibold">{t.areaLabel}</dt>
                   <dd className="text-(--ns-muted)">{REGION}</dd>
                 </div>
                 <div>
-                  <dt className="font-semibold">Horário</dt>
-                  <dd className="text-(--ns-muted)">Segunda a sábado, das 8h às 18h</dd>
+                  <dt className="font-semibold">{t.hoursLabel}</dt>
+                  <dd className="text-(--ns-muted)">{t.hours}</dd>
                 </div>
                 <div>
-                  <dt className="font-semibold">Telefone e WhatsApp</dt>
-                  <dd className="text-(--ns-muted)">Não divulgados: a empresa é fictícia e esta página é uma demonstração.</dd>
+                  <dt className="font-semibold">{t.phoneLabel}</dt>
+                  <dd className="text-(--ns-muted)">{t.phone}</dd>
                 </div>
               </dl>
             </div>
@@ -325,14 +323,12 @@ export default function NovaServicosDemo() {
         <div className="mx-auto flex max-w-[72rem] flex-col gap-4 px-4 py-10 text-[0.92rem] sm:px-6 md:flex-row md:justify-between">
           <div className="flex items-start gap-3">
             <NovaMark className="h-8 w-8 shrink-0" />
-            <p className="max-w-md">
-              A Nova Serviços é uma empresa fictícia. Serviços, textos e região de atendimento foram criados para esta demonstração; não há atendimento real.
-            </p>
+            <p className="max-w-md">{t.footerNote}</p>
           </div>
           <p>
-            Projeto demonstrativo de {site.name}.{' '}
-            <Link to={{ pathname: '/', hash: '#projetos' }} className="rounded font-semibold text-(--ns-yellow) underline underline-offset-2">
-              Ver outros projetos
+            {t.footerBy(site.name)}{' '}
+            <Link to={{ pathname: lp('/'), hash: '#projetos' }} className="rounded font-semibold text-(--ns-yellow) underline underline-offset-2">
+              {t.otherProjects}
             </Link>
           </p>
         </div>
@@ -353,6 +349,7 @@ function SectionTitle({ id, title, intro, tone = 'light' }: { id: string; title:
 }
 
 function Faq() {
+  const FAQS = useNs().content.faqs;
   const [open, setOpen] = useState<number | null>(0);
   const baseId = useId();
   return (
