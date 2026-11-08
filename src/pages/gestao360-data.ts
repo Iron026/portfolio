@@ -32,6 +32,37 @@ const expenses = [
 
 const unique = (values: string[]) => Array.from(new Set(values));
 
+/**
+ * Textos de exibição em inglês. As categorias e descrições em português são
+ * também os IDENTIFICADORES usados nos filtros e nos testes: não mudam.
+ */
+export type DemoLocale = 'pt' | 'en';
+const CATEGORY_EN: Record<string, string> = {
+  Produtos: 'Products',
+  Serviços: 'Services',
+  Assinaturas: 'Subscriptions',
+  Fornecedores: 'Suppliers',
+  Pessoal: 'Staff',
+  Marketing: 'Marketing',
+  Aluguel: 'Rent',
+  Tecnologia: 'Technology',
+};
+const DESCRIPTION_EN: Record<string, string> = {
+  'Venda de produtos': 'Product sales',
+  'Contrato de serviços': 'Service contract',
+  Mensalidades: 'Monthly fees',
+  'Venda para empresa': 'Business sale',
+  'Projeto sob demanda': 'Custom project',
+  Fornecedores: 'Suppliers',
+  'Equipe e pessoal': 'Team and staff',
+  'Publicidade digital': 'Digital advertising',
+  'Aluguel do escritório': 'Office rent',
+  'Softwares e ferramentas': 'Software and tools',
+  'Materiais e compras': 'Materials and purchases',
+};
+export const displayCategory = (category: string, locale: DemoLocale = 'pt') => (locale === 'en' ? (CATEGORY_EN[category] ?? category) : category);
+export const displayDescription = (description: string, locale: DemoLocale = 'pt') => (locale === 'en' ? (DESCRIPTION_EN[description] ?? description) : description);
+
 /** Categorias disponíveis no filtro, separadas por tipo. */
 export const categoriesByKind: Record<TransactionKind, string[]> = {
   receita: unique(revenue.map((r) => r.category)),
@@ -105,8 +136,11 @@ export const DEFAULT_FILTERS: Filters = { period: '90d', kind: 'todos', category
 const normalize = (value: string) =>
   value.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
 
-/** Aplica todos os filtros e ordena do mais recente para o mais antigo. */
-export function filterTransactions(rows: Transaction[], filters: Filters, today: Date = new Date()): Transaction[] {
+/**
+ * Aplica todos os filtros e ordena do mais recente para o mais antigo.
+ * A busca considera o texto exibido no idioma da página (`locale`).
+ */
+export function filterTransactions(rows: Transaction[], filters: Filters, today: Date = new Date(), locale: DemoLocale = 'pt'): Transaction[] {
   const start = dateKey(periodStart(filters.period, today));
   const end = dateKey(today);
   const needle = normalize(filters.search);
@@ -115,7 +149,7 @@ export function filterTransactions(rows: Transaction[], filters: Filters, today:
       if (t.date < start || t.date > end) return false;
       if (filters.kind !== 'todos' && t.kind !== filters.kind) return false;
       if (filters.category !== ALL_CATEGORIES && t.category !== filters.category) return false;
-      if (needle && !normalize(`${t.id} ${t.description} ${t.category}`).includes(needle)) return false;
+      if (needle && !normalize(`${t.id} ${displayDescription(t.description, locale)} ${displayCategory(t.category, locale)}`).includes(needle)) return false;
       return true;
     })
     .sort((a, b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id));
@@ -150,15 +184,15 @@ export type TrendPoint = { key: string; label: string; receita: number; despesa:
  * Todos os intervalos do período aparecem, mesmo sem transações (valor zero),
  * para que o eixo do tempo não "pule" semanas ou meses.
  */
-export function buildTrend(transactions: Transaction[], period: Period, today: Date = new Date()): TrendPoint[] {
+export function buildTrend(transactions: Transaction[], period: Period, today: Date = new Date(), intl = 'pt-BR'): TrendPoint[] {
   const weekly = period !== '365d';
   const bucketOf = (d: Date) =>
     weekly
       ? new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7)) // segunda-feira
       : new Date(d.getFullYear(), d.getMonth(), 1);
   const labelOf = (d: Date) => {
-    if (weekly) return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
-    const month = new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(d).replace('.', '');
+    if (weekly) return intl === 'pt-BR' ? `${pad(d.getDate())}/${pad(d.getMonth() + 1)}` : new Intl.DateTimeFormat(intl, { month: 'short', day: 'numeric' }).format(d);
+    const month = new Intl.DateTimeFormat(intl, { month: 'short' }).format(d).replace('.', '');
     return `${month}/${String(d.getFullYear()).slice(-2)}`;
   };
 
@@ -192,15 +226,16 @@ export function spendingByCategory(transactions: Transaction[]): { name: string;
 
 /* ------------------------------------------------------------ formatação */
 
-export function formatMoney(value: number): string {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+/** Valores sempre em reais (a empresa fictícia é brasileira); só o formato muda com o idioma. */
+export function formatMoney(value: number, intl = 'pt-BR'): string {
+  return new Intl.NumberFormat(intl, { style: 'currency', currency: 'BRL' }).format(value);
 }
 
-export const moneyCompact = (value: number) =>
-  new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 }).format(value);
+export const moneyCompact = (value: number, intl = 'pt-BR') =>
+  new Intl.NumberFormat(intl, { notation: 'compact', maximumFractionDigits: 1 }).format(value);
 
-export function formatDate(date: string): string {
-  return new Intl.DateTimeFormat('pt-BR').format(parseDate(date));
+export function formatDate(date: string, intl = 'pt-BR'): string {
+  return new Intl.DateTimeFormat(intl, intl === 'pt-BR' ? undefined : { month: 'short', day: 'numeric', year: 'numeric' }).format(parseDate(date));
 }
 
 /* ------------------------------------------------------------------- CSV */
@@ -218,8 +253,21 @@ function csvCell(value: string): string {
  * CSV no padrão do Excel em português: UTF-8 com BOM (acentos corretos),
  * separador ponto e vírgula, vírgula decimal, data dd/mm/aaaa e quebra de linha CRLF.
  * O valor sai sem sinal; a coluna "Tipo" indica se é receita ou despesa.
+ * Em inglês: cabeçalhos em inglês, vírgula como separador, ponto decimal e data ISO (AAAA-MM-DD).
  */
-export function transactionsToCsv(transactions: Transaction[]): string {
+export function transactionsToCsv(transactions: Transaction[], locale: DemoLocale = 'pt'): string {
+  if (locale === 'en') {
+    const header = ['ID', 'Date', 'Description', 'Category', 'Type', 'Amount (BRL)'];
+    const lines = transactions.map((t) => [
+      csvCell(t.id),
+      csvCell(t.date),
+      csvCell(displayDescription(t.description, 'en')),
+      csvCell(displayCategory(t.category, 'en')),
+      csvCell(t.kind === 'receita' ? 'Revenue' : 'Expense'),
+      t.amount.toFixed(2),
+    ]);
+    return '\ufeff' + [header.map(csvCell), ...lines].map((row) => row.join(',')).join('\r\n') + '\r\n';
+  }
   const header = ['ID', 'Data', 'Descrição', 'Categoria', 'Tipo', 'Valor (R$)'];
   const lines = transactions.map((t) => [
     csvCell(t.id),
@@ -232,6 +280,6 @@ export function transactionsToCsv(transactions: Transaction[]): string {
   return '﻿' + [header.map(csvCell), ...lines].map((row) => row.join(';')).join('\r\n') + '\r\n';
 }
 
-export function csvFileName(today: Date = new Date()) {
-  return `gestao360-transacoes-${dateKey(today)}.csv`;
+export function csvFileName(today: Date = new Date(), locale: DemoLocale = 'pt') {
+  return `gestao360-${locale === 'en' ? 'transactions' : 'transacoes'}-${dateKey(today)}.csv`;
 }

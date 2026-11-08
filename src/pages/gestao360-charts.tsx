@@ -4,11 +4,12 @@
  * exatamente o conjunto filtrado que aparece na tabela.
  */
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
-import { formatMoney, moneyCompact, type TrendPoint } from './gestao360-data';
+import { type TrendPoint } from './gestao360-data';
+import { useG360 } from './gestao360-i18n';
 
 export const SERIES = {
-  receita: { label: 'Receitas', color: '#12978a' },
-  despesa: { label: 'Despesas', color: '#dc7890' },
+  receita: { color: '#12978a' },
+  despesa: { color: '#dc7890' },
 } as const;
 
 export const CATEGORY_COLORS = ['#168b82', '#5265c8', '#f4a340', '#d06a8c', '#8c76ba', '#64748b'];
@@ -68,7 +69,8 @@ function monotonePath(points: Array<[number, number]>) {
 const HEIGHT = 285;
 const M = { top: 16, right: 14, bottom: 30, left: 56 };
 
-export function TrendChart({ data, groupLabel }: { data: TrendPoint[]; groupLabel: string }) {
+export function TrendChart({ data, groupLabel, weekly }: { data: TrendPoint[]; groupLabel: string; weekly: boolean }) {
+  const { t, money, compact } = useG360();
   const [wrapRef, width] = useWidth<HTMLDivElement>();
   const [active, setActive] = useState<number | null>(null);
   const gradientId = useId().replace(/:/g, '');
@@ -120,7 +122,7 @@ export function TrendChart({ data, groupLabel }: { data: TrendPoint[]; groupLabe
         className="g360-chart-area"
         tabIndex={0}
         role="group"
-        aria-label={`Gráfico de evolução financeira por ${groupLabel}. Use as setas para percorrer os pontos.`}
+        aria-label={t.chart.aria(groupLabel)}
         aria-describedby={tableId}
         onKeyDown={onKeyDown}
         onFocus={() => setActive((a) => a ?? data.length - 1)}
@@ -145,7 +147,7 @@ export function TrendChart({ data, groupLabel }: { data: TrendPoint[]; groupLabe
                 <g key={i}>
                   <line x1={M.left} x2={width - M.right} y1={y(value)} y2={y(value)} stroke="#e3e9f0" strokeDasharray={i === 0 ? undefined : '4 4'} />
                   <text x={M.left - 10} y={y(value)} dy="0.32em" textAnchor="end" className="g360-axis">
-                    {moneyCompact(value)}
+                    {compact(value)}
                   </text>
                 </g>
               );
@@ -192,9 +194,9 @@ export function TrendChart({ data, groupLabel }: { data: TrendPoint[]; groupLabe
         )}
         {point && (
           <div className="g360-tooltip" style={{ left: tooltipLeft }} aria-hidden="true">
-            <strong>{point.label}{point.partial ? ' (parcial)' : ''}</strong>
-            <div style={{ color: SERIES.receita.color }}>Receitas: {formatMoney(point.receita)}</div>
-            <div style={{ color: '#a63d58' }}>Despesas: {formatMoney(point.despesa)}</div>
+            <strong>{point.label}{point.partial ? t.chart.partial : ''}</strong>
+            <div style={{ color: SERIES.receita.color }}>{t.chart.series.receita}: {money(point.receita)}</div>
+            <div style={{ color: '#a63d58' }}>{t.chart.series.despesa}: {money(point.despesa)}</div>
           </div>
         )}
       </div>
@@ -203,7 +205,7 @@ export function TrendChart({ data, groupLabel }: { data: TrendPoint[]; groupLabe
         {(['receita', 'despesa'] as const).map((key) => (
           <li key={key}>
             <i style={{ backgroundColor: SERIES[key].color }} />
-            {SERIES[key].label}
+            {t.chart.series[key]}
           </li>
         ))}
       </ul>
@@ -211,20 +213,20 @@ export function TrendChart({ data, groupLabel }: { data: TrendPoint[]; groupLabe
       {/* O recorte fica num <div>: tabelas ignoram width: 1px e criavam rolagem lateral em 320 px */}
       <div className="g360-sr-only">
       <table id={tableId}>
-        <caption>Receitas e despesas por {groupLabel}</caption>
+        <caption>{t.trendSub(groupLabel)}</caption>
         <thead>
           <tr>
-            <th scope="col">{groupLabel === 'semana' ? 'Semana iniciada em' : 'Mês'}</th>
-            <th scope="col">Receitas</th>
-            <th scope="col">Despesas</th>
+            <th scope="col">{weekly ? t.chart.weekStart : t.chart.monthCol}</th>
+            <th scope="col">{t.chart.series.receita}</th>
+            <th scope="col">{t.chart.series.despesa}</th>
           </tr>
         </thead>
         <tbody>
           {data.map((d) => (
             <tr key={d.key}>
-              <th scope="row">{d.label}{d.partial ? ' (parcial)' : ''}</th>
-              <td>{formatMoney(d.receita)}</td>
-              <td>{formatMoney(d.despesa)}</td>
+              <th scope="row">{d.label}{d.partial ? t.chart.partial : ''}</th>
+              <td>{money(d.receita)}</td>
+              <td>{money(d.despesa)}</td>
             </tr>
           ))}
         </tbody>
@@ -247,6 +249,7 @@ function arcPath(cx: number, cy: number, r0: number, r1: number, a0: number, a1:
 }
 
 export function DonutChart({ data, total }: { data: { name: string; value: number }[]; total: number }) {
+  const { t, compact } = useG360();
   const [hover, setHover] = useState<number | null>(null);
   const size = 204;
   const c = size / 2;
@@ -283,8 +286,8 @@ export function DonutChart({ data, total }: { data: { name: string; value: numbe
         )}
       </svg>
       <div className="g360-pie-center" aria-hidden="true">
-        <small>{focus ? focus.name : 'Total'}</small>
-        <strong>{moneyCompact(focus ? focus.value : total)}</strong>
+        <small>{focus ? focus.name : t.chart.total}</small>
+        <strong>{compact(focus ? focus.value : total)}</strong>
       </div>
     </div>
   );

@@ -11,13 +11,15 @@ import { Link } from 'react-router-dom';
 import { LogoMark } from '@/components/ui/Logo';
 import { site } from '@/config/site';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { LanguageSwitch } from '@/components/ui/LanguageSwitch';
 import {
   ALL_CATEGORIES, DEFAULT_FILTERS, PERIODS,
   buildTrend, categoriesByKind, createDemoTransactions, csvFileName, filterTransactions,
-  formatDate, formatMoney, moneyCompact, spendingByCategory, totalsFor, transactionsToCsv,
+  spendingByCategory, totalsFor, transactionsToCsv,
   type Filters, type Period, type TransactionKind,
 } from './gestao360-data';
 import { CATEGORY_COLORS, DonutChart, TrendChart } from './gestao360-charts';
+import { useG360 } from './gestao360-i18n';
 import './gestao360.css';
 
 const PAGE_SIZE = 9;
@@ -54,7 +56,8 @@ function downloadCsv(content: string, fileName: string): void {
 }
 
 export default function Gestao360Demo() {
-  useDocumentTitle('Gestão360: demonstração interativa', 'Painel financeiro demonstrativo com dados fictícios: filtros, indicadores, gráficos e exportação CSV.');
+  const { t, locale, intl, lp, money, compact, date, num, cat, desc } = useG360();
+  useDocumentTitle(t.docTitle, t.docDescription);
 
   // A demo fica fora do MainLayout; garante que abra no topo ao vir do portfólio.
   // 'instant' evita a rolagem suave global do site (html { scroll-behavior: smooth }).
@@ -71,17 +74,18 @@ export default function Gestao360Demo() {
   const [page, setPage] = useState(1);
   const [exportMessage, setExportMessage] = useState('');
 
-  const filtered = useMemo(() => filterTransactions(rows, filters, today), [rows, filters, today]);
+  const filtered = useMemo(() => filterTransactions(rows, filters, today, locale), [rows, filters, today, locale]);
   const totals = useMemo(() => totalsFor(filtered), [filtered]);
-  const trend = useMemo(() => buildTrend(filtered, filters.period, today), [filtered, filters.period, today]);
+  const trend = useMemo(() => buildTrend(filtered, filters.period, today, intl), [filtered, filters.period, today, intl]);
   const spending = useMemo(() => spendingByCategory(filtered), [filtered]);
   const hasTrendData = trend.some((p) => p.receita > 0 || p.despesa > 0);
 
   const maxPage = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, maxPage);
   const visible = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-  const periodLabel = PERIODS.find((p) => p.value === filters.period)?.label ?? '';
-  const groupLabel = filters.period === '365d' ? 'mês' : 'semana';
+  const periodLabel = t.periods[filters.period];
+  const weekly = filters.period !== '365d';
+  const groupLabel = weekly ? t.week : t.month;
   const partialLabels = trend.filter((p) => p.partial).map((p) => p.label);
   const isDefault =
     filters.period === DEFAULT_FILTERS.period && filters.kind === 'todos' && filters.category === ALL_CATEGORIES && !filters.search;
@@ -107,69 +111,68 @@ export default function Gestao360Demo() {
 
   function exportCsv() {
     if (!filtered.length) return;
-    const name = csvFileName(today);
-    downloadCsv(transactionsToCsv(filtered), name);
-    setExportMessage(
-      `Arquivo ${name} gerado com ${filtered.length.toLocaleString('pt-BR')} ${filtered.length === 1 ? 'transação' : 'transações'} do filtro atual.`,
-    );
+    const name = csvFileName(today, locale);
+    downloadCsv(transactionsToCsv(filtered, locale), name);
+    setExportMessage(t.exported(name, num(filtered.length), filtered.length === 1));
   }
 
   const kinds: TransactionKind[] = filters.kind === 'todos' ? ['receita', 'despesa'] : [filters.kind];
 
   return (
     <div className="g360-root">
-      <aside className="g360-sidebar" aria-label="Navegação da demonstração">
-        <Link className="g360-brand" to={{ pathname: '/', hash: '#projetos' }} aria-label={`Voltar aos projetos de ${site.name}`}>
+      <aside className="g360-sidebar" aria-label={t.sideNav}>
+        <Link className="g360-brand" to={{ pathname: lp('/'), hash: '#projetos' }} aria-label={t.backTo(site.name)}>
           <LogoMark tone="light" className="g360-brand-mark" />
           <span>
             <strong>{site.name}</strong>
-            <small>Projetos demonstrativos</small>
+            <small>{t.demoProjects}</small>
           </span>
         </Link>
         <div className="g360-side-sep" />
-        <span className="g360-side-heading">Demonstração</span>
+        <span className="g360-side-heading">{t.demo}</span>
         <div className="g360-side-active" aria-current="page">
           <Icon name="chart" /> Gestão360
         </div>
-        <p className="g360-side-help">Explore os indicadores, ajuste os filtros e exporte os resultados.</p>
+        <p className="g360-side-help">{t.sideHelp}</p>
         <div className="g360-side-bottom">
-          <span className="g360-side-dot" /> Ambiente fictício
+          <span className="g360-side-dot" /> {t.fictional}
           <br />
-          <small>Sem dados reais ou login</small>
+          <small>{t.noLogin}</small>
         </div>
       </aside>
 
       <main className="g360-main" id="conteudo">
         <header className="g360-topbar">
-          <nav aria-label="Você está em" className="g360-top-kicker">
+          <nav aria-label={t.youAreHere} className="g360-top-kicker">
             <ol>
-              <li><Link to="/">{site.name}</Link></li>
-              <li><Link to={{ pathname: '/', hash: '#projetos' }}>Projetos</Link></li>
+              <li><Link to={lp('/')}>{site.name}</Link></li>
+              <li><Link to={{ pathname: lp('/'), hash: '#projetos' }}>{t.projects}</Link></li>
               <li aria-current="page">Gestão360</li>
             </ol>
           </nav>
-          <Link to="/projetos/gestao360" className="g360-back">
-            <Icon name="back" size={16} /> Ver detalhes do projeto
-          </Link>
+          <div className="g360-top-actions">
+            <LanguageSwitch className="tone-light bg-transparent!" />
+            <Link to={lp('/projetos/gestao360')} className="g360-back">
+              <Icon name="back" size={16} /> {t.details}
+            </Link>
+          </div>
         </header>
 
         <div className="g360-content">
           <div className="g360-heading-row">
             <div>
-              <span className="g360-eyebrow">Painel financeiro e comercial</span>
+              <span className="g360-eyebrow">{t.eyebrow}</span>
               <h1>
                 Gestão360 <span>Demo</span>
               </h1>
-              <p>Explore os resultados de um negócio fictício com dados interativos.</p>
+              <p>{t.intro}</p>
             </div>
             <div className="g360-export-box">
               <button className="g360-export" type="button" onClick={exportCsv} disabled={!filtered.length} aria-describedby="g360-export-help">
-                <Icon name="download" size={18} /> Exportar CSV
+                <Icon name="download" size={18} /> {t.exportCsv}
               </button>
               <p id="g360-export-help">
-                {filtered.length
-                  ? `Exporta as ${filtered.length.toLocaleString('pt-BR')} transações do filtro atual, prontas para abrir no Excel.`
-                  : 'Nenhuma transação no filtro atual para exportar.'}
+                {filtered.length ? t.exportHelp(num(filtered.length)) : t.exportNone}
               </p>
             </div>
           </div>
@@ -180,46 +183,42 @@ export default function Gestao360Demo() {
 
           <div className="g360-notice">
             <span className="g360-notice-dot" />
-            <span>
-              Demonstração com empresa e transações fictícias, geradas no seu navegador. Nenhuma informação é armazenada ou enviada.
-            </span>
+            <span>{t.notice}</span>
           </div>
 
           <section className="g360-filter-panel" aria-labelledby="g360-filtros-titulo">
             <h2 className="g360-filter-title" id="g360-filtros-titulo">
-              <Icon name="filter" size={18} /> Filtros
-              <span>
-                {filtered.length.toLocaleString('pt-BR')} {filtered.length === 1 ? 'transação' : 'transações'}
-              </span>
+              <Icon name="filter" size={18} /> {t.filters}
+              <span>{t.count(num(filtered.length), filtered.length === 1)}</span>
             </h2>
             <div className="g360-filter-grid">
               <div className="g360-field">
-                <label htmlFor="g360-period">Período</label>
+                <label htmlFor="g360-period">{t.period}</label>
                 <select id="g360-period" value={filters.period} onChange={(e) => update('period', e.target.value as Period)}>
                   {PERIODS.map((p) => (
                     <option key={p.value} value={p.value}>
-                      Últimos {p.label}
+                      {t.last(t.periods[p.value])}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="g360-field">
-                <label htmlFor="g360-kind">Tipo</label>
+                <label htmlFor="g360-kind">{t.type}</label>
                 <select id="g360-kind" value={filters.kind} onChange={(e) => update('kind', e.target.value as Filters['kind'])}>
-                  <option value="todos">Receitas e despesas</option>
-                  <option value="receita">Apenas receitas</option>
-                  <option value="despesa">Apenas despesas</option>
+                  <option value="todos">{t.kinds.todos}</option>
+                  <option value="receita">{t.kinds.receita}</option>
+                  <option value="despesa">{t.kinds.despesa}</option>
                 </select>
               </div>
               <div className="g360-field">
-                <label htmlFor="g360-cat">Categoria</label>
+                <label htmlFor="g360-cat">{t.category}</label>
                 <select id="g360-cat" value={filters.category} onChange={(e) => update('category', e.target.value)}>
-                  <option value={ALL_CATEGORIES}>Todas as categorias</option>
+                  <option value={ALL_CATEGORIES}>{t.allCategories}</option>
                   {kinds.map((k) => (
-                    <optgroup key={k} label={k === 'receita' ? 'Receitas' : 'Despesas'}>
+                    <optgroup key={k} label={k === 'receita' ? t.revenueGroup : t.expenseGroup}>
                       {categoriesByKind[k].map((c) => (
                         <option key={c} value={c}>
-                          {c}
+                          {cat(c)}
                         </option>
                       ))}
                     </optgroup>
@@ -227,7 +226,7 @@ export default function Gestao360Demo() {
                 </select>
               </div>
               <div className="g360-field">
-                <label htmlFor="g360-search">Buscar transação</label>
+                <label htmlFor="g360-search">{t.search}</label>
                 <div className="g360-search-box">
                   <Icon name="search" size={17} />
                   <input
@@ -235,70 +234,64 @@ export default function Gestao360Demo() {
                     type="search"
                     value={filters.search}
                     onChange={(e) => update('search', e.target.value)}
-                    placeholder="Descrição, categoria ou ID"
+                    placeholder={t.searchPlaceholder}
                     autoComplete="off"
                   />
                 </div>
               </div>
             </div>
             <div className="g360-filter-foot">
-              <span>Indicadores, gráficos, tabela e exportação usam os mesmos filtros.</span>
+              <span>{t.filterFoot}</span>
               <button type="button" className="g360-clear" onClick={clearFilters} disabled={isDefault}>
-                Limpar filtros
+                {t.clear}
               </button>
             </div>
           </section>
 
-          <section className="g360-kpis" aria-label={`Indicadores: ${periodLabel}`}>
-            <Kpi label="Receitas" value={formatMoney(totals.revenue)} name="money" tone="teal" subtitle="Entradas no filtro" />
-            <Kpi label="Despesas" value={formatMoney(totals.expenses)} name="expense" tone="rose" subtitle="Saídas no filtro" />
-            <Kpi label="Resultado" value={formatMoney(totals.result)} name="profit" tone={totals.result >= 0 ? 'blue' : 'rose'} subtitle="Receitas − despesas" />
-            <Kpi label="Transações" value={totals.count.toLocaleString('pt-BR')} name="sales" tone="gold" subtitle="Movimentações no filtro" />
+          <section className="g360-kpis" aria-label={t.indicators(periodLabel)}>
+            <Kpi label={t.kpi.revenue[0]} value={money(totals.revenue)} name="money" tone="teal" subtitle={t.kpi.revenue[1]} />
+            <Kpi label={t.kpi.expenses[0]} value={money(totals.expenses)} name="expense" tone="rose" subtitle={t.kpi.expenses[1]} />
+            <Kpi label={t.kpi.result[0]} value={money(totals.result)} name="profit" tone={totals.result >= 0 ? 'blue' : 'rose'} subtitle={t.kpi.result[1]} />
+            <Kpi label={t.kpi.count[0]} value={num(totals.count)} name="sales" tone="gold" subtitle={t.kpi.count[1]} />
           </section>
 
-          <section className="g360-chart-grid" aria-label="Gráficos">
+          <section className="g360-chart-grid" aria-label={t.charts}>
             <div className="g360-panel g360-panel-trend">
               <div className="g360-panel-heading">
                 <div>
-                  <h2>Evolução financeira</h2>
-                  <p>Receitas e despesas por {groupLabel}</p>
+                  <h2>{t.trendTitle}</h2>
+                  <p>{t.trendSub(groupLabel)}</p>
                 </div>
                 <span className="g360-panel-chip">{periodLabel}</span>
               </div>
               {hasTrendData ? (
                 <>
-                  <TrendChart data={trend} groupLabel={groupLabel} />
-                  {partialLabels.length > 0 && (
-                    <p className="g360-chart-note">
-                      {partialLabels.length === 1 ? 'O ponto' : 'Os pontos'} {partialLabels.join(' e ')}{' '}
-                      {partialLabels.length === 1 ? 'inclui' : 'incluem'} só os dias dentro do período, por isso{' '}
-                      {partialLabels.length === 1 ? 'pode ficar mais baixo' : 'podem ficar mais baixos'}.
-                    </p>
-                  )}
+                  <TrendChart data={trend} groupLabel={groupLabel} weekly={weekly} />
+                  {partialLabels.length > 0 && <p className="g360-chart-note">{t.partial(partialLabels)}</p>}
                 </>
               ) : (
-                <EmptyChart />
+                <EmptyChart message={t.noData} />
               )}
             </div>
             <div className="g360-panel">
               <div className="g360-panel-heading">
                 <div>
-                  <h2>Despesas por categoria</h2>
-                  <p>Distribuição dos gastos no filtro</p>
+                  <h2>{t.byCategory}</h2>
+                  <p>{t.byCategorySub}</p>
                 </div>
               </div>
               {spending.length ? (
                 <>
-                  <DonutChart data={spending} total={totals.expenses} />
+                  <DonutChart data={spending.map((p) => ({ ...p, name: cat(p.name) }))} total={totals.expenses} />
                   <ul className="g360-legend">
                     {spending.map((part, index) => (
                       <li key={part.name}>
                         <span className="g360-legend-name">
                           <i style={{ backgroundColor: CATEGORY_COLORS[index % CATEGORY_COLORS.length] }} />
-                          {part.name}
+                          {cat(part.name)}
                         </span>
                         <span className="g360-legend-value">
-                          {moneyCompact(part.value)} <strong>{totals.expenses ? Math.round((part.value / totals.expenses) * 100) : 0}%</strong>
+                          {compact(part.value)} <strong>{totals.expenses ? Math.round((part.value / totals.expenses) * 100) : 0}%</strong>
                         </span>
                       </li>
                     ))}
@@ -307,9 +300,7 @@ export default function Gestao360Demo() {
               ) : (
                 <EmptyChart
                   message={
-                    filters.kind === 'receita'
-                      ? 'O filtro "Apenas receitas" está ativo, por isso não há despesas para mostrar.'
-                      : 'Não há despesas para os filtros selecionados.'
+                    filters.kind === 'receita' ? t.onlyRevenue : t.noExpenses
                   }
                 />
               )}
@@ -319,47 +310,47 @@ export default function Gestao360Demo() {
           <section className="g360-panel g360-table-panel" aria-labelledby="g360-tabela-titulo">
             <div className="g360-panel-heading">
               <div>
-                <h2 id="g360-tabela-titulo">Transações</h2>
-                <p>Os mesmos dados usados nos indicadores e gráficos</p>
+                <h2 id="g360-tabela-titulo">{t.table}</h2>
+                <p>{t.tableSub}</p>
               </div>
-              <span className="g360-panel-chip">{filtered.length.toLocaleString('pt-BR')} registros</span>
+              <span className="g360-panel-chip">{t.records(num(filtered.length))}</span>
             </div>
             <div className="g360-table-scroll" tabIndex={0} role="region" aria-labelledby="g360-tabela-titulo">
               <table>
-                <caption className="g360-sr-only">Transações filtradas, página {safePage} de {maxPage}</caption>
+                <caption className="g360-sr-only">{t.caption(safePage, maxPage)}</caption>
                 <thead>
                   <tr>
-                    <th scope="col">Data</th>
-                    <th scope="col">Descrição</th>
-                    <th scope="col">Categoria</th>
-                    <th scope="col">Tipo</th>
-                    <th scope="col" className="g360-text-right">Valor</th>
+                    <th scope="col">{t.cols.date}</th>
+                    <th scope="col">{t.cols.description}</th>
+                    <th scope="col">{t.cols.category}</th>
+                    <th scope="col">{t.cols.type}</th>
+                    <th scope="col" className="g360-text-right">{t.cols.amount}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {visible.map((t) => (
-                    <tr key={t.id}>
-                      <td>{formatDate(t.date)}</td>
+                  {visible.map((row) => (
+                    <tr key={row.id}>
+                      <td>{date(row.date)}</td>
                       <td>
-                        <strong>{t.description}</strong>
-                        <small>{t.id}</small>
+                        <strong>{desc(row.description)}</strong>
+                        <small>{row.id}</small>
                       </td>
-                      <td>{t.category}</td>
+                      <td>{cat(row.category)}</td>
                       <td>
-                        <span className={`g360-type ${t.kind}`}>{t.kind === 'receita' ? 'Receita' : 'Despesa'}</span>
+                        <span className={`g360-type ${row.kind}`}>{t.kindLabel[row.kind]}</span>
                       </td>
-                      <td className={`g360-text-right g360-amount ${t.kind}`}>
-                        {t.kind === 'receita' ? '+' : '−'} {formatMoney(t.amount)}
+                      <td className={`g360-text-right g360-amount ${row.kind}`}>
+                        {row.kind === 'receita' ? '+' : '−'} {money(row.amount)}
                       </td>
                     </tr>
                   ))}
                   {!visible.length && (
                     <tr>
                       <td colSpan={5} className="g360-empty-row">
-                        <strong>Nenhuma transação encontrada.</strong>
-                        <span>Revise a busca ou os filtros.</span>
+                        <strong>{t.emptyTitle}</strong>
+                        <span>{t.emptyText}</span>
                         <button type="button" className="g360-clear" onClick={clearFilters}>
-                          Limpar filtros
+                          {t.clear}
                         </button>
                       </td>
                     </tr>
@@ -367,28 +358,22 @@ export default function Gestao360Demo() {
                 </tbody>
               </table>
             </div>
-            <nav className="g360-pagination" aria-label="Paginação das transações">
-              <span>
-                Exibindo {filtered.length ? (safePage - 1) * PAGE_SIZE + 1 : 0} a {Math.min(safePage * PAGE_SIZE, filtered.length)} de{' '}
-                {filtered.length.toLocaleString('pt-BR')}
-              </span>
+            <nav className="g360-pagination" aria-label={t.pagination}>
+              <span>{t.showing(filtered.length ? (safePage - 1) * PAGE_SIZE + 1 : 0, Math.min(safePage * PAGE_SIZE, filtered.length), num(filtered.length))}</span>
               <div>
                 <button type="button" disabled={safePage <= 1} onClick={() => setPage(safePage - 1)}>
-                  Anterior
+                  {t.previous}
                 </button>
-                <span aria-live="polite">
-                  Página {safePage} de {maxPage}
-                </span>
+                <span aria-live="polite">{t.page(safePage, maxPage)}</span>
                 <button type="button" disabled={safePage >= maxPage} onClick={() => setPage(safePage + 1)}>
-                  Próxima
+                  {t.next}
                 </button>
               </div>
             </nav>
           </section>
 
           <footer className="g360-footer">
-            Projeto demonstrativo autoral de {site.name}. Empresa e números fictícios.{' '}
-            <Link to="/projetos/gestao360">Voltar ao projeto</Link>
+            {t.footer(site.name)} <Link to={lp('/projetos/gestao360')}>{t.backToProject}</Link>
           </footer>
         </div>
       </main>
@@ -413,6 +398,6 @@ function Kpi({ label, value, subtitle, name, tone }: { label: string; value: str
   );
 }
 
-function EmptyChart({ message = 'Nenhum dado para os filtros selecionados.' }: { message?: string }) {
+function EmptyChart({ message }: { message: string }) {
   return <div className="g360-empty-chart">{message}</div>;
 }
