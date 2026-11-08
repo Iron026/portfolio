@@ -103,6 +103,25 @@ const sitemap = has('sitemap.xml') ? read('sitemap.xml') : '';
 ok(sitemap.includes(`<loc>${siteUrl}/</loc>`), 'sitemap com a página inicial');
 for (const s of slugs) ok(sitemap.includes(`<loc>${siteUrl}/projetos/${s}/</loc>`), `sitemap com /projetos/${s}/ (URL final)`);
 for (const d of demoUrls) ok(sitemap.includes(`<loc>${siteUrl}${d}</loc>`), `sitemap com ${d}`);
+// Versão em inglês: HTML próprio para cada página pública, com lang, canonical e hreflang
+const en = (p) => p.replace(/^\/projetos\//, '/projects/').replace(/^\//, '/en/');
+const enPages = [
+  ['/', '/en/', 'en/index.html'],
+  ...slugs.map((s) => [`/projetos/${s}/`, en(`/projetos/${s}/`), `en/projects/${s}/index.html`]),
+  ...demoUrls.map((d) => [d, en(d), `en${d}.html`]),
+];
+for (const [pt, enPath, file] of enPages) {
+  if (!has(file)) { ok(false, `${file} existe`); continue; }
+  const h = read(file);
+  ok(h.includes('<html lang="en">') && h.includes('<meta property="og:locale" content="en_US"'), `${enPath}: lang="en" e og:locale en_US`);
+  ok(h.includes(`<link rel="canonical" href="${siteUrl}${enPath}"`), `${enPath}: canonical próprio`);
+  ok(h.includes(`hreflang="pt-BR" href="${siteUrl}${pt}"`) && h.includes(`hreflang="en" href="${siteUrl}${enPath}"`) && h.includes(`hreflang="x-default" href="${siteUrl}${pt}"`), `${enPath}: hreflang pt-BR, en e x-default`);
+  ok(!/estudo de caso|demonstração interativa|Este site precisa/i.test((h.match(/<title>[\s\S]*?<\/title>|<meta name="description"[^>]*>|<noscript>[\s\S]*?<\/noscript>/g) || []).join(' ')), `${enPath}: título, descrição e aviso em inglês`);
+  ok(sitemap.includes(`<loc>${siteUrl}${enPath}</loc>`), `sitemap com ${enPath}`);
+  const ptHtml = read(pt === '/' ? 'index.html' : pt.endsWith('/') ? `${pt.slice(1)}index.html` : `${pt.slice(1)}.html`);
+  ok(ptHtml.includes('<html lang="pt-BR">') && ptHtml.includes(`hreflang="en" href="${siteUrl}${enPath}"`), `${pt}: lang pt-BR e alternativa em inglês`);
+}
+ok(/^\/en\/\*\s+\/en\/index\.html\s+200$/m.test(has('_redirects') ? read('_redirects') : ''), '_redirects: rotas do app em inglês abrem o HTML em inglês');
 ok(has('robots.txt') && read('robots.txt').includes(`Sitemap: ${siteUrl}/sitemap.xml`), 'robots.txt aponta para o sitemap');
 
 // Regras do Netlify

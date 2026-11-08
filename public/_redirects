@@ -1,4 +1,6 @@
 # Arquivos do build que não existem (ex.: de uma versão anterior) respondem 404,
 # em vez de receber a página do site no lugar de um script
 /assets/*    /404.html     404
+# Rotas do app em inglês começam pelo HTML em inglês (lang="en"); o React completa os metadados
+/en/*    /en/index.html   200
 /*    /index.html   200
