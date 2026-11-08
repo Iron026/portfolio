@@ -9,6 +9,8 @@
  *   3. node scripts/previas.mjs http://localhost:4173
  *   Precisa do ffmpeg instalado (https://ffmpeg.org) para montar os vídeos.
  *   Para gravar só alguns: node scripts/previas.mjs http://localhost:4173 gestao360 orcafacil
+ *   Versão em inglês (grava /en/... e salva em public/projetos/<slug>/en/):
+ *     node scripts/previas.mjs http://localhost:4173 en
  *
  * Como funciona: o Chromium envia os quadros da tela (CDP screencast) com o
  * horário de cada um; o ffmpeg monta um WebM (VP9) e um MP4 (H.264), sem áudio,
@@ -23,7 +25,12 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const B = (process.argv[2] || 'http://localhost:4173').replace(/\/$/, '');
-const ONLY = process.argv.slice(3);
+const EN = process.argv.slice(3).includes('en');
+const ONLY = process.argv.slice(3).filter((a) => a !== 'en');
+/** Textos que os roteiros procuram na tela, nos dois idiomas. */
+const T = EN
+  ? { rent: 'Rent', buy: 'Buy', pool: 'pool', services: 'services', cart: 'Cart', home: 'Arena Store: store home', shirt: 'shirt', more: 'Increase quantity of Dry Training Shirt', add: 'Add to cart', increase: 'Increase', addQuote: 'Add to quote', client: 'Sun Bakery', painting: 'Painting', job: 'Paint the living room and one bedroom.', prepare: 'Prepare request' }
+  : { rent: 'Alugar', buy: 'Comprar', pool: 'piscina', services: 'servicos', cart: 'Carrinho', home: 'Arena Store: início da loja', shirt: 'camisa', more: 'Aumentar quantidade de Camisa Dry Treino', add: 'Adicionar ao carrinho', increase: 'Aumentar', addQuote: 'Adicionar ao orçamento', client: 'Padaria Sol', painting: 'Pintura', job: 'Pintar a sala e um quarto.', prepare: 'Preparar pedido' };
 const OUT = fileURLToPath(new URL('../public/projetos/', import.meta.url));
 const VIEW = { width: 1280, height: 800 };
 
@@ -85,7 +92,7 @@ const FLOWS = {
       await h.select('#g360-period', '365d'); await h.wait(1500);
       await h.select('#g360-kind', 'receita'); await h.wait(1500);
       await h.select('#g360-kind', 'todos'); await h.wait(300);
-      await h.type('#g360-search', 'servicos', 110); await h.wait(1500);
+      await h.type('#g360-search', T.services, 110); await h.wait(1500);
       await h.clear('#g360-search'); await h.select('#g360-period', '90d'); await h.wait(1200);
     },
   },
@@ -93,11 +100,11 @@ const FLOWS = {
     path: '/demos/imoveis',
     async run(p, h) {
       await h.scrollBy(230); await h.wait(300);
-      await h.type('#pi-q', 'piscina', 110); await h.wait(1500);
+      await h.type('#pi-q', T.pool, 110); await h.wait(1500);
       await h.clear('#pi-q'); await h.wait(500);
-      await h.click('button[aria-pressed]:has-text("Alugar")'); await h.wait(1300);
+      await h.click(`button[aria-pressed]:has-text("${T.rent}")`); await h.wait(1300);
       await h.select('#pi-bairro', 'Centro'); await h.wait(1500);
-      await h.click('button[aria-pressed]:has-text("Comprar")'); await h.wait(400);
+      await h.click(`button[aria-pressed]:has-text("${T.buy}")`); await h.wait(400);
       await h.select('#pi-bairro', ''); await h.select('#pi-tipo', 'casa'); await h.wait(1500);
     },
   },
@@ -106,19 +113,19 @@ const FLOWS = {
     // abre produto e carrinho uma vez (navegação interna) para não gravar a tela de carregamento
     async prepare(p) {
       await p.click('[data-product="AR-03"]'); await p.waitForTimeout(600);
-      await p.click('header a[aria-label^="Carrinho"]'); await p.waitForTimeout(600);
-      await p.click('header a[aria-label="Arena Store: início da loja"]'); await p.waitForTimeout(600);
+      await p.click(`header a[aria-label^="${T.cart}"]`); await p.waitForTimeout(600);
+      await p.click(`header a[aria-label="${T.home}"]`); await p.waitForTimeout(600);
       await p.evaluate(() => window.scrollTo(0, 0));
     },
     async run(p, h) {
       await h.wait(500);
-      await h.type('#as-q', 'camisa', 110); await h.wait(1300);
+      await h.type('#as-q', T.shirt, 110); await h.wait(1300);
       await h.click('[data-product="AR-03"]'); await h.wait(1100);
       await h.click('label:has(input[value="M"])'); await h.wait(500);
-      await h.click('button[aria-label="Aumentar quantidade de Camisa Dry Treino"]'); await h.wait(500);
-      await h.click('text=Adicionar ao carrinho'); await h.wait(1300);
-      await h.click('header a[aria-label^="Carrinho"]'); await h.wait(1400);
-      await h.click('[data-line="AR-03|M"] button[aria-label^="Aumentar"]'); await h.wait(1500);
+      await h.click(`button[aria-label="${T.more}"]`); await h.wait(500);
+      await h.click(`text=${T.add}`); await h.wait(1300);
+      await h.click(`header a[aria-label^="${T.cart}"]`); await h.wait(1400);
+      await h.click(`[data-line="AR-03|M"] button[aria-label^="${T.increase}"]`); await h.wait(1500);
     },
   },
   orcafacil: {
@@ -127,13 +134,13 @@ const FLOWS = {
       await h.scrollTo('select[id$="-item"]', 160); await h.wait(300);
       await h.select('select[id$="-item"]', 'cartao'); await h.wait(400);
       await h.click('input[id$="-qtd"]'); await p.locator('input[id$="-qtd"]').fill(''); await p.keyboard.type('2', { delay: 120 }); await h.wait(500);
-      await h.click('fieldset label:has-text("Premium")'); await h.wait(700);
-      await h.click('button:has-text("Adicionar ao orçamento")'); await h.wait(900);
+      await h.click('fieldset label:has(input[value="premium"])'); await h.wait(700);
+      await h.click(`button:has-text("${T.addQuote}")`); await h.wait(900);
       await h.select('select[id$="-item"]', 'banner'); await h.click('input[id$="-qtd"]'); await p.locator('input[id$="-qtd"]').fill(''); await p.keyboard.type('2', { delay: 120 });
-      await h.click('fieldset label:has-text("Rápido")'); await h.wait(600);
-      await h.click('button:has-text("Adicionar ao orçamento")'); await h.wait(900);
+      await h.click('fieldset label:has(input[value="rapido"])'); await h.wait(600);
+      await h.click(`button:has-text("${T.addQuote}")`); await h.wait(900);
       await h.type('input[id$="-desconto"]', '10', 160); await h.wait(1200);
-      await h.type('input[id$="-cliente"]', 'Padaria Sol', 80); await h.wait(400);
+      await h.type('input[id$="-cliente"]', T.client, 80); await h.wait(400);
       await h.scrollTo('.orca-doc', 90); await h.wait(1800);
     },
   },
@@ -141,13 +148,13 @@ const FLOWS = {
     path: '/demos/nova-servicos',
     async run(p, h) {
       await h.wait(700);
-      await h.click('#ns-inicio button:has-text("Pintura")'); await h.wait(1300);
+      await h.click(`#ns-inicio button:has-text("${T.painting}")`); await h.wait(1300);
       await h.type('#ns-nome', 'Marina Souza', 70); await h.wait(300);
       await h.type('#ns-contato', '71 98888 7777', 60); await h.wait(300);
       await h.type('#ns-bairro', 'Pituba', 70); await h.wait(300);
-      await h.type('#ns-descricao', 'Pintar a sala e um quarto.', 45); await h.wait(300);
+      await h.type('#ns-descricao', T.job, 45); await h.wait(300);
       await h.click('#ns-consentimento'); await h.wait(400);
-      await h.click('button:has-text("Preparar pedido")'); await h.wait(700);
+      await h.click(`button:has-text("${T.prepare}")`); await h.wait(700);
       await h.scrollTo('#ns-orcamento', 80); await h.wait(2000);
     },
   },
@@ -158,7 +165,7 @@ async function record(slug, flow) {
   await ctx.addInitScript(FIXED_DATE);
   await ctx.addInitScript(CURSOR);
   const p = await ctx.newPage();
-  await p.goto(B + flow.path, { waitUntil: 'load' });
+  await p.goto(B + (EN ? '/en' : '') + flow.path, { waitUntil: 'load' });
   await p.evaluate(() => document.fonts.ready);
   if (flow.prepare) await flow.prepare(p);
   await p.mouse.move(VIEW.width * 0.62, VIEW.height * 0.55);
@@ -184,8 +191,9 @@ async function record(slug, flow) {
   const list = frames.map((f, i) => `file '${f.file}'\nduration ${Math.max(0.02, ((frames[i + 1]?.t ?? f.t + 0.5) - f.t)).toFixed(3)}`).join('\n') + `\nfile '${frames.at(-1).file}'\n`;
   const listFile = join(dir, 'lista.txt');
   writeFileSync(listFile, list);
-  mkdirSync(join(OUT, slug), { recursive: true });
-  const out = join(OUT, slug, 'previa.mp4');
+  const target = join(OUT, slug, EN ? 'en' : '');
+  mkdirSync(target, { recursive: true });
+  const out = join(target, 'previa.mp4');
   execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', listFile,
     '-vf', 'fps=25,scale=960:600:flags=lanczos,format=yuv420p', '-c:v', 'libx264', '-preset', 'slow', '-crf', '27',
     '-profile:v', 'high', '-movflags', '+faststart', '-an', out]);
