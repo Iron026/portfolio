@@ -15,11 +15,12 @@ para voltar à versão anterior em segundos.
 ```bash
 BASE_URL=https://altocode.netlify.app npm run test:e2e
 ```
+O comando roda os 20 arquivos de teste de navegador contra o site publicado: rotas, Voltar e
+Avançar nas cinco demonstrações, formulário, acessibilidade, fontes, responsividade de 320 a
+1440 px e o HTML próprio das demonstrações.
+
 Em ambientes com proxy (como a nuvem do Claude), acrescente `NODE_USE_ENV_PROXY=1` antes do
 comando, para o `fetch` do Node usar o proxy.
-Ela roda os 20 arquivos de teste de navegador contra o site publicado: rotas, Voltar e Avançar
-nas cinco demonstrações, formulário, acessibilidade, fontes, responsividade de 320 a 1440 px
-e o HTML próprio das demonstrações.
 
 Conferências rápidas de endereço:
 
