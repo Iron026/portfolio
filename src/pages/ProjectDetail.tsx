@@ -74,7 +74,7 @@ export default function ProjectDetail() {
             </ol>
           </nav>
 
-          <div className="mt-12 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-7">
               <div className="flex flex-wrap items-center gap-2.5">
                 <span className="type-label text-tide">{t.counter(num(index + 1), num(projects.length))}</span>
@@ -115,9 +115,9 @@ export default function ProjectDetail() {
                   ),
                 ],
               ].map(([term, value], i, all) => (
-                <div key={String(term)} className={cn('grid grid-cols-[7.5rem_1fr] gap-4 py-3.5', i < all.length - 1 && 'border-b border-edge')}>
+                <div key={String(term)} className={cn('grid grid-cols-1 gap-1 py-3.5 sm:grid-cols-[7.5rem_minmax(0,1fr)] sm:gap-4', i < all.length - 1 && 'border-b border-edge')}>
                   <dt className="type-label pt-0.5 text-fg-muted">{term}</dt>
-                  <dd className="text-fg">{value}</dd>
+                  <dd className="min-w-0 text-fg [overflow-wrap:anywhere]">{value}</dd>
                 </div>
               ))}
             </dl>
@@ -191,7 +191,7 @@ export default function ProjectDetail() {
 
       {/* 4. Funcionalidades e roteiro de teste */}
       <section aria-labelledby="caso-func" className="tone-light on-light bg-surface! py-20 sm:py-24">
-        <div className="container-site grid gap-10 lg:grid-cols-12">
+        <div className="container-site grid grid-cols-1 gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <p className="type-label text-accent">{t.features}</p>
             <h2 id="caso-func" className="type-h2 mt-4 text-fg">
@@ -264,14 +264,14 @@ export default function ProjectDetail() {
               {t.galleryTitle}
             </h2>
             <p className="type-body mt-4 max-w-2xl text-fg-muted">{t.galleryIntro}</p>
-            <div className={cn('mt-12 grid gap-8', phoneShots.length > 0 && 'lg:grid-cols-12')}>
-              <div className={cn('grid gap-8', phoneShots.length > 0 && 'lg:col-span-9')}>
+            <div className={cn('mt-12 grid grid-cols-1 gap-8', phoneShots.length > 0 && 'lg:grid-cols-12')}>
+              <div className={cn('grid grid-cols-1 gap-8', phoneShots.length > 0 && 'lg:col-span-9')}>
                 {desktopShots.map((shot) => (
                   <Shot key={shot.src} shot={shot} />
                 ))}
               </div>
               {phoneShots.length > 0 && (
-                <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:col-span-3 lg:grid-cols-1 lg:content-start">
+                <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:col-span-3 lg:grid-cols-1 lg:content-start [&>*]:min-w-0">
                   {phoneShots.map((shot) => (
                     <Shot key={shot.src} shot={shot} />
                   ))}
@@ -284,7 +284,7 @@ export default function ProjectDetail() {
 
       {/* 7. Adaptações + como pedir orçamento + transparência */}
       <section aria-labelledby="caso-cta" className="tone-light on-light bg-surface! py-20 sm:py-24">
-        <div className="container-site grid gap-12 lg:grid-cols-12 lg:gap-10">
+        <div className="container-site grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-7">
             <p className="type-label text-accent">{t.similarLabel}</p>
             <h2 id="caso-cta" className="type-h2 mt-4 text-fg">
@@ -395,7 +395,7 @@ function Shot({ shot }: { shot: Screen }) {
       </a>
       <figcaption className="mt-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <span className="type-small text-fg">{shot.caption}</span>
-        <span className="type-tag text-fg-muted">
+        <span className="type-tag min-w-0 text-fg-muted [overflow-wrap:anywhere]">
           {ui.video.capture} · {lp(shot.route)}
         </span>
       </figcaption>

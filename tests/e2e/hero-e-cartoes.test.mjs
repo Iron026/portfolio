@@ -11,7 +11,7 @@ await p.goto(B + '/'); await p.waitForTimeout(600);
 const order = await p.$$eval('main > section[id]', ss => ss.map(s => s.id));
 ok(JSON.stringify(order) === JSON.stringify(['inicio', 'projetos', 'servicos', 'como-trabalho', 'sobre', 'perguntas', 'contato']), 'projetos antes de serviços ' + order.join(','));
 const idx = await p.$$eval('.section-index', ps => ps.map(x => x.textContent.trim()));
-ok(idx.join('|') === '01Projetos|02Serviços|03Processo|04Sobre|05Dúvidas|06Contato', 'numeração ' + idx.join('|'));
+ok(idx.join('|') === ['Projetos', 'Serviços', 'Processo', 'Sobre', 'Dúvidas', 'Contato'].map((n, i) => `0${i + 1}${n}0${i + 1} / 06`).join('|'), 'numeração ' + idx.join('|'));
 const nav = await p.$$eval('nav[aria-label="Principal"] a', as => as.map(a => a.getAttribute('href')));
 ok(nav.join(',') === '/#projetos,/#servicos,/#como-trabalho,/#sobre,/#contato', 'menu na nova ordem ' + nav.join(','));
 ok(await p.isVisible('role=tab[name="Planilha"]'), 'bancada preservada');
@@ -61,13 +61,13 @@ await p.goto(B + '/?projeto=nao-existe#contato'); await p.waitForTimeout(700);
 ok(!(await p.isVisible('text=Projeto de referência:')) && await p.inputValue('select[name="servico"]') === '', 'projeto inválido é ignorado');
 // página de detalhes
 await p.goto(B + '/projetos/orcafacil'); await p.waitForTimeout(600);
-const dq = await p.$$eval('a', as => as.filter(a => a.textContent.includes('Quero um gerador de orçamentos assim')).map(a => a.getAttribute('href')));
-ok(dq.length === 2 && dq.every(h => h === '/?projeto=orcafacil#contato'), 'detalhes: CTA contextual no topo e na lateral');
+const dq = await p.$$eval('a[href*="projeto="]', as => as.map(a => [a.textContent.trim(), a.getAttribute('href')]));
+ok(dq.length === 2 && dq.every(([, h]) => h === '/?projeto=orcafacil#contato') && dq.some(([t]) => t === 'Quero um gerador de orçamentos assim'), 'detalhes: CTA contextual na abertura e no fim ' + JSON.stringify(dq));
 // mobile: botões com área de toque e sem estouro
 const m = await b.newPage({ viewport: { width: 320, height: 700 } });
 await m.goto(B + '/'); await m.waitForTimeout(600);
-const btns = await m.$$eval('#projetos article', as => as.map(a => [...a.querySelectorAll('a')].filter(x => /Testar demonstração|Estudo de caso/.test(x.textContent)).map(x => { const r = x.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; })));
-ok(btns.every(bs => bs.length === 2 && bs.every(([w, h]) => h >= 44 && w >= 240)), '320px: dois botões largos e altos ' + JSON.stringify(btns[0]));
+const btns = await m.$$eval('#projetos article', as => as.map(a => [...a.querySelectorAll('a')].filter(x => /Testar demonstração|Estudo de caso/.test(x.textContent)).map(x => { const r = x.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height), Math.round(x.parentElement.getBoundingClientRect().width)]; })));
+ok(btns.every(bs => bs.length === 2 && bs.every(([w, h, pw]) => h >= 44 && w >= pw - 1)), '320px: dois botões na largura toda e altos ' + JSON.stringify(btns[0]));
 ok(await m.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), '320px: sem rolagem horizontal');
 const m2 = await b.newPage({ viewport: { width: 390, height: 844 } });
 await m2.goto(B + '/'); await m2.waitForTimeout(600);

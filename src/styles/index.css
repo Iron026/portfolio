@@ -855,7 +855,9 @@
     font-family: var(--font-code);
     font-size: 0.75rem;
     letter-spacing: -0.005em;
-    white-space: nowrap;
+    /* Rótulos longos quebram em vez de vazar do cartão em telas estreitas */
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
   /* Título principal: maior que o h1 padrão, com a moldura da marca na palavra-chave */
   .hero-title {

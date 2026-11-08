@@ -22,10 +22,10 @@ const settle = async (p) => { await p.waitForTimeout(300); let last = -1; for (l
   await p.goto(B + '/'); await p.waitForTimeout(500);
   const tools = await p.$$eval('#sobre li', (els) => els.map((e) => e.textContent.trim()));
   ok(tools.includes('Controle de versões (Git)'), 'ferramentas: versionamento citado sem o GitHub');
-  const principles = await p.$$eval('#sobre ol > li p.type-h4', (els) => els.map((e) => e.textContent.trim()));
-  ok(principles.length === 6 && principles.includes('Atendimento direto') && principles.includes('Combinado por escrito') && principles.includes('Linguagem clara'), 'Sobre: seis compromissos de trabalho ' + principles);
+  const principles = await p.$$eval('#sobre li p.type-h4', (els) => els.map((e) => e.textContent.trim()));
+  ok(JSON.stringify(principles) === JSON.stringify(['Atendimento direto', 'Entender antes de propor', 'Revisado e testado', 'Linguagem clara']), 'Sobre: quatro compromissos de trabalho ' + principles);
   const about = await p.$eval('#sobre', (el) => el.innerText);
-  ok(/formado em Análise e Desenvolvimento de Software/.test(about) && /há dois anos na área de desenvolvimento/.test(about), 'Sobre: formação e tempo de atuação');
+  ok(/formado em Análise e Desenvolvimento de Software/.test(about) && /dois anos de atuação na área de desenvolvimento/.test(about), 'Sobre: formação e tempo de atuação');
   ok(!/freelancer/i.test(about) && /demonstrações autorais/.test(about), 'Sobre: sem "freelancer" e com a transparência sobre as demonstrações');
   ok((await p.$$('#sobre aside, #projetos aside')).length === 0, 'Sobre: sem landmark complementar aninhado');
   await p.close();
@@ -40,7 +40,7 @@ const settle = async (p) => { await p.waitForTimeout(300); let last = -1; for (l
       const byText = (sel, t) => [...document.querySelectorAll(sel)].find((e) => e.textContent.trim() === t);
       const needs = byText('h2', 'Quem usa e o que resolve')?.nextElementSibling?.querySelectorAll('li').length ?? 0;
       const roteiro = document.querySelector('ol[aria-labelledby="caso-roteiro"]')?.querySelectorAll('li').length ?? 0;
-      const roteiroBox = document.getElementById('caso-roteiro')?.closest('div.rounded-xl');
+      const roteiroBox = document.querySelector('ol[aria-labelledby="caso-roteiro"]')?.parentElement;
       const demoLink = roteiroBox?.querySelector('a[href^="/demos/"]')?.getAttribute('href');
       const passos = document.querySelector('ol[aria-labelledby="caso-orcamento"]')?.querySelectorAll('li').length ?? 0;
       const adapt = document.querySelector('section[aria-labelledby="caso-cta"] ul')?.querySelectorAll('li').length ?? 0;
