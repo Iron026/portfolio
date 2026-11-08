@@ -57,7 +57,8 @@ for (const s of slugs) {
   if (!has(f)) continue;
   const h = read(f);
   ok(/<title>[^<]+estudo de caso \| Alto Code<\/title>/.test(h), `${s}: título próprio`);
-  ok(h.includes(`<link rel="canonical" href="${siteUrl}/projetos/${s}"`), `${s}: canonical`);
+  // com barra final: é a URL que o Netlify entrega com 200 para pasta/index.html (sem barra recebe 301)
+  ok(h.includes(`<link rel="canonical" href="${siteUrl}/projetos/${s}/"`), `${s}: canonical na URL final, com barra`);
   ok(h.includes(`content="${siteUrl}/projetos/${s}/og.jpg"`), `${s}: og:image do projeto`);
   ok(has(`projetos/${s}/og.jpg`), `${s}: og.jpg presente`);
 }
@@ -66,7 +67,9 @@ for (const s of slugs) {
 const demoUrls = [...projectsSrc.matchAll(/demo: \{ status: 'disponivel', url: '(\/demos\/[^']+)' \}/g)].map((m) => m[1]);
 ok(demoUrls.length === 5, `5 demonstrações internas declaradas (${demoUrls})`);
 for (const d of demoUrls) {
-  const f = `${d.slice(1)}/index.html`;
+  // arquivo plano: o Netlify entrega demos/<nome>.html em /demos/<nome> com 200, sem redirecionar
+  const f = `${d.slice(1)}.html`;
+  ok(!has(`${d.slice(1)}/index.html`), `${d}: sem pasta/index.html (evita o 301 para a barra final)`);
   ok(has(f), `${f} existe`);
   if (!has(f)) continue;
   const h = read(f);
@@ -96,7 +99,8 @@ for (const f of ['og-image.png', 'favicon.svg', 'apple-touch-icon.png']) ok(has(
 // Sitemap e robots
 const sitemap = has('sitemap.xml') ? read('sitemap.xml') : '';
 ok(sitemap.includes(`<loc>${siteUrl}/</loc>`), 'sitemap com a página inicial');
-for (const s of slugs) ok(sitemap.includes(`<loc>${siteUrl}/projetos/${s}</loc>`), `sitemap com /projetos/${s}`);
+for (const s of slugs) ok(sitemap.includes(`<loc>${siteUrl}/projetos/${s}/</loc>`), `sitemap com /projetos/${s}/ (URL final)`);
+for (const d of demoUrls) ok(sitemap.includes(`<loc>${siteUrl}${d}</loc>`), `sitemap com ${d}`);
 ok(has('robots.txt') && read('robots.txt').includes(`Sitemap: ${siteUrl}/sitemap.xml`), 'robots.txt aponta para o sitemap');
 
 // Regras do Netlify

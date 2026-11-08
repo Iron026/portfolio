@@ -65,8 +65,17 @@ aparece porque o teste captura a animação no meio da transição.
 ### SEO
 - **Demonstrações com HTML próprio:** `/demos/<nome>` recebia o título e o endereço canônico da
   página inicial, o que contradizia o sitemap (que lista as demonstrações) e gerava a prévia
-  errada ao compartilhar o link. O build agora gera `dist/demos/<nome>/index.html` com título,
+  errada ao compartilhar o link. O build agora gera `dist/demos/<nome>.html` com título,
   descrição, canonical e imagem próprios. `verify:dist` confere os cinco.
+- **Barra final no Netlify (verificado no site publicado em 08/11):** quando existe
+  `pasta/index.html`, o Netlify responde **301** de `/projetos/gestao360` para
+  `/projetos/gestao360/`. Já um arquivo `nome.html` é entregue em `/nome` com **200**, sem
+  redirecionar. Por isso:
+  - as demonstrações usam arquivo plano (`demos/imoveis.html`) e continuam sem redirecionamento;
+  - os estudos de caso seguem como em produção (`projetos/<slug>/index.html`), e o canonical e o
+    sitemap passaram a usar a URL final, com barra. Antes eles citavam a URL que redireciona.
+  - O teste de Voltar e Avançar aceita a barra final dos estudos de caso, que o Netlify adiciona
+    ao carregar a página diretamente.
 - Já estavam corretos e foram mantidos: títulos e descrições, canonical, Open Graph,
   `sitemap.xml`, `robots.txt`, `noindex` na página 404, um único h1 por página, texto
   alternativo nas capturas e fontes locais com pré-carregamento.
@@ -124,7 +133,12 @@ complexidade do build. Fica como proposta, não foi feito.
 - [ ] Revisar os textos novos dos estudos de caso: possibilidades de adaptação e roteiros de teste.
 - [ ] Aprovar ou ajustar a proposta de novos projetos (`docs/PROPOSTA-NOVOS-PROJETOS.md`).
 
-## 5. Sugestões não aplicadas (dependem de decisão sua)
-- **Nome na seção Sobre:** só o primeiro nome (por exemplo, "Iron, responsável pela Alto Code") dá mais pessoalidade sem expor nome completo nem foto. O link do LinkedIn já mostra o nome completo.
+## 5. Decisões registradas (08/11/2026)
+- Melhorias comerciais, formulário, acessibilidade e estudos de caso: **aprovados**.
+- Identidade visual: **sem novas alterações estéticas.**
+- Nome e foto na seção Sobre: **continuam vazios.** A Alto Code é só o portfólio comercial, sem currículo e sem GitHub.
+- Caixa em Dia: próxima demonstração, **depois** da publicação e dos testes desta versão. FluxoPronto: etapa posterior.
+
+## 6. Sugestões não aplicadas
 - **Exemplos para Planilhas e Automação:** enquanto não houver projeto, esses cartões poderiam apontar para as abas "Planilha" e "Automação" da bancada do topo.
 - **Pré-renderizar a página inicial** para melhorar o LCP (ver a seção 3).

@@ -128,8 +128,8 @@ for (const w of [320, 390, 768]) {
 
 // 7. HTML das demonstrações: título e canonical próprios antes do JavaScript (robôs de prévia de link)
 for (const [s, d] of Object.entries(DEMOS)) {
-  // barra final: o "vite preview" só entrega pasta/index.html assim (o Netlify entrega com e sem a barra)
-  const res = await fetch(B + d + (process.env.BASE_URL ? '' : '/'));
+  // sem barra final e sem redirecionamento: arquivo demos/<nome>.html (Netlify e vite preview)
+  const res = await fetch(B + d, { redirect: 'manual' });
   const html = await res.text();
   ok(res.status === 200 && /<title>[^<]+demonstração interativa \| Alto Code<\/title>/.test(html) && html.includes(`/projetos/${s}/og.jpg`), `${d}: HTML com título e imagem próprios`);
 }

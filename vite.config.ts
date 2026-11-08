@@ -52,7 +52,9 @@ function seoPagesPlugin(): Plugin {
       const index = readFileSync(join(outDir, 'index.html'), 'utf8');
       for (const p of projects) {
         const html = withMeta(index, url, {
-          path: `/projetos/${p.slug}`,
+          // O Netlify entrega pasta/index.html em /projetos/<slug>/ (o endereço sem barra recebe 301).
+          // O canonical aponta para a URL final, que responde 200.
+          path: `/projetos/${p.slug}/`,
           title: `${p.name}: estudo de caso | ${site.name}`,
           description: `${p.summary} Projeto demonstrativo autoral da ${site.name}.`,
           image: p.screens.length ? `/projetos/${p.slug}/og.jpg` : '/og-image.png',
@@ -62,6 +64,9 @@ function seoPagesPlugin(): Plugin {
       }
       // Demonstrações internas: sem este HTML, /demos/<nome> receberia o título e o
       // endereço canônico da página inicial (que contradiz o sitemap e as prévias de link).
+      // Arquivo "demos/<nome>.html" (e não pasta/index.html): o Netlify o entrega em /demos/<nome>
+      // com 200, sem redirecionar para a barra final; as rotas internas (/demos/imoveis/PI-101)
+      // continuam caindo na regra do app em _redirects.
       for (const p of projects) {
         if (p.demo.status !== 'disponivel' || !p.demo.url.startsWith('/')) continue;
         const html = withMeta(index, url, {
@@ -70,11 +75,11 @@ function seoPagesPlugin(): Plugin {
           description: `Teste a demonstração de ${p.name} (${p.category.toLowerCase()}), com empresa e dados fictícios. Projeto autoral da ${site.name}.`,
           image: p.screens.length ? `/projetos/${p.slug}/og.jpg` : '/og-image.png',
         });
-        mkdirSync(join(outDir, p.demo.url.slice(1)), { recursive: true });
-        writeFileSync(join(outDir, p.demo.url.slice(1), 'index.html'), html);
+        mkdirSync(join(outDir, 'demos'), { recursive: true });
+        writeFileSync(join(outDir, `${p.demo.url.slice(1)}.html`), html);
       }
       if (url) {
-        const paths = ['/', ...projects.map((p) => `/projetos/${p.slug}`), ...projects.filter((p) => p.demo.status === 'disponivel' && p.demo.url.startsWith('/')).map((p) => p.demo.url)];
+        const paths = ['/', ...projects.map((p) => `/projetos/${p.slug}/`), ...projects.filter((p) => p.demo.status === 'disponivel' && p.demo.url.startsWith('/')).map((p) => p.demo.url)];
         writeFileSync(join(outDir, 'sitemap.xml'), sitemap(url, paths, new Date().toISOString().slice(0, 10)));
       }
       writeFileSync(join(outDir, 'robots.txt'), robots(url));

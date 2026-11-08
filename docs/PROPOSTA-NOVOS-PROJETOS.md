@@ -1,7 +1,11 @@
 # Proposta: dois novos projetos demonstrativos
 
-> Situação: **proposta para aprovação.** Nada aqui foi desenvolvido nem publicado, e nenhum
-> cartão novo foi adicionado ao site.
+> Situação (08/11/2026):
+> - **Caixa em Dia (Projeto 6): aprovado como próxima demonstração.** O desenvolvimento começa
+>   só depois que a nova versão da Alto Code for publicada e testada no Netlify.
+> - **FluxoPronto (Projeto 7): mantido como proposta** para uma etapa posterior.
+>
+> Nada aqui foi desenvolvido nem publicado, e nenhum cartão novo foi adicionado ao site.
 
 ## Por que agora
 

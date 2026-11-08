@@ -34,7 +34,9 @@ export function useDocumentTitle(title?: string, description?: string, image?: s
     setMeta('meta[name="twitter:title"]', 'name', 'twitter:title', fullTitle);
     setMeta('meta[name="twitter:description"]', 'name', 'twitter:description', desc);
     if (baseUrl) {
-      const url = `${baseUrl}${pathname === '/' ? '/' : pathname.replace(/\/$/, '')}`;
+      // Estudos de caso são entregues pelo Netlify com barra final (pasta/index.html); o resto sem barra.
+      const clean = pathname === '/' ? '/' : pathname.replace(/\/$/, '');
+      const url = `${baseUrl}${/^\/projetos\/[^/]+$/.test(clean) ? `${clean}/` : clean}`;
       const img = `${baseUrl}${image ?? '/og-image.png'}`;
       let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
       if (!link) {

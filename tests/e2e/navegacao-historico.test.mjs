@@ -44,14 +44,15 @@ const state = (p) => p.evaluate(() => {
 });
 
 async function waitPortfolio(p, path) {
-  await p.waitForFunction((want) => location.pathname === want && document.querySelector('header') && (document.getElementById('conteudo')?.innerText || '').trim().length > 100, path, { timeout: 10000 }).catch(() => {});
+  // no Netlify os estudos de caso são entregues com barra final (/projetos/<slug>/)
+  await p.waitForFunction((want) => (location.pathname === want || location.pathname === want + '/') && document.querySelector('header') && (document.getElementById('conteudo')?.innerText || '').trim().length > 100, path, { timeout: 10000 }).catch(() => {});
   return state(p);
 }
 async function waitDemo(p, path) {
   await p.waitForFunction((want) => location.pathname.startsWith(want) && document.body.innerText.trim().length > 100 && !/Carregando demonstração/.test(document.body.innerText), path, { timeout: 10000 }).catch(() => {});
   return state(p);
 }
-const portfolioOk = (s, path) => s.path === path && s.rootKids > 0 && s.headerVisible && s.mainText > 100 && !s.alert;
+const portfolioOk = (s, path) => (s.path === path || s.path === path + '/') && s.rootKids > 0 && s.headerVisible && s.mainText > 100 && !s.alert;
 const demoOk = (s, path) => s.path.startsWith(path) && s.rootKids > 0 && s.text > 100 && !s.loading && !s.alert;
 
 /** Rolagem como no Chrome 150+ ("Programmatic Scroll Promises"). */
