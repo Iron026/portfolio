@@ -2,8 +2,9 @@
 
 Portfólio profissional de desenvolvimento e soluções digitais, feito com
 **React + TypeScript + Vite + Tailwind CSS**, com ícones **Lucide** e rotas com
-**React Router**. Todo o conteúdo está em português e pode ser publicado
-gratuitamente (Netlify ou Cloudflare Pages).
+**React Router**. O site é bilíngue: **português** (idioma principal, na raiz) e **inglês**
+(em `/en/`), incluindo as cinco demonstrações. Pode ser publicado gratuitamente
+(Netlify ou Cloudflare Pages).
 
 > Situação: site principal publicado e cinco demonstrações disponíveis:
 > **Gestão360** (`/demos/gestao360`), **Prime Imóveis** (`/demos/imoveis`),
@@ -56,6 +57,30 @@ npm test              # tudo acima, em sequência (inclui o build)
 
 O monograma "AC" do logotipo é desenhado em traços (`src/components/ui/Logo.tsx`), sem depender de fonte instalada.
 
+### 2.1 Idiomas (português e inglês)
+
+| O que | Onde |
+| --- | --- |
+| Textos da interface do portfólio (menus, botões, formulário, estudo de caso, 404) | `src/i18n/ui.ts` (`pt` e `en`, mesmas chaves) |
+| Textos do site em inglês (título, Sobre, compromissos) | `src/config/site.en.ts` (contatos e URL continuam em `site.ts`) |
+| Projetos, serviços, etapas e perguntas em inglês | `src/data/projects.en.ts`, `services.en.ts`, `content.en.ts` |
+| Cada demonstração | `<pasta da demo>/*-i18n.ts` (interface) e funções com parâmetro `locale` nos arquivos de dados |
+| Rotas e conversão de endereços | `src/i18n/locale.ts` |
+
+- **Endereços:** português na raiz (`/projetos/gestao360`, `/demos/arena-store/carrinho`) e inglês em
+  `/en/` com segmentos traduzidos (`/en/projects/gestao360`, `/en/demos/arena-store/cart`). Os links
+  internos são escritos na forma portuguesa e convertidos por `lp()` (`useLocale()`).
+- **Seletor PT/EN** (cabeçalho, menu do celular, rodapé e barra de cada demonstração): leva para a mesma
+  página no outro idioma, mantendo filtros (`?finalidade=aluguel`) e âncora (`#contato`). Não há
+  redirecionamento automático pelo idioma do navegador.
+- **O que não é traduzido:** Alto Code, Iron Cruz, nomes dos projetos e das empresas fictícias, códigos
+  (PI-101, AR-03), identificadores internos e chaves salvas no navegador. Valores continuam em reais;
+  só a escrita do número muda (R$ 1.234,56 / R$1,234.56).
+- **Tipagem:** os dicionários em inglês são declarados com o tipo do português (`const en: UiText`),
+  então o TypeScript acusa qualquer texto faltando.
+- **Para mudar um texto:** altere nos dois idiomas. `tests/e2e/idiomas.test.mjs` procura palavras em
+  português nas páginas em inglês.
+
 ### Contatos
 
 Enquanto `whatsapp`, `email` e `profiles` estiverem vazios, o site **não exibe
@@ -104,14 +129,20 @@ e-mail com a mensagem pronta, e o texto do site informa isso ao visitante.
 ```bash
 npm run test:setup                        # uma vez: Playwright e Chromium, fora do package.json
 npm run build && npm run preview          # deixe rodando
-node scripts/capturas.mjs http://localhost:4173   # capturas WebP, em outro terminal
-node scripts/previas.mjs http://localhost:4173    # prévias em vídeo (precisa do ffmpeg)
+node scripts/capturas.mjs http://localhost:4173      # capturas WebP, em outro terminal
+node scripts/capturas.mjs http://localhost:4173 en   # versão em inglês (+ og.jpg em inglês)
+node scripts/previas.mjs http://localhost:4173       # prévias em vídeo (precisa do ffmpeg)
+node scripts/previas.mjs http://localhost:4173 en    # prévias em vídeo em inglês
 ```
+
+Em inglês, as telas e os vídeos são gravados da própria demonstração em inglês e salvos em
+`public/projetos/<slug>/en/`. O site em inglês usa essa pasta automaticamente (`englishMedia()` em
+`src/data/projects.ts`): nenhuma captura com texto em português aparece como se fosse a versão em inglês.
 
 `scripts/capturas.mjs` abre cada demonstração com data fixa, repete os mesmos passos e grava os WebP nas larguras certas.
 `scripts/previas.mjs` executa interações reais em cada demonstração (filtros, busca, carrinho, cálculo, formulário),
 grava a tela e gera `previa.webm` (VP9) e `previa.mp4` (H.264), sem som, 960 × 600, com poucas centenas de KB.
-As imagens de compartilhamento `og.jpg` não são refeitas por ele.
+As imagens de compartilhamento `og.jpg` em português não são refeitas por ele; as em inglês são geradas com `en`.
 
 **Orçamento a partir de um projeto:** o botão "Quero … assim" abre `/?projeto=<slug>#contato`.
 O formulário escolhe o serviço do projeto (um `?servico=` explícito tem prioridade), mostra o
@@ -306,9 +337,19 @@ dentro de um `.group`) e `.frame-word` (ajuste para palavras dentro de títulos)
 | Verde-água | `#22C3B0` | destaque sobre fundo escuro, alças da moldura |
 | Verde-água escuro | `#0A7568` | destaque e links sobre fundo claro (5,6:1) |
 
-Superfícies chapadas, sem gradientes nem efeito de vidro; uma sombra de apoio
-(`shadow-soft`) e uma de hover (`shadow-lift`). Cantos: 4 px (etiquetas), 8 px (botões,
-campos, imagens) e 12 px (cartões).
+Superfícies chapadas, sem efeito de vidro; o único degradê é o painel "Teste você mesmo" dos
+estudos de caso, na cor do projeto. Cantos: 4 px (etiquetas), 8 px (botões, campos, imagens),
+12–18 px (cartões e painéis).
+
+**Sistema visual 2 — tons (direção "Editorial Tech").** Cada seção declara um tom:
+`.tone-light` ou `.tone-dark` (em `src/styles/index.css`). O tom define variáveis semânticas
+(`--bg`, `--surface`, `--fg`, `--fg-muted`, `--edge`, `--accent`, `--accent-fill`, `--on-accent`…)
+usadas pelas classes `bg-bg`, `bg-surface`, `text-fg`, `text-fg-muted`, `border-edge`, `text-accent`.
+Assim o mesmo componente (botão, cartão, etiqueta) funciona sobre fundo claro e escuro sem
+variantes duplicadas. Componentes da direção: `.panel`, `.browser` (moldura de navegador nas
+capturas), `.phone` (moldura de celular), `.chip`, `.pcard` (cartão de projeto em mosaico),
+`.svc-card` (faixa com a cor da categoria), `.case-hero` (abertura do estudo de caso) e
+`.frame-label` (etiqueta da moldura de seleção).
 
 **Tipografia do portfólio** — fontes locais em `public/fonts/` (WOFF2 variáveis, subconjunto
 latino com todos os acentos do português, `font-display: swap`, pré-carregadas no `index.html`,
@@ -420,12 +461,16 @@ As rotas internas (ex.: `/projetos/gestao360`) funcionam ao atualizar a página 
 
 **SEO**
 - Título, descrição, endereço canônico e Open Graph por página (`src/hooks/useDocumentTitle.ts`).
-- No build, cada estudo de caso ganha um HTML próprio em `dist/projetos/<slug>/index.html`,
-  com título, descrição, canonical e imagem de compartilhamento certos. Motivo: os robôs do
+- No build, cada página pública ganha um HTML próprio nos dois idiomas: início (`dist/index.html` e
+  `dist/en/index.html`), estudos de caso (`dist/projetos/<slug>/index.html` e
+  `dist/en/projects/<slug>/index.html`) e demonstrações (`dist/demos/<nome>.html` e
+  `dist/en/demos/<nome>.html`), com `lang`, título, descrição, canonical, `hreflang` (pt-BR, en,
+  x-default), `og:locale` e imagem de compartilhamento certos. Motivo: os robôs do
   WhatsApp, LinkedIn e Facebook não executam JavaScript; sem isso, todo link compartilhado
   mostraria a prévia da página inicial. O Google já lê o conteúdo renderizado.
-- `sitemap.xml` (início, estudos de caso e demonstrações) e `robots.txt` com o endereço do
-  sitemap são gerados no build a partir de `site.url` e da lista de projetos.
+- `sitemap.xml` (início, estudos de caso e demonstrações, nos dois idiomas, ligados por `hreflang`) e
+  `robots.txt` com o endereço do sitemap são gerados no build a partir de `site.url` e da lista de projetos.
+- `public/_redirects` manda as rotas internas em inglês (`/en/*`) para o HTML em inglês.
 - A página 404 recebe `noindex`.
 - **Pré-renderização completa** (HTML com todo o conteúdo) foi avaliada e não é necessária
   agora: o Google indexa o conteúdo renderizado e o ganho principal (prévias corretas nas redes)
