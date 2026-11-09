@@ -38,7 +38,7 @@
   padding: 26px 18px; display: flex; flex-direction: column; flex: none;
 }
 .g360-brand { display: flex; align-items: center; gap: 11px; padding: 3px 7px; border-radius: 10px; }
-.g360-brand-mark { width: 40px; height: 40px; }
+.g360-brand-mark { width: 46px; height: auto; color: #fff; }
 .g360-brand strong { font-family: var(--font-display); font-size: 16px; display: block; color: #fff; letter-spacing: -0.2px; }
 .g360-brand small { font-size: 11px; color: #91a6be; white-space: nowrap; }
 .g360-brand:hover strong { text-decoration: underline; text-underline-offset: 3px; }
@@ -224,7 +224,7 @@
   .g360-root { display: block; }
   .g360-sidebar { width: 100%; min-height: auto; padding: 10px 15px; flex-direction: row; align-items: center; }
   .g360-brand small, .g360-side-sep, .g360-side-heading, .g360-side-active, .g360-side-help, .g360-side-bottom { display: none; }
-  .g360-brand-mark { width: 33px; height: 33px; }
+  .g360-brand-mark { width: 38px; }
   .g360-brand strong { font-size: 14px; }
   .g360-topbar { min-height: 55px; padding: 8px 16px; flex-wrap: wrap; row-gap: 4px; }
   .g360-top-kicker ol { font-size: 12px; }

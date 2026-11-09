@@ -98,7 +98,16 @@ for (const v of videos) for (const ext of ['webm', 'mp4']) ok(has(`${v.slice(1)}
 // Imagens referenciadas pelos projetos
 ok(images.length >= 20, `imagens referenciadas encontradas (${images.length})`);
 for (const img of images) ok(has(img.slice(1)), `imagem ${img}`);
-for (const f of ['og-image.png', 'favicon.svg', 'apple-touch-icon.png']) ok(has(f), f);
+for (const f of ['og-image.png', 'og-image-en.png', 'favicon.svg', 'apple-touch-icon.png']) ok(has(f), f);
+// Identidade visual: favicon com o símbolo novo (versão completa e versão simplificada para 16 px)
+{
+  const fav = readFileSync(join(dist, 'favicon.svg'), 'utf8');
+  ok(/@media \(max-width:24px\)/.test(fav) && /class="c"/.test(fav) && /class="p"/.test(fav), 'favicon com versão completa e versão para 16 px');
+  ok(fav.includes('#22c3b0') && fav.includes('#060e1d') && !/<rect x="6\.5"/.test(fav), 'favicon com as cores da marca, sem o monograma antigo');
+  const enHome = readFileSync(join(dist, 'en/index.html'), 'utf8');
+  ok(/<meta property="og:image" content="https?:\/\/[^"]+og-image-en\.png"/.test(enHome), 'início em inglês com imagem de compartilhamento em inglês');
+  ok(!existsSync(join(dist, 'marca')), 'kit da marca (marca/) fora do site publicado');
+}
 
 // Sitemap e robots
 const sitemap = has('sitemap.xml') ? read('sitemap.xml') : '';

@@ -108,6 +108,7 @@
   --accent-fill: #0d1a30;   /* botão principal: marinho */
   --on-accent: #ffffff;
   --frame-color: #0fa594;
+  --logo-accent: #0e9888;   /* detalhes da logo sobre claro (3,6:1, elemento gráfico) */
   --elev: 0 1px 2px rgb(13 26 48 / 0.05), 0 12px 32px -18px rgb(13 26 48 / 0.28);
   --elev-hover: 0 2px 4px rgb(13 26 48 / 0.06), 0 24px 48px -22px rgb(13 26 48 / 0.38);
   color: var(--fg);
@@ -124,6 +125,7 @@
   --accent-fill: #22c3b0;
   --on-accent: #052520;
   --frame-color: #22c3b0;
+  --logo-accent: #22c3b0;
   --elev: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 18px 40px -24px rgb(0 0 0 / 0.7);
   --elev-hover: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 28px 56px -26px rgb(0 0 0 / 0.85);
   color: var(--fg);

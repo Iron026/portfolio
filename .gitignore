@@ -6,3 +6,4 @@ dist
 *.log
 .netlify
 tests/saida
+__pycache__/

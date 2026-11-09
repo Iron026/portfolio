@@ -59,7 +59,7 @@ function seoPagesPlugin(): Plugin {
       };
       // Imagem de compartilhamento: a versão em inglês, quando existir, mostra a demonstração em inglês.
       const ogImage = (p: Project, locale: Locale) => {
-        if (!p.screens.length) return '/og-image.png';
+        if (!p.screens.length) return locale === 'en' ? '/og-image-en.png' : '/og-image.png';
         const pt = `/projetos/${p.slug}/og.jpg`;
         const en = englishMedia(pt);
         return locale === 'en' && existsSync(join(outDir, en.slice(1))) ? en : pt;
@@ -90,7 +90,7 @@ function seoPagesPlugin(): Plugin {
           path: home[locale],
           title: `${site.name} | ${t.site.headline}`,
           description: t.site.description,
-          image: '/og-image.png',
+          image: locale === 'en' ? '/og-image-en.png' : '/og-image.png',
           lang: locale,
           alternates: home,
           type: 'website',

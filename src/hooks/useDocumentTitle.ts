@@ -60,7 +60,8 @@ export function useDocumentTitle(title?: string, description?: string, image?: s
     setMeta('meta[name="twitter:description"]', 'name', 'twitter:description', desc);
     if (baseUrl) {
       const url = publicUrl(pathname);
-      const img = `${baseUrl}${image ?? '/og-image.png'}`;
+      // Imagem da marca no idioma da página (texto em português ou em inglês)
+      const img = `${baseUrl}${image ?? (locale === 'en' ? '/og-image-en.png' : '/og-image.png')}`;
       setLink('link[rel="canonical"]', { rel: 'canonical', href: url });
       for (const l of LOCALES) {
         setLink(`link[rel="alternate"][hreflang="${HTML_LANG[l]}"]`, { rel: 'alternate', hreflang: HTML_LANG[l], href: publicUrl(switchLocalePath(pathname, l)) });

@@ -54,9 +54,9 @@ npm test              # tudo acima, em sequência (inclui o build)
 | Etapas de trabalho e perguntas frequentes | `src/data/content.ts` |
 | Cores, escala tipográfica e moldura da marca | `src/styles/index.css` |
 | Ícone da aba do navegador | `public/favicon.svg` |
-| Imagem de compartilhamento (WhatsApp, LinkedIn) | `public/og-image.png` e `public/projetos/<slug>/og.jpg` (1200 × 630) |
+| Imagem de compartilhamento (WhatsApp, LinkedIn) | `public/og-image.png` (PT), `public/og-image-en.png` (EN) e `public/projetos/<slug>/og.jpg` (1200 × 630) |
 
-O monograma "AC" do logotipo é desenhado em traços (`src/components/ui/Logo.tsx`), sem depender de fonte instalada.
+A logo (símbolo "A" entre os sinais de código e o nome Alto Code) vem de `scripts/marca.py`, que gera o kit da marca em `marca/` e os contornos usados pelo site em `src/components/ui/logo-paths.ts`. Detalhes na seção "Identidade visual".
 
 ### 2.1 Idiomas (português e inglês)
 
@@ -287,8 +287,7 @@ alto-code/
 │   ├── _redirects             # rotas internas para Netlify e Cloudflare Pages
 │   ├── _headers               # cache longo de /assets e /fonts (Netlify)
 │   ├── fonts/                 # fontes da marca em WOFF2 + licenças
-│   ├── favicon.svg, apple-touch-icon.png, og-image.png
-│   ├── marca/                 # monograma em SVG e avatar PNG para perfis
+│   ├── favicon.svg, apple-touch-icon.png, og-image.png, og-image-en.png
 │   └── projetos/<slug>/       # capturas (WebP) e imagem de compartilhamento (og.jpg)
 └── src/
     ├── main.tsx               # ponto de entrada, fontes e roteador
@@ -318,7 +317,7 @@ alto-code/
 ferramenta de design: uma linha fina e quatro alças quadradas. A ideia é "enquadrar o
 problema e ajustar sob medida". O uso é controlado:
 
-1. no logotipo (monograma "AC" dentro da moldura);
+1. em volta da logo, ao passar o mouse ou focar pelo teclado, e em volta do símbolo no cartão Sobre;
 2. na palavra-chave do título principal ("sob medida");
 3. nas capturas dos projetos, aparecendo ao apontar ou focar (como uma seleção);
 4. na imagem principal de cada projeto em detalhes;
@@ -446,8 +445,42 @@ compactos (serviços), linha do tempo (processo) e cartão do responsável (sobr
 **Ordem da página inicial:** Início → 01 Projetos → 02 Serviços → 03 Processo → 04 Sobre →
 05 Dúvidas → 06 Contato. O menu segue a mesma ordem.
 
-**Arquivos da marca** (`public/marca/`): monograma para fundo claro e para fundo escuro
-(SVG) e avatar quadrado (SVG e PNG 800 px) para perfis como 99Freelas e LinkedIn.
+### Identidade visual
+
+**Símbolo:** um A geométrico branco entre os sinais de código `<` e `>`, com a barra central em
+verde-água. A geometria é exata:
+- as pernas do A são faixas paralelas com inclinação 0,461;
+- a barra central é um paralelogramo com a mesma inclinação;
+- os sinais de código têm braços a 45° e o braço de baixo é cortado em paralelo à perna do A.
+
+O nome "Alto Code" usa Space Grotesk 650, com "Code" em verde-água. O slogan "DESENVOLVIMENTO
+DIGITAL" ("DIGITAL DEVELOPMENT" em inglês) usa DM Sans 600 espaçada.
+
+| Uso | Escuro | Claro |
+| --- | --- | --- |
+| A e "Alto" | branco (`--fg`) | marinho `#0D1A30` |
+| Detalhes e "Code" | `#22C3B0` (8,7:1 sobre a noite) | `#0E9888` (3,6:1 sobre branco, acima do mínimo de 3:1 para elementos gráficos) |
+
+**Kit da marca** (`marca/`, fora do site publicado), gerado por `python3 scripts/marca.py`
+(precisa de `pip install fonttools brotli`) e `node scripts/marca-png.mjs`:
+- `marca/svg/`: símbolo, logo horizontal, horizontal com slogan e vertical com slogan, cada uma
+  nas versões escuro, claro, mono-branco e mono-preto. As versões com slogan também existem em
+  inglês (`-en`). Os textos estão em contornos, sem depender de fonte instalada;
+- `marca/png/`: os mesmos arquivos em PNG transparente (1600 px de largura; símbolos em 1024 px),
+  ícone quadrado (192 e 512 px) e o favicon em 16, 32 e 48 px.
+
+**No site:**
+- `src/components/ui/Logo.tsx` (`Logo`, `LogoLockup`, `LogoMark`) usa os contornos de `logo-paths.ts`;
+- o cabeçalho e o rodapé mostram a logo horizontal sem slogan: 21 a 22 px de altura no celular e 25 px a partir de 640 px. A barra continua com 64/72 px;
+- a moldura de seleção aparece em volta da logo ao passar o mouse ou focar pelo teclado.
+
+**Favicon** (`public/favicon.svg`): o símbolo engrossado sobre um quadrado azul-noite. Uma regra
+de mídia dentro do SVG troca para o A com a barra quando ele é desenhado com menos de 24 px
+(aba do navegador em 16 px). `public/apple-touch-icon.png` (180 px) sai do mesmo desenho.
+
+**Compartilhamento:** `scripts/og-marca.mjs` gera `og-image.png` (PT) e `og-image-en.png` (EN).
+As imagens dos projetos (`og.jpg`) saem de `scripts/capturas.mjs` com a logo nova. Para refazer
+só elas, use a opção `--og`.
 
 ---
 

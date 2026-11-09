@@ -6,6 +6,8 @@
  *   2. npm run build && npm run preview      (deixe rodando em um terminal)
  *   3. node scripts/capturas.mjs http://localhost:4173
  *      node scripts/capturas.mjs http://localhost:4173 en   (versão em inglês)
+ *    Opções: --og (só as imagens de compartilhamento, a partir das capturas já salvas)
+ *            --so=gestao360,orcafacil (só as telas desses projetos; as og.jpg de todos)
  *
  * Em inglês, as telas são gravadas da própria demonstração em inglês (/en/...) e
  * salvas em public/projetos/<slug>/en/, junto com a imagem de compartilhamento
@@ -21,6 +23,8 @@ import { chromium } from 'playwright';
 
 const B = (process.argv[2] || 'http://localhost:4173').replace(/\/$/, '');
 const EN = process.argv[3] === 'en';
+const ONLY_OG = process.argv.includes('--og');
+const ONLY = process.argv.find((a) => a.startsWith('--so='))?.slice(5).split(',') ?? null;
 const OUT = new URL('../public/projetos/', import.meta.url).pathname;
 /** Endereço no idioma escolhido (mesma regra de src/i18n/locale.ts). */
 const L = (path) => (EN ? '/en' + path.replace(/\/projetos\//, '/projects/').replace(/\/produto\//, '/product/').replace(/\/carrinho$/, '/cart') : path);
@@ -86,6 +90,7 @@ async function saveWebp(page, png, file, widths) {
 }
 
 for (const [name, vp, path, fn] of shots) {
+  if (ONLY_OG || (ONLY && !ONLY.some((slug) => name.startsWith(slug)))) continue;
   const ctx = await b.newContext({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: vp.scale, timezoneId: 'America/Sao_Paulo' });
   await ctx.addInitScript(() => { const T = new Date(2026, 9, 20, 10).getTime(); const O = Date; globalThis.Date = class extends O { constructor(...a) { super(...(a.length ? a : [T])); } static now() { return T; } }; });
   const p = await ctx.newPage();
@@ -124,7 +129,8 @@ for (const [name, vp, path, fn] of shots) {
         ['orcafacil', '05', 'Calculadora comercial', 'OrçaFácil'],
       ];
   const font = (f) => `url(data:font/woff2;base64,${readFileSync(new URL(`../public/fonts/${f}`, import.meta.url)).toString('base64')})`;
-  const mark = readFileSync(new URL('../public/marca/alto-code-monograma-negativo.svg', import.meta.url), 'utf8');
+  // Logo horizontal da marca para fundo escuro (kit gerado por scripts/marca.py)
+  const mark = readFileSync(new URL('../marca/svg/alto-code-horizontal-escuro.svg', import.meta.url), 'utf8');
   const ctx = await b.newContext({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
   const p = await ctx.newPage();
   for (const [slug, n, category, name] of CASES) {
@@ -136,8 +142,8 @@ for (const [name, vp, path, fn] of shots) {
       * { margin: 0; box-sizing: border-box; }
       body { width: 1200px; height: 630px; overflow: hidden; background: #060e1d; color: #fff; font-family: B;
         background-image: linear-gradient(rgb(255 255 255 / .035) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / .035) 1px, transparent 1px); background-size: 48px 48px; }
-      .brand { position: absolute; left: 72px; top: 66px; display: flex; align-items: center; gap: 18px; font: 600 28px T; letter-spacing: -.02em; }
-      .brand svg { width: 52px; height: 52px; }
+      .brand { position: absolute; left: 66px; top: 64px; }
+      .brand svg { display: block; height: 44px; width: auto; }
       .kicker { position: absolute; left: 72px; top: 208px; font: 500 19px M; letter-spacing: .12em; text-transform: uppercase; color: #2ed3bd; }
       .cat { position: absolute; left: 72px; top: 240px; font: 400 19px M; letter-spacing: .12em; text-transform: uppercase; color: rgb(214 224 238 / .85); max-width: 520px; }
       h1 { position: absolute; left: 70px; top: 282px; font: 600 88px T; letter-spacing: -.045em; line-height: 1.05; max-width: 540px; }
@@ -147,7 +153,7 @@ for (const [name, vp, path, fn] of shots) {
       .shot img { width: 960px; transform-origin: 0 0; transform: scale(.6667); display: block; }
       .h { position: absolute; width: 12px; height: 12px; background: #2ed3bd; }
     </style><body>
-      <div class="brand">${mark}<span>Alto Code</span></div>
+      <div class="brand">${mark}</div>
       <p class="kicker">${OG.kicker} ${n}</p><p class="cat">${category}</p>
       <h1>${name}</h1><p class="note">${OG.note}</p>
       <p class="url">${OG.url(slug)}</p>

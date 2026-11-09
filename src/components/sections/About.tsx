@@ -9,7 +9,7 @@ import { useUi } from '@/i18n/ui';
 
 /**
  * Sobre: quem está por trás da Alto Code. À esquerda, o cartão do responsável
- * (monograma, nome, ficha curta e canais diretos); à direita, a apresentação,
+ * (símbolo da marca na moldura de seleção, nome, ficha curta e canais diretos); à direita, a apresentação,
  * os compromissos de trabalho e as ferramentas. Sem foto (opcional em site.ts).
  */
 export function About() {
@@ -37,7 +37,9 @@ export function About() {
                   <img src={site.ownerPhoto} alt={name} width={88} height={88} loading="lazy" className="block h-[5.5rem] w-[5.5rem] object-cover" />
                 </span>
               ) : (
-                <LogoMark className="h-[5.5rem] w-[5.5rem] text-fg" />
+                <span className="frame-sel grid h-[5.5rem] w-[5.5rem] shrink-0 place-items-center bg-white/[0.03]">
+                  <LogoMark className="w-[3.9rem] text-fg" />
+                </span>
               )}
               <div className="min-w-0">
                 <p className="font-title text-[1.75rem] leading-tight font-semibold tracking-[-0.03em] text-fg sm:text-[2rem]">{name}</p>

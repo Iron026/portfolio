@@ -49,7 +49,7 @@ class Boundary extends Component<Props, State> {
       <main role="alert" lang={this.props.lang} className="brand font-text grid min-h-screen place-items-center bg-paper px-5 py-16 text-ink">
         <div className="w-full max-w-lg">
           <a href={this.props.home} className="inline-flex items-center gap-3 font-title text-lg font-semibold tracking-[-0.02em]">
-            <LogoMark /> Alto Code
+            <LogoMark accent="#0e9888" className="w-11" /> Alto Code
           </a>
           <h1 className="type-h2 mt-10">{this.props.text.heading}</h1>
           <p className="type-lead mt-4 text-slate">

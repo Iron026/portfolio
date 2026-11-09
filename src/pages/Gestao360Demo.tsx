@@ -122,7 +122,7 @@ export default function Gestao360Demo() {
     <div className="g360-root">
       <aside className="g360-sidebar" aria-label={t.sideNav}>
         <Link className="g360-brand" to={{ pathname: lp('/'), hash: '#projetos' }} aria-label={t.backTo(site.name)}>
-          <LogoMark tone="light" className="g360-brand-mark" />
+          <LogoMark className="g360-brand-mark" />
           <span>
             <strong>{site.name}</strong>
             <small>{t.demoProjects}</small>
