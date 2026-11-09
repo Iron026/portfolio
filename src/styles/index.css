@@ -318,6 +318,7 @@
 .svc-auto-node .svc-auto-dot { transform-box: fill-box; transform-origin: center; animation: svc-auto-dot 6s ease-out var(--d) infinite both; }
 .svc-auto-packet { animation: svc-auto-packet 6s cubic-bezier(0.6, 0, 0.3, 1) infinite both; }
 
+@keyframes tour-in { from { opacity: 0.35; } to { opacity: 1; } }
 @keyframes bench-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes svc-site-in {
   0% { opacity: 0; transform: translate(var(--dx), var(--dy)); }
@@ -939,6 +940,52 @@
     color: var(--fg);
     text-wrap: balance;
   }
+  /* ----------------------------------------------------------------
+     TOUR DE FUNCIONALIDADES (projeto em detalhes)
+  ----------------------------------------------------------------- */
+  .tour-tab {
+    display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 0.25rem;
+    min-height: 2.75rem; padding: 0.7rem 0.85rem; border-radius: 10px;
+    border: 1px solid var(--edge); background: var(--surface);
+    transition: border-color 200ms, background-color 200ms, box-shadow 200ms;
+    flex: none; max-width: 16rem;
+  }
+  .tour-tab:hover { border-color: var(--edge-strong); }
+  .tour-tab.is-active { border-color: var(--frame-color); box-shadow: inset 3px 0 0 var(--frame-color); background: color-mix(in srgb, var(--frame-color) 5%, var(--surface)); }
+  @media (min-width: 1024px) {
+    .tour-tab { max-width: none; border-color: transparent; background: transparent; }
+    .tour-tab:hover { background: var(--surface-2); border-color: transparent; }
+    .tour-tab.is-active { border-color: var(--edge); background: var(--bg); }
+  }
+  .tour-stage { border-radius: 18px; padding: 0.75rem; background: linear-gradient(160deg, color-mix(in srgb, var(--accent-base) 90%, white 10%), var(--accent-base)); }
+  @media (min-width: 640px) { .tour-stage { padding: 1.5rem; } }
+  .tour-stage--phone { padding-block: 1.5rem; }
+  .tour-focus {
+    position: absolute; pointer-events: none;
+    --sel: var(--color-tide);
+    border: 2px solid var(--sel);
+    box-shadow: 0 0 0 200vmax rgb(6 14 29 / 0.32);
+    transition: left 460ms cubic-bezier(0.3, 0.8, 0.25, 1), top 460ms cubic-bezier(0.3, 0.8, 0.25, 1), width 460ms cubic-bezier(0.3, 0.8, 0.25, 1), height 460ms cubic-bezier(0.3, 0.8, 0.25, 1);
+  }
+  .tour-focus::before {
+    content: ''; position: absolute; inset: -6px;
+    background:
+      linear-gradient(var(--sel), var(--sel)) top left / 9px 9px no-repeat,
+      linear-gradient(var(--sel), var(--sel)) top right / 9px 9px no-repeat,
+      linear-gradient(var(--sel), var(--sel)) bottom left / 9px 9px no-repeat,
+      linear-gradient(var(--sel), var(--sel)) bottom right / 9px 9px no-repeat;
+  }
+  .tour-in { animation: tour-in 320ms ease-out both; }
+  .tour-step {
+    display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 999px;
+    border: 1px solid var(--edge-strong); color: var(--fg); background: var(--surface);
+    transition: background-color 150ms, border-color 150ms;
+  }
+  .tour-step:hover { border-color: var(--fg); }
+  .tech-details summary::-webkit-details-marker { display: none; }
+  html[data-motion='paused'] :is(.tour-focus, .tour-in) { transition: none; animation: none; }
+  @media (prefers-reduced-motion: reduce) { .tour-focus { transition: none; } .tour-in { animation: none; } }
+
   /* ----------------------------------------------------------------
      VITRINE: índice selecionador + palcos
   ----------------------------------------------------------------- */

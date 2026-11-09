@@ -2,8 +2,6 @@ import { lazy, Suspense } from 'react';
 import type { Project } from '@/data/projects';
 import { Capture } from '@/components/ui/Capture';
 import { cn } from '@/utils/cn';
-import { PreviewVideoButton, PreviewVideoLayer, usePreviewVideo } from '@/components/ui/PreviewVideo';
-import { useUi } from '@/i18n/ui';
 
 /**
  * Prévia desenhada em código: só para projetos ainda sem capturas. Carregada à parte
@@ -37,25 +35,5 @@ export function ProjectCover({
         </Suspense>
       )}
     </div>
-  );
-}
-
-/** Imagem principal com a prévia em vídeo por cima (página do estudo de caso). */
-export function ProjectCoverWithPreview({ project, sizes, priority }: { project: Project; sizes?: string; priority?: boolean }) {
-  const preview = usePreviewVideo(project.video?.src);
-  const ui = useUi();
-  return (
-    <>
-      <div ref={preview.boxRef} className="relative overflow-hidden rounded-lg">
-        <ProjectCover project={project} sizes={sizes} priority={priority} />
-        {project.video && <PreviewVideoLayer preview={preview} label={ui.video.layer(project.name, project.video.shows)} />}
-      </div>
-      {project.video && (
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <PreviewVideoButton preview={preview} name={project.name} />
-          <span className="type-small text-fg-muted">{project.video.shows}</span>
-        </div>
-      )}
-    </>
   );
 }
