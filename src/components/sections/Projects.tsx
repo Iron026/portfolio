@@ -126,7 +126,7 @@ export function Projects() {
 
       <div className="mt-10 grid gap-12 sm:mt-14 lg:mt-16 lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:gap-14">
         <ProjectIndex projects={projects} active={active} />
-        <div className="grid gap-14 sm:gap-20 lg:gap-28">
+        <div className="grid gap-14 sm:gap-16 lg:gap-20">
           {projects.map((project, i) => (
             <ProjectStage key={project.slug} project={project} index={i} total={projects.length} />
           ))}
