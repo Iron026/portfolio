@@ -12,7 +12,7 @@
  * 8. outros projetos.
  * Conteúdo em src/data/projects.ts (+ .en.ts) e src/data/tour.ts.
  */
-import { lazy, Suspense, type CSSProperties } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowDown, ArrowLeft, ArrowRight, Check, ChevronDown, MessageSquareText } from 'lucide-react';
 import { site } from '@/config/site';
@@ -34,6 +34,26 @@ const num = (n: number) => String(n).padStart(2, '0');
 /** Tour de funcionalidades: carregado à parte (fica abaixo da primeira tela). */
 const ProjectTour = lazy(() => import('@/components/sections/ProjectTour'));
 
+/** true quando o elemento chega perto da tela (e continua true): adia o carregamento do tour. */
+function useNear(margin = '600px') {
+  const ref = useRef<HTMLDivElement>(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || near) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setNear(true);
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) setNear(true);
+    }, { rootMargin: `${margin} 0px` });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [near, margin]);
+  return { ref, near };
+}
+
 export default function ProjectDetail() {
   const { slug } = useParams();
   const project = useProject(slug);
@@ -43,6 +63,7 @@ export default function ProjectDetail() {
   const t = ui.caseStudy;
   // Página do projeto: a prévia só toca (e só é baixada) depois do clique em "Ver em movimento"
   const preview = usePreviewVideo(project?.video?.src, { autoplay: false });
+  const tourArea = useNear();
   useDocumentTitle(
     project ? t.title(project.name) : ui.notFound.title,
     project ? `${project.teaser} ${t.seoSuffix(site.name)}` : undefined,
@@ -208,12 +229,16 @@ export default function ProjectDetail() {
             </div>
             <p className="type-body text-fg-muted lg:col-span-5">{t.tourIntro}</p>
           </div>
-          <div className="mt-10 sm:mt-12">
-            {project.screens.length > 0 && (
-              <Suspense fallback={<div className="min-h-[34rem]" aria-busy="true" />}>
-                <ProjectTour project={project} />
-              </Suspense>
-            )}
+          {/* O tour (e seu arquivo) só carrega quando a seção se aproxima da tela; o espaço fica reservado */}
+          <div ref={tourArea.ref} className="mt-10 sm:mt-12">
+            {project.screens.length > 0 &&
+              (tourArea.near ? (
+                <Suspense fallback={<div className="min-h-[34rem]" aria-busy="true" />}>
+                  <ProjectTour project={project} />
+                </Suspense>
+              ) : (
+                <div className="min-h-[34rem]" aria-busy="true" />
+              ))}
           </div>
           <div className="mt-12 border-t border-edge pt-8 sm:mt-14">
             <h3 className="type-label text-fg-muted">{t.allFeatures}</h3>

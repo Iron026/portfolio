@@ -89,6 +89,9 @@ for (const lang of ['', '/en']) {
     for (const slug of SLUGS) {
       const tag = `${lang || 'pt'} ${w}px ${slug}`;
       await p.goto(`${BASE}${lang}${lang ? '/projects/' : '/projetos/'}${slug}`); await p.waitForTimeout(600);
+      // o tour só é montado quando a seção se aproxima da tela
+      ok((await p.locator('#caso-tour [role=tab]').count()) === 0 || w < 600, `${tag}: tour ainda não montado na abertura`);
+      await p.locator('#caso-tour').scrollIntoViewIfNeeded(); await p.waitForTimeout(700);
       const tabs = p.locator('#caso-tour [role=tab]');
       const n = await tabs.count();
       ok(n === EXPECT[slug].length, `${tag}: ${n} paradas no tour`);
