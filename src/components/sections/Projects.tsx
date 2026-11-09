@@ -169,7 +169,10 @@ function ProjectStage({ project, index, total }: { project: Project; index: numb
   useEffect(() => {
     const el = stageRef.current;
     if (!el || near) return;
-    if (typeof IntersectionObserver === 'undefined') return setNear(true);
+    if (typeof IntersectionObserver === 'undefined') {
+      setNear(true);
+      return;
+    }
     const io = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && setNear(true), { rootMargin: '400px 0px' });
     io.observe(el);
     return () => io.disconnect();

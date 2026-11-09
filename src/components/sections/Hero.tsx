@@ -50,7 +50,10 @@ function HeroTitle({ parts, active }: { parts: Part[]; active: TabId }) {
     const measure = () => {
       const el = words.current[active];
       const root = h1.current;
-      if (!el || !root) return setBox(null);
+      if (!el || !root) {
+        setBox(null);
+        return;
+      }
       const a = el.getBoundingClientRect();
       const b = root.getBoundingClientRect();
       const pad = parseFloat(getComputedStyle(root).fontSize) * 0.1;
