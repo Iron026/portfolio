@@ -47,7 +47,8 @@ npm test              # tudo acima, em sequência (inclui o build)
 | WhatsApp, e-mail e link do perfil profissional | `src/config/site.ts` → `contact` |
 | Endereço do site publicado (para SEO) | `src/config/site.ts` → `url` |
 | Serviços (6 frentes em 3 categorias, cartões compactos) | `src/data/services.ts` |
-| Projetos e estudos de caso | `src/data/projects.ts` |
+| Projetos e páginas "Projeto em detalhes" | `src/data/projects.ts` (+ `projects.en.ts`) |
+| Tour de funcionalidades de cada projeto (área da captura destacada e textos PT/EN) | `src/data/tour.ts` |
 | Capturas dos projetos | `public/projetos/<slug>/` (ver seção 3) |
 | Logotipo em arquivo (perfis, capas, apresentações) | `public/marca/` |
 | Etapas de trabalho e perguntas frequentes | `src/data/content.ts` |
@@ -61,7 +62,7 @@ O monograma "AC" do logotipo é desenhado em traços (`src/components/ui/Logo.ts
 
 | O que | Onde |
 | --- | --- |
-| Textos da interface do portfólio (menus, botões, formulário, estudo de caso, 404) | `src/i18n/ui.ts` (`pt` e `en`, mesmas chaves) |
+| Textos da interface do portfólio (menus, botões, formulário, projeto em detalhes, 404) | `src/i18n/ui.ts` (`pt` e `en`, mesmas chaves) |
 | Textos do site em inglês (título, Sobre, compromissos) | `src/config/site.en.ts` (contatos e URL continuam em `site.ts`) |
 | Projetos, serviços, etapas e perguntas em inglês | `src/data/projects.en.ts`, `services.en.ts`, `content.en.ts` |
 | Cada demonstração | `<pasta da demo>/*-i18n.ts` (interface) e funções com parâmetro `locale` nos arquivos de dados |
@@ -114,7 +115,7 @@ e-mail com a mensagem pronta, e o texto do site informa isso ao visitante.
    - `slug`: identificador sem espaços nem acentos (vira o endereço `/projetos/<slug>`).
    - `kind`: `'demo'` para projeto demonstrativo; `'cliente'` **somente** para trabalho real feito para um cliente.
    - `name`, `category`, `summary`, `problem`, `goal` (objetivo), `features`, `technologies`.
-   - `decisions`: decisões de implementação que aparecem no estudo de caso (`{ title, text }`). Escreva só o que o código realmente faz.
+   - `decisions`: decisões de implementação que aparecem em "Detalhes técnicos" na página do projeto (`{ title, text }`). Escreva só o que o código realmente faz.
    - `screens`: capturas reais da interface. A primeira é a imagem principal. Cada item tem `src` (caminho sem o final, ex.: `'/projetos/meu-site/tela-1'`), `device` (`'desktop'` ou `'mobile'`), `alt`, `caption` e `route`. Os arquivos precisam existir nas larguras 1600 e 800 (telas grandes) ou 780 e 390 (celular), em WebP: `tela-1-1600.webp`, `tela-1-800.webp`, `celular-780.webp`… Sem capturas, o site usa a prévia desenhada em código (`preview`).
    - `service`: serviço pré-selecionado no formulário quando o visitante clica no botão de orçamento do projeto (`'sites'`, `'planilhas'`, `'automacoes'` ou `'sistemas'`).
    - `quoteCta`: texto desse botão (ex.: `'Quero um painel de gestão assim'`).
@@ -122,7 +123,8 @@ e-mail com a mensagem pronta, e o texto do site informa isso ao visitante.
    - `demo`: `{ status: 'disponivel', url: 'https://link-da-demo' }` ou `{ status: 'em-breve', url: '' }`.
    - `accent`: as duas cores da identidade do projeto (`{ base, detail }`), usadas como detalhe no cartão.
    - `video` (opcional): prévia gravada da própria demonstração, `{ src: '/projetos/<slug>/previa', shows: 'o que o vídeo mostra' }`. Precisa dos arquivos `previa.webm` e `previa.mp4` (gerados por `scripts/previas.mjs`). Sem vídeo, o cartão mostra só a captura.
-4. Salve. O projeto aparece na grade da página inicial, no rodapé, ganha o estudo de caso em `/projetos/<slug>` e entra no `sitemap.xml` no próximo build.
+4. Salve. O projeto aparece na vitrine da página inicial, no rodapé, ganha a página "Projeto em detalhes" em `/projetos/<slug>` e entra no `sitemap.xml` no próximo build.
+5. Opcional, mas recomendado: cadastre o tour de funcionalidades em `src/data/tour.ts`. Cada parada indica a captura (`screen`, posição em `screens`) e a área da tela em porcentagem (`focus: [x, y, largura, altura]`), com título e texto em português e inglês. Ao refazer as capturas, confira se as áreas continuam no lugar (`tests/e2e/inovacoes.test.mjs` verifica que a moldura fica dentro da imagem).
 
 **Refazer as capturas e as prévias em vídeo** (por exemplo, depois de mudar uma demonstração):
 
@@ -279,7 +281,7 @@ alto-code/
 ├── tests/                     # testes de unidade, de navegador e verificação do dist/
 ├── vite.config.ts             # build + geração das páginas de SEO, sitemap e robots
 ├── scripts/
-│   ├── seo-pages.ts           # metadados por estudo de caso, sitemap.xml e robots.txt
+│   ├── seo-pages.ts           # metadados por página e idioma, sitemap.xml e robots.txt
 │   └── capturas.mjs           # refaz as capturas reais das demonstrações
 ├── public/
 │   ├── _redirects             # rotas internas para Netlify e Cloudflare Pages
@@ -292,13 +294,13 @@ alto-code/
     ├── main.tsx               # ponto de entrada, fontes e roteador
     ├── App.tsx                # rotas (demonstrações carregadas sob demanda)
     ├── config/site.ts         # ← configuração central
-    ├── data/                  # serviços, projetos/estudos de caso, processo e FAQ
+    ├── data/                  # serviços, projetos, tour de funcionalidades, processo e FAQ
     ├── components/
     │   ├── layout/            # cabeçalho, rodapé e layout das páginas
     │   ├── sections/          # seções da página inicial
     │   ├── previews/          # prévias desenhadas em código (usadas se faltar captura)
     │   └── ui/                # botões, logotipo, selos, títulos, capturas
-    ├── pages/                 # início, estudo de caso, 404 e demonstração Gestão360
+    ├── pages/                 # início, projeto em detalhes, 404 e demonstração Gestão360
     │   ├── imoveis/           # demonstração Prime Imóveis
     │   ├── nova-servicos/     # demonstração Nova Serviços
     │   ├── arena-store/       # demonstração Arena Store
@@ -319,7 +321,8 @@ problema e ajustar sob medida". O uso é controlado:
 1. no logotipo (monograma "AC" dentro da moldura);
 2. na palavra-chave do título principal ("sob medida");
 3. nas capturas dos projetos, aparecendo ao apontar ou focar (como uma seleção);
-4. na imagem principal de cada estudo de caso.
+4. na imagem principal de cada projeto em detalhes;
+5. **com comportamento** (versão criativa, novembro de 2026): no título do Início, a moldura percorre a palavra da solução escolhida na bancada; no índice da vitrine, acompanha o projeto que está na tela; no tour de cada projeto, enquadra a área da captura onde está a funcionalidade escolhida.
 
 Classes: `.frame-sel` (moldura sempre visível), `.frame-sel-hover` (aparece no hover/foco
 dentro de um `.group`) e `.frame-word` (ajuste para palavras dentro de títulos).
@@ -328,7 +331,7 @@ dentro de um `.group`) e `.frame-word` (ajuste para palavras dentro de títulos)
 
 | Nome | Valor | Uso |
 | --- | --- | --- |
-| Noite | `#060E1D` | hero, processo, contato, rodapé, abertura dos estudos de caso |
+| Noite | `#060E1D` | hero, processo, contato, rodapé, abertura das páginas de projeto |
 | Marinho | `#0D1A30` | títulos, textos fortes, botão principal |
 | Papel | `#F4F6FA` | fundo das seções claras |
 | Linha | `#E0E5EE` | linhas finas e bordas |
@@ -338,7 +341,7 @@ dentro de um `.group`) e `.frame-word` (ajuste para palavras dentro de títulos)
 | Verde-água escuro | `#0A7568` | destaque e links sobre fundo claro (5,6:1) |
 
 Superfícies chapadas, sem efeito de vidro; o único degradê é o painel "Teste você mesmo" dos
-estudos de caso, na cor do projeto. Cantos: 4 px (etiquetas), 8 px (botões, campos, imagens),
+páginas de projeto, na cor do projeto. Cantos: 4 px (etiquetas), 8 px (botões, campos, imagens),
 12–18 px (cartões e painéis).
 
 **Sistema visual 2 — tons (direção "Editorial Tech").** Cada seção declara um tom:
@@ -348,7 +351,7 @@ usadas pelas classes `bg-bg`, `bg-surface`, `text-fg`, `text-fg-muted`, `border-
 Assim o mesmo componente (botão, cartão, etiqueta) funciona sobre fundo claro e escuro sem
 variantes duplicadas. Componentes da direção: `.panel`, `.browser` (moldura de navegador nas
 capturas), `.phone` (moldura de celular), `.chip`, `.pcard` (cartão de projeto em mosaico),
-`.svc-card` (faixa com a cor da categoria), `.case-hero` (abertura do estudo de caso) e
+`.stage-media` (palco de cada projeto na vitrine), `.svc-row` (linha do índice de serviços, cor da categoria), `.tour-*` (tour de funcionalidades), `.case-hero` (abertura do projeto em detalhes) e
 `.frame-label` (etiqueta da moldura de seleção).
 
 **Tipografia do portfólio** — fontes locais em `public/fonts/` (WOFF2 variáveis, subconjunto
@@ -454,7 +457,7 @@ As rotas internas (ex.: `/projetos/gestao360`) funcionam ao atualizar a página 
 **Acessibilidade (objetivo: WCAG 2.2 AA)**
 - Link "Pular para o conteúdo", foco visível em todos os elementos e navegação por teclado (incluindo as abas da bancada, com setas).
 - Menu móvel com `aria-expanded`, fechamento com Esc e ao navegar; item de menu da seção visível marcado com `aria-current`.
-- Hierarquia de títulos sem saltos (um `h1` por página), trilha de navegação nos estudos de caso.
+- Hierarquia de títulos sem saltos (um `h1` por página), trilha de navegação nas páginas de projeto.
 - Formulário com rótulos, erros associados aos campos, foco no primeiro erro e status anunciado a leitores de tela.
 - Contraste AA ou superior em todos os textos; alvos de toque com pelo menos 24 px (botões com 44–48 px).
 - Respeita a preferência do sistema por menos animação.
@@ -462,13 +465,13 @@ As rotas internas (ex.: `/projetos/gestao360`) funcionam ao atualizar a página 
 **SEO**
 - Título, descrição, endereço canônico e Open Graph por página (`src/hooks/useDocumentTitle.ts`).
 - No build, cada página pública ganha um HTML próprio nos dois idiomas: início (`dist/index.html` e
-  `dist/en/index.html`), estudos de caso (`dist/projetos/<slug>/index.html` e
+  `dist/en/index.html`), páginas de projeto (`dist/projetos/<slug>/index.html` e
   `dist/en/projects/<slug>/index.html`) e demonstrações (`dist/demos/<nome>.html` e
   `dist/en/demos/<nome>.html`), com `lang`, título, descrição, canonical, `hreflang` (pt-BR, en,
   x-default), `og:locale` e imagem de compartilhamento certos. Motivo: os robôs do
   WhatsApp, LinkedIn e Facebook não executam JavaScript; sem isso, todo link compartilhado
   mostraria a prévia da página inicial. O Google já lê o conteúdo renderizado.
-- `sitemap.xml` (início, estudos de caso e demonstrações, nos dois idiomas, ligados por `hreflang`) e
+- `sitemap.xml` (início, páginas de projeto e demonstrações, nos dois idiomas, ligados por `hreflang`) e
   `robots.txt` com o endereço do sitemap são gerados no build a partir de `site.url` e da lista de projetos.
 - `public/_redirects` manda as rotas internas em inglês (`/en/*`) para o HTML em inglês.
 - A página 404 recebe `noindex`.
@@ -480,5 +483,5 @@ As rotas internas (ex.: `/projetos/gestao360`) funcionam ao atualizar a página 
 **Desempenho**
 - As demonstrações são carregadas sob demanda (`React.lazy`): quem abre o portfólio não baixa o código delas.
 - Capturas em WebP responsivo (`srcset` 800/1600), com `width`/`height` definidos (sem saltos de layout)
-  e `loading="lazy"` fora da primeira tela; a imagem principal do estudo de caso tem prioridade alta.
+  e `loading="lazy"` fora da primeira tela; a imagem principal do projeto em detalhes tem prioridade alta.
 - Fontes locais em WOFF2 com `font-display: swap`; nenhuma requisição a serviços externos.
