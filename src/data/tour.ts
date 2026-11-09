@@ -4,8 +4,10 @@
  * Cada parada aponta para uma captura real do projeto (`screen`, índice em
  * `screens` de projects.ts) e para a área da tela em que a funcionalidade
  * aparece (`focus`: x, y, largura e altura em % da captura). A moldura de
- * seleção destaca essa área. As capturas em inglês têm o mesmo layout, então
- * as áreas valem para os dois idiomas.
+ * seleção destaca essa área. As capturas em inglês têm quase sempre o mesmo
+ * layout, então as áreas valem para os dois idiomas. Quando o texto em inglês
+ * muda a altura ou a largura de um bloco (títulos que quebram em uma linha a
+ * menos, rótulos mais curtos), a área em inglês fica em GEOMETRY_EN.
  *
  * Só descreva o que a demonstração realmente faz. Ao refazer as capturas
  * (scripts/capturas.mjs), confira se as áreas continuam no lugar.
@@ -26,7 +28,7 @@ type Texts = Array<{ title: string; text: string }>;
 const GEOMETRY: Record<string, Geometry> = {
   'prime-imoveis': [
     { screen: 0, focus: [24, 41, 72, 12] },
-    { screen: 0, focus: [4, 41, 24, 59] },
+    { screen: 0, focus: [4, 41, 23, 59] },
     { screen: 0, focus: [28, 58, 68, 42] },
     { screen: 1, focus: [4.5, 23, 61, 77] },
     { screen: 1, focus: [66.5, 23, 29, 43] },
@@ -39,7 +41,7 @@ const GEOMETRY: Record<string, Geometry> = {
     { screen: 1, focus: [20.5, 28, 77, 72] },
   ],
   'nova-servicos': [
-    { screen: 0, focus: [5.5, 22, 44, 50] },
+    { screen: 0, focus: [5.5, 22, 47.5, 50] },
     { screen: 0, focus: [54.5, 24.5, 39.5, 46] },
     { screen: 1, focus: [41, 9, 53.5, 91] },
     { screen: 1, focus: [41.5, 36, 50.5, 16] },
@@ -54,10 +56,26 @@ const GEOMETRY: Record<string, Geometry> = {
   orcafacil: [
     { screen: 0, focus: [6, 49.5, 46, 15.5] },
     { screen: 0, focus: [6, 64.5, 46, 35.5] },
-    { screen: 0, focus: [55, 49.5, 40, 34.5] },
-    { screen: 0, focus: [55, 84, 40, 16] },
+    { screen: 0, focus: [55, 49.5, 40, 38.5] },
+    { screen: 0, focus: [55, 88.5, 40, 11.5] },
     { screen: 1, focus: [7, 11, 86, 67] },
     { screen: 1, focus: [5, 82, 90, 18] },
+  ],
+};
+
+/**
+ * Áreas próprias das capturas em inglês, onde o layout muda com o idioma:
+ * - Prime Imóveis: os botões de finalidade são mais estreitos, então a busca começa antes;
+ * - OrçaFácil: o título cabe em uma linha, então o formulário sobe cerca de 6%.
+ */
+const GEOMETRY_EN: Record<string, Geometry> = {
+  'prime-imoveis': [{ screen: 0, focus: [18.7, 41, 77.3, 12] }, ...GEOMETRY['prime-imoveis'].slice(1)],
+  orcafacil: [
+    { screen: 0, focus: [6, 43.8, 46, 15.5] },
+    { screen: 0, focus: [6, 58.8, 46, 36.5] },
+    { screen: 0, focus: [55, 43.8, 40, 36] },
+    { screen: 0, focus: [55, 79.3, 40, 11.5] },
+    ...GEOMETRY.orcafacil.slice(4),
   ],
 };
 
@@ -140,7 +158,7 @@ const TEXTS: Record<Locale, Record<string, Texts>> = {
 
 /** Paradas do tour de um projeto, no idioma pedido (vazio se o projeto não tiver tour). */
 export function getTour(slug: string, locale: Locale): TourStop[] {
-  const geometry = GEOMETRY[slug] ?? [];
+  const geometry = (locale === 'en' ? GEOMETRY_EN[slug] : undefined) ?? GEOMETRY[slug] ?? [];
   const texts = TEXTS[locale][slug] ?? TEXTS.pt[slug] ?? [];
   return geometry.map((g, i) => ({ ...g, ...(texts[i] ?? { title: '', text: '' }) }));
 }

@@ -9,7 +9,8 @@
  *
  * Em inglês, as telas são gravadas da própria demonstração em inglês (/en/...) e
  * salvas em public/projetos/<slug>/en/, junto com a imagem de compartilhamento
- * (og.jpg, 1200 × 630) montada com a captura em inglês.
+ * (og.jpg, 1200 × 630) montada com a captura em inglês. Em português, a og.jpg é
+ * gerada do mesmo jeito em public/projetos/<slug>/.
  *
  * O script abre cada demonstração com data fixa, executa os passos abaixo e
  * salva cada tela em WebP nas larguras usadas pelo site (1600/800 para telas
@@ -102,22 +103,33 @@ for (const [name, vp, path, fn] of shots) {
   console.log('ok', name);
 }
 
-// Imagem de compartilhamento em inglês (1200 × 630), no mesmo desenho da versão em português.
-if (EN) {
-  const CASES = [
-    ['prime-imoveis', '01', 'Real estate portal', 'Prime Imóveis'],
-    ['gestao360', '02', 'Financial and sales dashboard', 'Gestão360'],
-    ['nova-servicos', '03', 'Service landing page', 'Nova Serviços'],
-    ['arena-store', '04', 'Demo online store', 'Arena Store'],
-    ['orcafacil', '05', 'Business calculator', 'OrçaFácil'],
-  ];
+// Imagem de compartilhamento (1200 × 630) no idioma escolhido, montada com a captura desse idioma.
+{
+  const OG = EN
+    ? { kicker: 'Project details', note: 'Original demo project', url: (slug) => `altocode.netlify.app/en/projects/${slug}`, dir: 'en/', lang: 'en' }
+    : { kicker: 'Projeto em detalhes', note: 'Projeto demonstrativo autoral', url: (slug) => `altocode.netlify.app/projetos/${slug}`, dir: '', lang: 'pt-BR' };
+  const CASES = EN
+    ? [
+        ['prime-imoveis', '01', 'Real estate portal', 'Prime Imóveis'],
+        ['gestao360', '02', 'Financial and sales dashboard', 'Gestão360'],
+        ['nova-servicos', '03', 'Service landing page', 'Nova Serviços'],
+        ['arena-store', '04', 'Demo online store', 'Arena Store'],
+        ['orcafacil', '05', 'Business calculator', 'OrçaFácil'],
+      ]
+    : [
+        ['prime-imoveis', '01', 'Portal imobiliário', 'Prime Imóveis'],
+        ['gestao360', '02', 'Dashboard financeiro e comercial', 'Gestão360'],
+        ['nova-servicos', '03', 'Landing page de serviços', 'Nova Serviços'],
+        ['arena-store', '04', 'Loja virtual demonstrativa', 'Arena Store'],
+        ['orcafacil', '05', 'Calculadora comercial', 'OrçaFácil'],
+      ];
   const font = (f) => `url(data:font/woff2;base64,${readFileSync(new URL(`../public/fonts/${f}`, import.meta.url)).toString('base64')})`;
   const mark = readFileSync(new URL('../public/marca/alto-code-monograma-negativo.svg', import.meta.url), 'utf8');
   const ctx = await b.newContext({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
   const p = await ctx.newPage();
   for (const [slug, n, category, name] of CASES) {
-    const shot = 'data:image/webp;base64,' + readFileSync(`${OUT}${slug}/en/tela-1-1600.webp`).toString('base64');
-    await p.setContent(`<!doctype html><html lang="en"><style>
+    const shot = 'data:image/webp;base64,' + readFileSync(`${OUT}${slug}/${OG.dir}tela-1-1600.webp`).toString('base64');
+    await p.setContent(`<!doctype html><html lang="${OG.lang}"><style>
       @font-face { font-family: T; src: ${font('space-grotesk-latin-wght-v1.woff2')}; font-weight: 300 700; }
       @font-face { font-family: B; src: ${font('dm-sans-latin-wght-v1.woff2')}; font-weight: 100 1000; }
       @font-face { font-family: M; src: ${font('azeret-mono-latin-wght-v1.woff2')}; font-weight: 100 900; }
@@ -136,14 +148,14 @@ if (EN) {
       .h { position: absolute; width: 12px; height: 12px; background: #2ed3bd; }
     </style><body>
       <div class="brand">${mark}<span>Alto Code</span></div>
-      <p class="kicker">Case study ${n}</p><p class="cat">${category}</p>
-      <h1>${name}</h1><p class="note">Original demo project</p>
-      <p class="url">altocode.netlify.app/en/projects/${slug}</p>
+      <p class="kicker">${OG.kicker} ${n}</p><p class="cat">${category}</p>
+      <h1>${name}</h1><p class="note">${OG.note}</p>
+      <p class="url">${OG.url(slug)}</p>
       <div class="shot"><img src="${shot}" alt=""></div>
       <i class="h" style="left:634px;top:144px"></i><i class="h" style="left:634px;top:599px"></i>
     </body></html>`);
     await p.evaluate(() => Promise.all([document.fonts.ready, document.querySelector('img').decode()]));
-    writeFileSync(`${OUT}${slug}/en/og.jpg`, await p.screenshot({ type: 'jpeg', quality: 86 }));
+    writeFileSync(`${OUT}${slug}/${OG.dir}og.jpg`, await p.screenshot({ type: 'jpeg', quality: 86 }));
     console.log('ok og', slug);
   }
   await ctx.close();
