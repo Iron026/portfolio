@@ -940,6 +940,45 @@
     text-wrap: balance;
   }
   /* ----------------------------------------------------------------
+     VITRINE: índice selecionador + palcos
+  ----------------------------------------------------------------- */
+  .stage-media {
+    border-radius: 20px;
+    padding: 1rem 1rem 2.25rem;
+    background:
+      radial-gradient(120% 90% at 85% 0%, color-mix(in srgb, var(--accent-detail) 30%, transparent), transparent 60%),
+      linear-gradient(160deg, color-mix(in srgb, var(--accent-base) 92%, white 8%), var(--accent-base));
+    box-shadow: 0 30px 60px -40px rgb(13 26 48 / 0.6);
+  }
+  @media (min-width: 640px) { .stage-media { padding: 2rem 2rem 3.5rem; } }
+  @media (min-width: 1024px) { .stage-media { padding: 2.75rem 3rem 4rem; } }
+  .stage-media--flip { background:
+      radial-gradient(120% 90% at 15% 0%, color-mix(in srgb, var(--accent-detail) 30%, transparent), transparent 60%),
+      linear-gradient(200deg, color-mix(in srgb, var(--accent-base) 92%, white 8%), var(--accent-base)); }
+  .stage-phone { bottom: -1.5rem; }
+  @media (min-width: 640px) { .stage-phone { bottom: -2.25rem; } }
+  @media (max-width: 359px) { .stage-phone { display: none; } }
+  .index-item { position: relative; display: grid; }
+  .index-item:focus-visible { outline-offset: -2px; }
+  .index-sel {
+    position: absolute; left: -1px; top: 0; right: 0; pointer-events: none;
+    --sel: var(--frame-color, var(--color-tide));
+    border: 1px solid var(--sel);
+    background: color-mix(in srgb, var(--sel) 6%, transparent);
+    transition: transform 420ms cubic-bezier(0.3, 0.8, 0.25, 1), height 420ms cubic-bezier(0.3, 0.8, 0.25, 1);
+  }
+  .index-sel::before {
+    content: ''; position: absolute; inset: -4px;
+    background:
+      linear-gradient(var(--sel), var(--sel)) top left / 7px 7px no-repeat,
+      linear-gradient(var(--sel), var(--sel)) top right / 7px 7px no-repeat,
+      linear-gradient(var(--sel), var(--sel)) bottom left / 7px 7px no-repeat,
+      linear-gradient(var(--sel), var(--sel)) bottom right / 7px 7px no-repeat;
+  }
+  html[data-motion='paused'] .index-sel { transition: none; }
+  @media (prefers-reduced-motion: reduce) { .index-sel { transition: none; } }
+
+  /* ----------------------------------------------------------------
      BANCADA DE CRIAÇÃO (Início)
      A cor da categoria (--cat) vem do serviço da aba escolhida.
   ----------------------------------------------------------------- */

@@ -63,6 +63,8 @@ const pt = {
     contact: { label: 'Contato' },
   },
   projects: {
+    index: 'Índice dos projetos',
+    indexTitle: (n: number) => `${n} projetos para testar`,
     tech: 'Tecnologias utilizadas',
     quoteBandTitle: 'Precisa de algo parecido ou de uma solução diferente?',
     quoteBandText: 'Conte o que você precisa resolver ou veja os seis serviços.',
@@ -282,6 +284,8 @@ const en: UiText = {
     contact: { label: 'Contact' },
   },
   projects: {
+    index: 'Project index',
+    indexTitle: (n: number) => `${n} projects to try`,
     tech: 'Technologies used',
     quoteBandTitle: 'Need something similar, or a different solution?',
     quoteBandText: 'Tell me what you need to solve, or browse the six services.',

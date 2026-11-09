@@ -120,7 +120,7 @@ ok(new URL(p.url()).pathname === '/' && p.url().endsWith('#projetos'), 'voltar p
 const cards = await p.$$eval('#projetos article h3', h => h.map(x => x.textContent));
 ok(JSON.stringify(cards) === '["Prime Imóveis","Gestão360","Nova Serviços","Arena Store","OrçaFácil"]', 'cinco projetos, os quatro anteriores preservados: ' + cards);
 const orcaArt = p.locator('article', { has: p.locator('h3', { hasText: 'OrçaFácil' }) });
-ok(await orcaArt.getByRole('link', { name: 'Testar demonstração' }).getAttribute('href') === '/demos/orcafacil' && await orcaArt.getByRole('link', { name: 'Estudo de caso', exact: true }).getAttribute('href') === '/projetos/orcafacil', 'cartão do OrçaFácil com os dois botões');
+ok(await orcaArt.getByRole('link', { name: 'Testar demonstração' }).getAttribute('href') === '/demos/orcafacil' && await orcaArt.getByRole('link', { name: 'Conheça o projeto', exact: true }).getAttribute('href') === '/projetos/orcafacil', 'cartão do OrçaFácil com os dois botões');
 ok((await orcaArt.textContent()).includes('Projeto demonstrativo'), 'selo de projeto demonstrativo');
 await orcaArt.locator('img').first().scrollIntoViewIfNeeded(); await p.waitForTimeout(400);
 const cap = await orcaArt.locator('img').first().evaluate(i => [i.complete && i.naturalWidth > 0, i.getAttribute('src'), i.alt]);
