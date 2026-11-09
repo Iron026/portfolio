@@ -254,7 +254,7 @@ function SheetPanel({ t, intl }: { t: Text; intl: string }) {
                     onClick={() => setSelected(c)}
                     aria-pressed={selected === c}
                     data-col={c}
-                    className={cn('w-full px-2 py-1.5 text-right transition-colors sm:px-3', selected === c ? 'bg-tide-wash outline-2 -outline-offset-2 outline-tide-deep' : 'hover:bg-paper')}
+                    className={cn('w-full px-2 py-1.5 text-right transition-colors sm:px-3', selected === c ? 'bg-[color-mix(in_srgb,var(--cat-light,#0a7568)_10%,white)] outline-2 -outline-offset-2 outline-[var(--cat-light,#0a7568)]' : 'hover:bg-paper')}
                   >
                     {money(values[c])}
                     <span className="sr-only">, {t.sheet.seeFormula(t.sheet.cols[c])}</span>
@@ -268,7 +268,7 @@ function SheetPanel({ t, intl }: { t: Text; intl: string }) {
       <div className="flex items-center justify-between gap-4 border-t border-line px-3 py-2.5">
         <p className="text-[0.8rem] text-slate">{t.sheet.hint}</p>
         <p className="shrink-0 text-sm">
-          {t.sheet.margin} <span className="font-semibold text-tide-deep tabular-nums">{margin.toLocaleString(intl, { maximumFractionDigits: 1 })}%</span>
+          {t.sheet.margin} <span className="font-semibold text-[var(--cat-light,#0a7568)] tabular-nums">{margin.toLocaleString(intl, { maximumFractionDigits: 1 })}%</span>
         </p>
       </div>
     </div>
@@ -311,7 +311,7 @@ function AutomationPanel({ t }: { t: Text }) {
         {steps.map((step, i) => (
           <li key={step.title} className="relative flex gap-3 pb-1">
             {i < steps.length - 1 && <span aria-hidden="true" className="absolute top-7 bottom-[-0.6rem] left-[0.8rem] w-px bg-line" />}
-            <span className="relative z-10 grid h-6.5 w-6.5 shrink-0 place-items-center rounded-full bg-tide-wash text-xs font-semibold text-tide-deep ring-1 ring-tide-deep/30">{i + 1}</span>
+            <span className="relative z-10 grid h-6.5 w-6.5 shrink-0 place-items-center rounded-full bg-[color-mix(in_srgb,var(--cat-light,#0a7568)_10%,white)] text-xs font-semibold text-[var(--cat-light,#0a7568)] ring-1 ring-[color-mix(in_srgb,var(--cat-light,#0a7568)_35%,transparent)]">{i + 1}</span>
             <div>
               <p className="text-sm font-medium">{step.title}</p>
               <p className="text-xs text-slate">{step.detail}</p>
@@ -328,7 +328,7 @@ function AutomationPanel({ t }: { t: Text }) {
 function SystemPanel({ t }: { t: Text }) {
   const s = t.system.status;
   const orders = [
-    { id: '#1042', client: 'Padaria Sol', status: s.prod, tone: 'bg-tide-wash text-tide-deep' },
+    { id: '#1042', client: 'Padaria Sol', status: s.prod, tone: 'bg-[color-mix(in_srgb,var(--cat-light,#0a7568)_10%,white)] text-[var(--cat-light,#0a7568)]' },
     { id: '#1041', client: 'Mercado Bom Preço', status: s.done, tone: 'bg-paper text-slate' },
     { id: '#1040', client: 'Café Central', status: s.wait, tone: 'bg-[#fbf1dc] text-[#7a5a12]' },
     { id: '#1039', client: 'Loja Ponto Certo', status: s.done, tone: 'bg-paper text-slate' },

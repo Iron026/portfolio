@@ -1017,10 +1017,10 @@
   .inspector-dot { width: 8px; height: 8px; background: var(--cat, var(--color-tide)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--cat, var(--color-tide)) 25%, transparent); transition: background-color 320ms; }
   /* Título: a moldura percorre as palavras das soluções */
   .hero-word { transition: color 320ms ease; }
-  .hero-word.is-active { color: var(--cat-dark, var(--color-tide)); }
+  .hero-word.is-active { color: var(--cat, var(--color-tide)); }
   .title-sel {
     position: absolute; left: 0; top: 0; pointer-events: none; z-index: 1;
-    --sel: var(--cat-dark, var(--color-tide));
+    --sel: var(--cat, var(--color-tide));
     border: 1.5px solid var(--sel);
     transition: border-color 320ms ease, transform 460ms cubic-bezier(0.3, 0.8, 0.25, 1), width 460ms cubic-bezier(0.3, 0.8, 0.25, 1), height 460ms cubic-bezier(0.3, 0.8, 0.25, 1);
   }

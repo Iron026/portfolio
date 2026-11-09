@@ -8,13 +8,13 @@
  * - a cor da categoria do serviço (presença, gestão, processos) tinge a moldura e a luz de fundo.
  * Tudo continua funcionando sem animação (prefers-reduced-motion e o botão de pausa).
  */
-import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, Check } from 'lucide-react';
 import { ButtonLink } from '@/components/ui/Button';
 import { AmbientBackground } from '@/components/ui/AmbientBackground';
 import { HeroWorkbench, TAB_SERVICE, type TabId } from './HeroWorkbench';
-import { CATEGORY_COLORS } from './categories';
+import { tabStyle } from './categories';
 import { useProjects, useServices, useSiteText } from '@/i18n/content';
 import { useLocale } from '@/i18n/useLocale';
 import { useUi } from '@/i18n/ui';
@@ -152,16 +152,14 @@ export function Hero() {
   const ui = useUi();
   const { lp } = useLocale();
   const projects = useProjects();
-  const { services } = useServices();
   const [active, setActive] = useState<TabId>('planilha');
   const parts = splitTitle(text.hero.title, text.hero.titleTargets, text.hero.titleAccent);
   const home = lp('/');
-  const category = services.find((s) => s.id === TAB_SERVICE[active])?.category ?? 'presenca';
-  const colors = CATEGORY_COLORS[category];
-  const tone = { ['--cat' as string]: colors.fill, ['--cat-dark' as string]: colors.onDark } as CSSProperties;
+  // Cada aba tem a sua cor (separada das categorias dos serviços)
+  const tone = tabStyle(active);
 
   return (
-    <section id="inicio" aria-labelledby="hero-title" style={tone} className="hero tone-dark on-dark relative isolate overflow-hidden pt-24 sm:pt-32">
+    <section id="inicio" aria-labelledby="hero-title" data-tab={active} style={tone} className="hero tone-dark on-dark relative isolate overflow-hidden pt-24 sm:pt-32">
       <AmbientBackground variant="hero" />
       <span aria-hidden="true" className="hero-light" />
 
