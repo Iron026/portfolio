@@ -46,7 +46,9 @@ if (cssFile) {
   for (const f of fonts) ok(css.includes(`/fonts/${f}`), `@font-face de ${f} no CSS do build`);
   ok(/Space Grotesk/.test(css) && /DM Sans/.test(css) && /Azeret Mono/.test(css), 'famílias da marca no CSS');
   ok(!/Sora|Onest/.test(css), 'fontes antigas (Sora, Onest) fora do CSS');
-  ok(/\.woff2/.test(css), 'fontes das demonstrações (@fontsource) empacotadas no CSS');
+  ok(!/Bricolage|IBM Plex|Plex Sans|Plex Mono/.test(css), 'fontes antigas das demonstrações (Bricolage, IBM Plex) fora do CSS');
+  ok(/--font-display:\s*var\(--font-title\)/.test(css) && /--font-sans:\s*var\(--font-text\)/.test(css) && /--font-mono:\s*var\(--font-code\)/.test(css), 'demonstrações usam as famílias da marca (font-display/sans/mono)');
+  ok(!readdirSync(join(dist, 'assets')).some((f) => /\.(woff2?|ttf)$/.test(f)), 'nenhum arquivo de fonte do Fontsource em assets/ (só os WOFF2 da marca em fonts/)');
 }
 for (const f of fonts) ok(has(`fonts/${f}`), `arquivo fonts/${f}`);
 ok(has('fonts/licencas/Space_Grotesk-OFL.txt') && has('fonts/licencas/DM_Sans-OFL.txt') && has('fonts/licencas/Azeret_Mono-OFL.txt'), 'licenças OFL das fontes');

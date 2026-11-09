@@ -2,17 +2,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 
-// Fontes das demonstrações, hospedadas junto com o site (sem Google Fonts).
-// O navegador só baixa cada arquivo quando uma página usa aquela fonte.
-import '@fontsource-variable/bricolage-grotesque';
-import '@fontsource/ibm-plex-sans/400.css';
-import '@fontsource/ibm-plex-sans/500.css';
-import '@fontsource/ibm-plex-sans/600.css';
-import '@fontsource/ibm-plex-sans/700.css'; // usado em totais e destaques das demonstrações
-import '@fontsource/ibm-plex-mono/400.css';
-import '@fontsource/ibm-plex-mono/500.css';
-import '@fontsource/ibm-plex-mono/600.css'; // números em destaque (OrçaFácil)
-import './styles/fonts.css'; // fontes da marca Alto Code (WOFF2 locais em public/fonts)
+// Fontes da marca Alto Code (WOFF2 locais em public/fonts), usadas no portfólio e nas demonstrações
+import './styles/fonts.css';
 import './styles/index.css';
 
 import App from './App';

@@ -14,7 +14,8 @@
    para "-v2" aqui e no index.html. Licença SIL OFL 1.1 (uso comercial
    permitido) em public/fonts/licencas.
 
-   As demonstrações continuam com as próprias fontes (Bricolage/Plex).
+   As cinco demonstrações usam as mesmas fontes (variáveis --font-display,
+   --font-sans e --font-mono em src/styles/index.css).
 ================================================================== */
 
 @font-face {

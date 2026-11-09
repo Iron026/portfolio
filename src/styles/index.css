@@ -42,18 +42,22 @@
   --color-amber: #f2a93b;      /* sinal sobre fundos escuros */
   --color-amber-deep: #8c5a07; /* âmbar para texto sobre claro (5,9:1 sobre branco, 5,3:1 sobre o gelo) */
 
-  --font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
-  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
-
   /*
-   * Famílias da MARCA Alto Code (só o portfólio usa; @font-face em
-   * src/styles/fonts.css). As demonstrações continuam com
-   * --font-display/--font-sans/--font-mono, para manter a identidade de cada uma.
+   * Famílias da MARCA Alto Code (@font-face em src/styles/fonts.css), usadas em
+   * todo o site, inclusive nas cinco demonstrações:
+   *   Space Grotesk → títulos · DM Sans → textos · Azeret Mono → números e detalhes técnicos.
+   * --font-title/--font-text/--font-code são os nomes usados pelo portfólio;
+   * --font-display/--font-sans/--font-mono (classes font-display, font-sans e font-mono
+   * do Tailwind) são os usados pelas demonstrações. Os dois pares apontam para as
+   * mesmas fontes: a identidade de cada demonstração fica nas cores, logotipos e
+   * componentes, não numa família tipográfica própria.
    */
   --font-title: 'Space Grotesk', 'Space Grotesk Fallback', ui-sans-serif, system-ui, sans-serif;
   --font-text: 'DM Sans', 'DM Sans Fallback', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-code: 'Azeret Mono', 'Azeret Mono Fallback', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --font-display: var(--font-title);
+  --font-sans: var(--font-text);
+  --font-mono: var(--font-code);
 
   /* Uma única sombra de apoio + uma de destaque no hover */
   --shadow-soft: 0 1px 2px rgb(13 26 48 / 0.05), 0 6px 18px -10px rgb(13 26 48 / 0.18);
@@ -140,9 +144,13 @@
   h1, h2, h3, h4 {
     @apply font-display text-balance;
     font-optical-sizing: auto;
-    letter-spacing: -0.02em; /* (demos dependem destes valores) */
-    line-height: 1.08;
+    /* Space Grotesk é mais larga que a Bricolage usada antes nas demonstrações:
+       espaçamento um pouco mais fechado nos títulos grandes, quase neutro nos pequenos.
+       (as classes type-* do portfólio e tracking-* das demonstrações têm prioridade) */
+    letter-spacing: -0.025em;
+    line-height: 1.1;
   }
+  h3, h4 { letter-spacing: -0.012em; }
   p { text-wrap: pretty; }
   /* Títulos do portfólio usam a fonte de títulos da marca (as demos ficam fora de .brand) */
   .brand :is(h1, h2, h3, h4) { font-family: var(--font-title); }
