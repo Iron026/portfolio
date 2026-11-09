@@ -56,6 +56,9 @@ for (const lang of ['pt', 'en']) {
     ok(!hero.labelCut, `${tag}: etiqueta da bancada sem corte`);
     ok(hero.table <= 0, `${tag}: planilha da bancada sem rolagem lateral (${hero.table} px a mais)`);
     ok(['site', 'sistema', 'planilha', 'automacao', 'accent'].every((x) => hero.words.includes(x)), `${tag}: palavras da moldura no título (${hero.words})`);
+    // moldura do título sobre a palavra ativa já na carga (também depois da troca de fonte)
+    const sel = await p.evaluate(() => { const a = document.querySelector('.title-sel').getBoundingClientRect(), w = document.querySelector('.hero-word.is-active').getBoundingClientRect(); const pad = parseFloat(getComputedStyle(document.querySelector('#hero-title')).fontSize) * 0.1; return [w.left - a.left - pad, a.right - w.right - pad]; });
+    ok(sel.every((v) => Math.abs(v) < 1.5), `${tag}: moldura alinhada à palavra na carga (${sel.map((v) => v.toFixed(1))})`);
 
     // ---- Botões dos cinco projetos
     const stages = await p.evaluate(() => [...document.querySelectorAll('#projetos article.stage')].map((st) => {

@@ -62,8 +62,16 @@ function HeroTitle({ parts, active }: { parts: Part[]; active: TabId }) {
     measure();
     const ro = new ResizeObserver(measure);
     if (h1.current) ro.observe(h1.current);
-    document.fonts?.ready.then(measure).catch(() => {});
-    return () => ro.disconnect();
+    // A troca da fonte de reserva pela Space Grotesk muda a largura das palavras sem mudar o
+    // tamanho do título: remede quando cada fonte termina de carregar (não só em fonts.ready,
+    // que pode resolver antes de a fonte do título começar a carregar).
+    const fonts = document.fonts;
+    fonts?.ready.then(measure).catch(() => {});
+    fonts?.addEventListener?.('loadingdone', measure);
+    return () => {
+      ro.disconnect();
+      fonts?.removeEventListener?.('loadingdone', measure);
+    };
   }, [active, parts]);
 
   return (
