@@ -17,6 +17,7 @@ const num = (n: number) => String(n).padStart(2, '0');
  * Cor de apoio de cada categoria, dentro do sistema da marca:
  * `--cat` para preenchimentos e `--cat-text` para textos sobre claro (AA).
  */
+const CATEGORY_ORDER: CategoryId[] = ['presenca', 'gestao', 'processos'];
 const CATEGORY_STYLE: Record<CategoryId, CSSProperties> = {
   presenca: categoryStyle('presenca'),
   gestao: categoryStyle('gestao'),
@@ -24,9 +25,10 @@ const CATEGORY_STYLE: Record<CategoryId, CSSProperties> = {
 };
 
 /**
- * Serviços em cartões: ilustração animada (decorativa) com a cor da categoria,
- * benefício em destaque, como funciona, exemplos sob demanda, projetos que
- * provam o serviço e o caminho para o orçamento com o serviço já escolhido.
+ * Serviços como índice editorial, agrupado pelas três categorias (cor própria).
+ * Cada serviço é uma linha: nome, benefício, como funciona, pedido de orçamento
+ * com o serviço já escolhido, exemplos sob demanda, projetos relacionados e a
+ * ilustração animada (decorativa). A moldura de seleção aparece ao apontar ou focar.
  */
 export function Services() {
   const { services, categories } = useServices();
@@ -54,89 +56,106 @@ export function Services() {
         }
       />
 
-      <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-        {services.map((service, i) => (
-          <li key={service.id} className="min-w-0">
-            <article
-              id={`servico-${service.id}`}
-              aria-labelledby={`servico-${service.id}-titulo`}
-              style={CATEGORY_STYLE[service.category]}
-              className="svc-card group/svc flex h-full scroll-mt-24 flex-col p-4 sm:p-5"
-            >
-              {SERVICE_ART[service.id] && (
-                <MotionArea
-                  aria-hidden="true"
-                  className={cn(
-                    'svc-art relative h-32 overflow-hidden rounded-[10px] ring-1 transition-shadow duration-300',
-                    SERVICE_ART[service.id].tone === 'dark' ? 'bg-night ring-white/5' : 'bg-ice ring-ice-2',
-                  )}
-                >
-                  {(active) => SERVICE_ART[service.id].render(active)}
-                </MotionArea>
-              )}
-              <div className="flex flex-1 flex-col px-1 pt-5 sm:px-2">
-                <p className="type-label flex items-center gap-3 text-fg-muted">
-                  <b className="font-semibold text-[var(--cat-text)]">{num(i + 1)}</b>
-                  <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[var(--cat)]" />
-                  {categories[service.category]}
+      {/* Índice de serviços: agrupado por categoria, uma linha por serviço */}
+      <div className="mt-10 grid gap-10 sm:mt-12 lg:gap-8">
+        {CATEGORY_ORDER.map((category) => {
+          const group = services.filter((s) => s.category === category);
+          if (!group.length) return null;
+          return (
+            <div key={category} style={CATEGORY_STYLE[category]} className="grid gap-4 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10">
+              <div className="lg:pt-7">
+                <p className="type-label flex items-center gap-2.5 text-[var(--cat-text)]">
+                  <span aria-hidden="true" className="h-2.5 w-2.5 bg-[var(--cat)]" />
+                  {categories[category]}
                 </p>
-                <h3 id={`servico-${service.id}-titulo`} className="type-h4 mt-3 text-fg">
-                  {service.name}
-                </h3>
-                <p className="type-small mt-2.5 font-medium text-fg">{service.benefit}</p>
-                {/* No celular a descrição fica dentro de "Detalhes" para encurtar a seção */}
-                <p className="type-small mt-2 text-fg-muted max-sm:hidden">{service.description}</p>
-
-                <details className="group/apps mt-3">
-                  <summary className="type-small inline-flex min-h-8 cursor-pointer list-none items-center gap-1.5 font-medium text-fg-muted hover:text-fg [&::-webkit-details-marker]:hidden">
-                    <ChevronDown aria-hidden="true" className="h-4 w-4 transition-transform group-open/apps:rotate-180" />
-                    <span className="sm:hidden">{ui.services.details}</span>
-                    <span className="max-sm:hidden">{ui.services.examples}</span>
-                  </summary>
-                  <p className="type-small mt-2 text-fg-muted sm:hidden">{service.description}</p>
-                  <ul className="type-small mt-2 space-y-1 text-fg">
-                    {service.applications.map((item) => (
-                      <li key={item} className="flex gap-2.5">
-                        <span aria-hidden="true" className="mt-[0.72em] h-px w-3 shrink-0 bg-[var(--cat)]" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-
-                <div className="mt-auto pt-4">
-                  {service.proof.length > 0 && (
-                    <p className="type-small mb-3 flex flex-wrap items-center gap-1.5 text-fg-muted">
-                      <span className="mr-0.5">{ui.services.inPractice}</span>
-                      {service.proof.map((slug) => {
-                        const project = projects.find((p) => p.slug === slug);
-                        if (!project) return null;
-                        return (
-                          <Link
-                            key={slug}
-                            to={lp(`/projetos/${slug}`)}
-                            className="type-tag inline-flex min-h-8 items-center gap-1 rounded-md bg-surface-2 px-2 text-fg transition-shadow hover:shadow-[inset_0_0_0_1px_var(--cat-text)]"
-                          >
-                            {project.name}
-                            <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 text-[var(--cat-text)]" />
-                          </Link>
-                        );
-                      })}
-                    </p>
-                  )}
-                  <Link
-                    to={{ pathname: home, search: `?servico=${service.id}`, hash: '#contato' }}
-                    className="group flex min-h-11 items-center justify-between gap-2 border-t border-edge pt-3 text-[0.95rem] font-semibold text-fg hover:text-[var(--cat-text)]"
-                  >
-                    {service.cta}
-                    <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
-                </div>
+                <p className="type-small mt-2 max-w-[28ch] text-fg-muted max-lg:hidden">{ui.services.categoryIntro[category]}</p>
               </div>
-            </article>
-          </li>
-        ))}
-      </ul>
+              <ul className="svc-list">
+                {group.map((service) => {
+                  const i = services.indexOf(service);
+                  return (
+                    <li key={service.id} className="min-w-0">
+                      <article
+                        id={`servico-${service.id}`}
+                        aria-labelledby={`servico-${service.id}-titulo`}
+                        className="svc-row group/svc frame-sel frame-sel-hover grid scroll-mt-24 gap-5 md:grid-cols-[minmax(0,1fr)_18rem] md:gap-8 md:items-center"
+                      >
+                        <div className="min-w-0 md:order-1">
+                          <div className="flex items-baseline gap-3">
+                            <span aria-hidden="true" className="type-label font-semibold text-[var(--cat-text)]">
+                              {num(i + 1)}
+                            </span>
+                            <h3 id={`servico-${service.id}-titulo`} className="type-h3 text-fg">
+                              {service.name}
+                              <span className="sr-only"> ({categories[service.category]})</span>
+                            </h3>
+                          </div>
+                          <p className="type-body mt-1.5 max-w-[60ch] text-fg">{service.benefit}</p>
+
+                          <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-0">
+                            <Link
+                              to={{ pathname: home, search: `?servico=${service.id}`, hash: '#contato' }}
+                              className="group inline-flex min-h-11 items-center gap-2 text-[0.95rem] font-semibold text-[var(--cat-text)] hover:underline"
+                            >
+                              {service.cta}
+                              <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                            </Link>
+                            <details className="group/apps">
+                              <summary className="type-small inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 font-medium text-fg-muted hover:text-fg [&::-webkit-details-marker]:hidden">
+                                <ChevronDown aria-hidden="true" className="h-4 w-4 transition-transform group-open/apps:rotate-180" />
+                                {ui.services.details}
+                              </summary>
+                              <p className="type-small mt-1 max-w-[60ch] text-fg-muted">{service.description}</p>
+                              <ul className="type-small mt-2 space-y-1 text-fg">
+                                {service.applications.map((item) => (
+                                  <li key={item} className="flex gap-2.5">
+                                    <span aria-hidden="true" className="mt-[0.72em] h-px w-3 shrink-0 bg-[var(--cat)]" />
+                                    {item}
+                                  </li>
+                                ))}
+                              </ul>
+                            </details>
+                            {service.proof.length > 0 && (
+                            <p className="type-small flex flex-wrap items-center gap-1.5 text-fg-muted">
+                              <span className="mr-0.5">{ui.services.inPractice}</span>
+                              {service.proof.map((slug) => {
+                                const project = projects.find((p) => p.slug === slug);
+                                if (!project) return null;
+                                return (
+                                  <Link
+                                    key={slug}
+                                    to={lp(`/projetos/${slug}`)}
+                                    className="type-tag inline-flex min-h-8 items-center gap-1 rounded-md bg-surface-2 px-2 text-fg transition-shadow hover:shadow-[inset_0_0_0_1px_var(--cat-text)]"
+                                  >
+                                    {project.name}
+                                    <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5 text-[var(--cat-text)]" />
+                                  </Link>
+                                );
+                              })}
+                            </p>
+                            )}
+                          </div>
+                        </div>
+                        {SERVICE_ART[service.id] && (
+                          <MotionArea
+                            aria-hidden="true"
+                            className={cn(
+                              'svc-art relative order-first h-28 overflow-hidden rounded-[12px] ring-1 md:order-2 md:self-start',
+                              SERVICE_ART[service.id].tone === 'dark' ? 'bg-night ring-white/5' : 'bg-ice ring-ice-2',
+                            )}
+                          >
+                            {(active) => SERVICE_ART[service.id].render(active)}
+                          </MotionArea>
+                        )}
+                      </article>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        })}
+      </div>
     </Section>
   );
 }

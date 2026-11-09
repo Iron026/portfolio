@@ -913,6 +913,12 @@
     background: var(--cat);
   }
   .svc-card:hover, .svc-card:focus-within { box-shadow: var(--elev-hover); border-color: var(--edge-strong); }
+  /* Índice de serviços: linhas separadas por fios, moldura de seleção ao apontar */
+  .svc-list { border-top: 2px solid var(--cat); }
+  .svc-row { padding: 1.25rem 0.25rem; border-bottom: 1px solid var(--edge); --frame-color: var(--cat); transition: background-color 200ms ease; }
+  @media (min-width: 768px) { .svc-row { padding: 1.15rem 1rem; } }
+  .svc-row:hover, .svc-row:focus-within { background: color-mix(in srgb, var(--cat) 4%, transparent); }
+  .svc-row::after { inset: -1px; }
   /* Assinatura grande no rodapé: o nome da marca cortado pela borda inferior */
   .footer-mark {
     font-family: var(--font-title);

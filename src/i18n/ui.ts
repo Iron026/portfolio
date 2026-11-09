@@ -73,6 +73,7 @@ const pt = {
   },
   services: {
     examples: 'Exemplos de aplicação',
+    categoryIntro: { presenca: 'Ser encontrado e bem apresentado: o primeiro contato com o seu cliente.', gestao: 'Informação organizada e à mão para acompanhar o negócio e decidir.', processos: 'Menos tarefas repetitivas e preços calculados sempre do mesmo jeito.' } as Record<'presenca' | 'gestao' | 'processos', string>,
     details: 'Detalhes e exemplos',
     inPractice: 'Na prática:',
   },
@@ -297,6 +298,7 @@ const en: UiText = {
   },
   services: {
     examples: 'Example uses',
+    categoryIntro: { presenca: 'Being found and well presented: the first contact with your customer.', gestao: 'Organized information at hand to follow the business and make decisions.', processos: 'Fewer repetitive tasks and prices calculated the same way every time.' },
     details: 'Details and examples',
     inPractice: 'In practice:',
   },
