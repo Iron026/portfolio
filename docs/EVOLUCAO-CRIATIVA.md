@@ -143,6 +143,10 @@ a rolagem pesa mais, todas as páginas medidas ficaram mais curtas.
 | axe-core 4.10 (WCAG 2.0, 2.1 e 2.2, A e AA) | **0 violações** em 28 páginas × 2 larguras; itens para conferência manual: contraste sobre degradês e capturas, links dentro de parágrafos |
 | Lighthouse, acessibilidade / boas práticas / SEO | 100 / 100 / 100 antes e depois (Início PT e EN, Prime Imóveis, Arena Store EN) |
 
+**Regressão pega pelos testes e corrigida:** o teste que protege contra o erro "TypeError: d is not a
+function" acusou um efeito da vitrine escrito como `return setNear(true)` (o React 19 chamaria esse
+retorno ao sair da página). Corrigido no commit `0f3d1a8`, antes da entrega.
+
 Testes antigos atualizados porque o texto ou a estrutura mudou (o comportamento testado é o mesmo):
 botão "Conheça o projeto" no lugar de "Estudo de caso", títulos "projeto em detalhes" no HTML gerado,
 critério de "sem transição" aceitando 1 ms (o CSS global de movimento reduzido usa 0,001 s).
@@ -205,3 +209,5 @@ nem com as animações pausadas).
 | `03e3f7e` | Teste das inovações (`inovacoes.test.mjs`) |
 | `949249a` | README |
 | `ea36463`, `0ca7ab3` | Desempenho e espaçamento da vitrine |
+| `6fbfc57` | Este relatório |
+| `0f3d1a8` | Efeitos devolvem só função de limpeza |
