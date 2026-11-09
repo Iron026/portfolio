@@ -10,16 +10,20 @@
 import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import type { Project } from '@/data/projects';
-import type { TourStop } from '@/data/tour';
+import { getTour } from '@/data/tour';
+import { useLocale } from '@/i18n/useLocale';
 import { Capture } from '@/components/ui/Capture';
 import { useUi } from '@/i18n/ui';
 import { cn } from '@/utils/cn';
 
 const num = (n: number) => String(n).padStart(2, '0');
-type Stop = (TourStop & { mobile?: false }) | { mobile: true; screen: number; title: string; text: string };
+type Stop = (ReturnType<typeof getTour>[number] & { mobile?: false }) | { mobile: true; screen: number; title: string; text: string };
 
-export function ProjectTour({ project, stops }: { project: Project; stops: TourStop[] }) {
+/** Carregado à parte (React.lazy) pela página do projeto: o tour e seus dados não pesam no Início. */
+export default function ProjectTour({ project }: { project: Project }) {
   const ui = useUi();
+  const { locale } = useLocale();
+  const stops = getTour(project.slug, locale);
   const t = ui.caseStudy;
   const baseId = useId();
   const mobileIndex = project.screens.findIndex((s) => s.device === 'mobile');
@@ -30,7 +34,7 @@ export function ProjectTour({ project, stops }: { project: Project; stops: TourS
   const [active, setActive] = useState(0);
   const tabs = useRef<Array<HTMLButtonElement | null>>([]);
   const stop = all[active];
-  const screen = project.screens[stop.screen];
+  const screen = stop ? project.screens[stop.screen] : undefined;
 
   function go(next: number, focus = false) {
     const i = (next + all.length) % all.length;
@@ -44,6 +48,8 @@ export function ProjectTour({ project, stops }: { project: Project; stops: TourS
     e.preventDefault();
     go(keys[e.key], true);
   }
+
+  if (!stop || !screen) return null;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] lg:gap-10">

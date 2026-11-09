@@ -12,7 +12,7 @@
  * 8. outros projetos.
  * Conteúdo em src/data/projects.ts (+ .en.ts) e src/data/tour.ts.
  */
-import type { CSSProperties } from 'react';
+import { lazy, Suspense, type CSSProperties } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowDown, ArrowLeft, ArrowRight, Check, ChevronDown, MessageSquareText } from 'lucide-react';
 import { site } from '@/config/site';
@@ -24,15 +24,15 @@ import { DemoBadge } from '@/components/ui/DemoBadge';
 import { ButtonLink } from '@/components/ui/Button';
 import { Capture } from '@/components/ui/Capture';
 import { ProjectCover } from '@/components/sections/ProjectCover';
-import { ProjectTour } from '@/components/sections/ProjectTour';
 import { DemoButton, quoteTarget } from '@/components/sections/ProjectActions';
 import { PreviewVideoButton, PreviewVideoLayer, usePreviewVideo } from '@/components/ui/PreviewVideo';
-import { getTour } from '@/data/tour';
 import { englishMedia } from '@/data/projects';
 import { cn } from '@/utils/cn';
 import NotFound from './NotFound';
 
 const num = (n: number) => String(n).padStart(2, '0');
+/** Tour de funcionalidades: carregado à parte (fica abaixo da primeira tela). */
+const ProjectTour = lazy(() => import('@/components/sections/ProjectTour'));
 
 export default function ProjectDetail() {
   const { slug } = useParams();
@@ -54,7 +54,6 @@ export default function ProjectDetail() {
   const prev = projects[(index - 1 + projects.length) % projects.length];
   const next = projects[(index + 1) % projects.length];
   const phone = project.screens.find((s) => s.device === 'mobile');
-  const tour = getTour(project.slug, locale);
   const accent = { '--accent-base': project.accent.base, '--accent-detail': project.accent.detail, '--dot': project.accent.detail } as CSSProperties;
   const quote = quoteTarget(project, locale);
   const available = project.demo.status === 'disponivel';
@@ -115,7 +114,7 @@ export default function ProjectDetail() {
                   {t.similarQuote}
                 </ButtonLink>
               </div>
-              {tour.length > 0 && (
+              {project.screens.length > 0 && (
                 <a href="#caso-tour" className="group inline-flex min-h-10 items-center gap-2 text-[0.95rem] font-medium text-tide hover:text-fg">
                   <ArrowDown aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />
                   {t.seeFeatures}
@@ -208,10 +207,10 @@ export default function ProjectDetail() {
             <p className="type-body text-fg-muted lg:col-span-5">{t.tourIntro}</p>
           </div>
           <div className="mt-10 sm:mt-12">
-            {tour.length > 0 ? (
-              <ProjectTour project={project} stops={tour} />
-            ) : (
-              phone && <Capture screen={phone} sizes="15rem" className="mx-auto max-w-[15rem]" />
+            {project.screens.length > 0 && (
+              <Suspense fallback={<div className="min-h-[34rem]" aria-busy="true" />}>
+                <ProjectTour project={project} />
+              </Suspense>
             )}
           </div>
           <div className="mt-12 border-t border-edge pt-8 sm:mt-14">

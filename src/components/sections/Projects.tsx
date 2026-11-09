@@ -162,9 +162,21 @@ function ProjectStage({ project, index, total }: { project: Project; index: numb
   const accent = { '--accent-base': project.accent.base, '--accent-detail': project.accent.detail, '--dot': project.accent.detail } as CSSProperties;
   const detailsUrl = lp(`/projetos/${project.slug}`);
   const flip = index % 2 === 1;
+  // O celular só é montado quando o palco se aproxima da tela: as capturas não disputam a
+  // conexão com o carregamento da primeira tela (o espaço já fica reservado pela moldura).
+  const stageRef = useRef<HTMLElement>(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el || near) return;
+    if (typeof IntersectionObserver === 'undefined') return setNear(true);
+    const io = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && setNear(true), { rootMargin: '400px 0px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [near]);
 
   return (
-    <article id={stageId(project.slug)} aria-labelledby={titleId} style={accent} className="stage group/card scroll-mt-28">
+    <article ref={stageRef} id={stageId(project.slug)} aria-labelledby={titleId} style={accent} className="stage group/card scroll-mt-28">
       {/* Palco: captura real do computador, celular sobreposto e prévia gravada da demonstração */}
       <div className={cn('stage-media relative', flip && 'stage-media--flip')}>
         <Link to={detailsUrl} aria-label={ui.common.seeCaseStudy(project.name)} className="group relative block">
@@ -176,14 +188,14 @@ function ProjectStage({ project, index, total }: { project: Project; index: numb
               <span className="ml-2 truncate">{project.name}</span>
             </div>
             <div ref={preview.boxRef} className="relative overflow-hidden">
-              <ProjectCover project={project} className="rounded-none" sizes="(min-width: 1024px) 60vw, 100vw" priority={index === 0} />
+              <ProjectCover project={project} className="rounded-none" sizes="(min-width: 1024px) 60vw, 100vw" />
               {project.video && <PreviewVideoLayer preview={preview} label={ui.video.layer(project.name, project.video.shows)} />}
             </div>
           </div>
           {phone && (
             <div className={cn('stage-phone phone absolute w-[26%] max-w-[11rem] transition-transform duration-300 ease-out group-hover/card:-translate-y-2', flip ? 'left-[3%]' : 'right-[3%]')}>
               <div>
-                <Capture screen={phone} sizes="11rem" />
+                {near ? <Capture screen={phone} sizes="11rem" /> : <span className="block aspect-[780/1688] bg-paper" />}
               </div>
             </div>
           )}
