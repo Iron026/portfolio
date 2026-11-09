@@ -380,9 +380,26 @@ logotipo usa Space Grotesk 600. Menus, botões e formulários usam DM Sans 500/6
 em `src/styles/fonts.css` e nos `<link rel="preload">` do `index.html` (o sufixo evita que
 visitantes fiquem com a versão antiga em cache).
 
-**Demonstrações:** continuam com Bricolage Grotesque e IBM Plex (pacotes `@fontsource`,
-importados em `src/main.tsx`). O navegador só baixa essas fontes quando uma demonstração
-é aberta. As classes `type-*` são exclusivas do portfólio.
+**Demonstrações:** usam as mesmas três fontes da marca. As classes do Tailwind `font-display`,
+`font-sans` e `font-mono` apontam para `--font-title`, `--font-text` e `--font-code`
+(`src/styles/index.css`): Space Grotesk nos títulos, DM Sans no texto e Azeret Mono nos números
+e elementos técnicos. Não há outro pacote de fontes; o navegador reaproveita os mesmos três
+WOFF2 em todo o site. A identidade de cada empresa fictícia vem das cores, logotipos e
+componentes, não da fonte. As classes `type-*` são exclusivas do portfólio.
+
+**Cores das abas do Início.** Cada aba da bancada tem a sua cor, separada das categorias dos
+serviços (`TAB_COLORS` em `src/components/sections/categories.ts`):
+
+| Aba | Cor plena | Texto sobre escuro | Texto sobre a bancada branca |
+| --- | --- | --- | --- |
+| Site | `#22C3B0` | `#3FD5C1` (10,6:1) | `#0A7568` (5,6:1) |
+| Sistema | `#5B84FF` | `#8AA8FF` (8,4:1) | `#2B4FB8` (7,2:1) |
+| Planilha | `#A78BFA` | `#C4B5FD` (10,5:1) | `#6D4AD6` (5,8:1) |
+| Automação | `#F2A93B` | `#F2B45A` (10,5:1) | `#8C5A07` (5,9:1) |
+
+A cor plena aparece na moldura e na palavra do título, na etiqueta da bancada, no indicador da
+aba ativa, no ponto do painel de inspeção e na luz de fundo. As variantes de texto ficam no
+painel de inspeção (sobre escuro) e nos detalhes da bancada branca.
 
 **Cores complementares.** Azul-marinho e verde-água continuam sendo a marca. As cores novas têm
 funções fixas e aparecem pouco:

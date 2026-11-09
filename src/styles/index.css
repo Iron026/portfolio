@@ -1000,7 +1000,8 @@
 
   /* ----------------------------------------------------------------
      BANCADA DE CRIAÇÃO (Início)
-     A cor da categoria (--cat) vem do serviço da aba escolhida.
+     Cada aba tem a sua cor (TAB_COLORS em categories.ts): --cat (plena),
+     --cat-dark (texto sobre escuro) e --cat-light (texto sobre a bancada branca).
   ----------------------------------------------------------------- */
   .bench-canvas { --frame-color: color-mix(in srgb, var(--cat, var(--color-tide)) 70%, transparent); padding: 0.375rem; transition: --frame-color 300ms; }
   @media (min-width: 640px) { .bench-canvas { padding: 0.5rem; } }
@@ -1032,7 +1033,7 @@
       linear-gradient(var(--sel), var(--sel)) bottom left / 9px 9px no-repeat,
       linear-gradient(var(--sel), var(--sel)) bottom right / 9px 9px no-repeat;
   }
-  /* Luz de fundo do Início na cor da categoria escolhida */
+  /* Luz de fundo do Início na cor da aba escolhida */
   .hero-light {
     position: absolute; z-index: -1; pointer-events: none;
     right: -12rem; top: 10rem; width: 52rem; height: 40rem; border-radius: 50%;
