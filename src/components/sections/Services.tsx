@@ -1,3 +1,4 @@
+import { categoryStyle } from './categories';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, ChevronDown } from 'lucide-react';
 import type { CSSProperties } from 'react';
@@ -17,9 +18,9 @@ const num = (n: number) => String(n).padStart(2, '0');
  * `--cat` para preenchimentos e `--cat-text` para textos sobre claro (AA).
  */
 const CATEGORY_STYLE: Record<CategoryId, CSSProperties> = {
-  presenca: { ['--cat' as string]: '#22c3b0', ['--cat-text' as string]: '#0a7568' },
-  gestao: { ['--cat' as string]: '#5b84ff', ['--cat-text' as string]: '#2b4fb8' },
-  processos: { ['--cat' as string]: '#f2a93b', ['--cat-text' as string]: '#8c5a07' },
+  presenca: categoryStyle('presenca'),
+  gestao: categoryStyle('gestao'),
+  processos: categoryStyle('processos'),
 };
 
 /**

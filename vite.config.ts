@@ -67,14 +67,14 @@ function seoPagesPlugin(): Plugin {
       const TEXT = {
         pt: {
           site,
-          caseTitle: (name: string) => `${name}: estudo de caso | ${site.name}`,
+          caseTitle: (name: string) => `${name}: projeto em detalhes | ${site.name}`,
           caseDescription: (p: Project) => `${p.teaser} Projeto demonstrativo da ${site.name}.`,
           demoTitle: (name: string) => `${name}: demonstração interativa | ${site.name}`,
           demoDescription: (p: Project) => `Teste a demonstração de ${p.name} (${p.category.toLowerCase()}), com empresa e dados fictícios. Projeto autoral da ${site.name}.`,
         },
         en: {
           site: { ...site, ...siteEn },
-          caseTitle: (name: string) => `${name}: case study | ${site.name}`,
+          caseTitle: (name: string) => `${name}: project details | ${site.name}`,
           caseDescription: (p: Project) => `${p.teaser} A demo project by ${site.name}.`,
           demoTitle: (name: string) => `${name}: interactive demo | ${site.name}`,
           demoDescription: (p: Project) => `Try the ${p.name} demo (${p.category.toLowerCase()}), with a fictional business and data. An original project by ${site.name}.`,

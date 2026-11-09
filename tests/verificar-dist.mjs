@@ -58,7 +58,7 @@ for (const s of slugs) {
   ok(has(f), `${f} existe`);
   if (!has(f)) continue;
   const h = read(f);
-  ok(/<title>[^<]+estudo de caso \| Alto Code<\/title>/.test(h), `${s}: título próprio`);
+  ok(/<title>[^<]+projeto em detalhes \| Alto Code<\/title>/.test(h), `${s}: título próprio`);
   // com barra final: é a URL que o Netlify entrega com 200 para pasta/index.html (sem barra recebe 301)
   ok(h.includes(`<link rel="canonical" href="${siteUrl}/projetos/${s}/"`), `${s}: canonical na URL final, com barra`);
   ok(h.includes(`content="${siteUrl}/projetos/${s}/og.jpg"`), `${s}: og:image do projeto`);
@@ -116,7 +116,7 @@ for (const [pt, enPath, file] of enPages) {
   ok(h.includes('<html lang="en">') && h.includes('<meta property="og:locale" content="en_US"'), `${enPath}: lang="en" e og:locale en_US`);
   ok(h.includes(`<link rel="canonical" href="${siteUrl}${enPath}"`), `${enPath}: canonical próprio`);
   ok(h.includes(`hreflang="pt-BR" href="${siteUrl}${pt}"`) && h.includes(`hreflang="en" href="${siteUrl}${enPath}"`) && h.includes(`hreflang="x-default" href="${siteUrl}${pt}"`), `${enPath}: hreflang pt-BR, en e x-default`);
-  ok(!/estudo de caso|demonstração interativa|Este site precisa/i.test((h.match(/<title>[\s\S]*?<\/title>|<meta name="description"[^>]*>|<noscript>[\s\S]*?<\/noscript>/g) || []).join(' ')), `${enPath}: título, descrição e aviso em inglês`);
+  ok(!/estudo de caso|projeto em detalhes|demonstração interativa|Este site precisa/i.test((h.match(/<title>[\s\S]*?<\/title>|<meta name="description"[^>]*>|<noscript>[\s\S]*?<\/noscript>/g) || []).join(' ')), `${enPath}: título, descrição e aviso em inglês`);
   ok(sitemap.includes(`<loc>${siteUrl}${enPath}</loc>`), `sitemap com ${enPath}`);
   const ptHtml = read(pt === '/' ? 'index.html' : pt.endsWith('/') ? `${pt.slice(1)}index.html` : `${pt.slice(1)}.html`);
   ok(ptHtml.includes('<html lang="pt-BR">') && ptHtml.includes(`hreflang="en" href="${siteUrl}${enPath}"`), `${pt}: lang pt-BR e alternativa em inglês`);

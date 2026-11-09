@@ -5,8 +5,9 @@ export const siteEn = {
   description:
     'Custom websites, web systems, dashboards, spreadsheets and automation for small businesses. Explore five working demos you can try.',
   hero: {
-    title: 'Custom websites, systems and spreadsheets for small businesses.',
+    title: 'Custom websites, systems, spreadsheets and automation for small businesses.',
     titleAccent: 'Custom',
+    titleTargets: { site: 'websites', sistema: 'systems', planilha: 'spreadsheets', automacao: 'automation' },
     subtitle:
       'I build solutions that present your services, organize information and simplify everyday tasks. You work directly with me, from proposal to delivery.',
   },

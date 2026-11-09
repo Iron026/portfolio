@@ -4,18 +4,22 @@
  * são calculados de verdade a partir dos dados de exemplo.
  * Textos nos dois idiomas em WB (abaixo); valores em reais nos dois.
  */
-import { useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { useLocale } from '@/i18n/useLocale';
 import type { Locale } from '@/i18n/locale';
 import { cn } from '@/utils/cn';
 
-type TabId = 'site' | 'planilha' | 'automacao' | 'sistema';
-const TAB_IDS: TabId[] = ['site', 'planilha', 'automacao', 'sistema'];
+export type TabId = 'site' | 'planilha' | 'automacao' | 'sistema';
+export const TAB_IDS: TabId[] = ['site', 'planilha', 'automacao', 'sistema'];
+/** Serviço (src/data/services.ts) que cada aba exemplifica. */
+export const TAB_SERVICE: Record<TabId, string> = { site: 'sites', planilha: 'planilhas', automacao: 'automacoes', sistema: 'sistemas' };
 
 const WB = {
   pt: {
     tablist: 'Exemplos de trabalho',
     tabs: { site: 'Site', planilha: 'Planilha', automacao: 'Automação', sistema: 'Sistema' },
+    /** Rótulos para telas abaixo de 360 px (iguais aos completos quando já cabem). */
+    tabsShort: { site: 'Site', planilha: 'Planilha', automacao: 'Automação', sistema: 'Sistema' },
     illustrative: 'Exemplo ilustrativo',
     sheet: {
       caption: 'Planilha de exemplo com receita, despesas e lucro por mês',
@@ -55,6 +59,7 @@ const WB = {
   en: {
     tablist: 'Work examples',
     tabs: { site: 'Website', planilha: 'Spreadsheet', automacao: 'Automation', sistema: 'System' },
+    tabsShort: { site: 'Site', planilha: 'Sheet', automacao: 'Automation', sistema: 'System' },
     illustrative: 'Illustrative example',
     sheet: {
       caption: 'Sample spreadsheet with revenue, expenses and profit by month',
@@ -95,12 +100,27 @@ const WB = {
 
 type Text = (typeof WB)['pt'];
 
-export function HeroWorkbench() {
+/**
+ * A aba ativa é controlada pelo Início: o título e o painel de inspeção acompanham a escolha.
+ */
+export function HeroWorkbench({ active, onActiveChange: setActive, panelId }: { active: TabId; onActiveChange: (id: TabId) => void; panelId?: string }) {
   const { locale, intl } = useLocale();
   const t: Text = WB[locale];
-  const [active, setActive] = useState<TabId>('planilha');
-  const baseId = useId();
+  const ownId = useId();
+  const baseId = panelId ?? ownId;
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  // Indicador que desliza até a aba escolhida (posição medida, então funciona com textos de qualquer tamanho)
+  const [pill, setPill] = useState<{ x: number; w: number } | null>(null);
+  useLayoutEffect(() => {
+    const measure = () => {
+      const el = tabRefs.current[TAB_IDS.indexOf(active)];
+      if (el) setPill({ x: el.offsetLeft, w: el.offsetWidth });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    tabRefs.current.forEach((el) => el && ro.observe(el));
+    return () => ro.disconnect();
+  }, [active, locale]);
 
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     const index = TAB_IDS.indexOf(active);
@@ -118,7 +138,8 @@ export function HeroWorkbench() {
   return (
     <div className="overflow-hidden rounded-[12px] bg-card text-ink ring-1 ring-white/10">
       <div className="flex items-center justify-between gap-3 border-b border-line bg-paper px-3 py-2.5 sm:px-4">
-        <div role="tablist" aria-label={t.tablist} onKeyDown={onKeyDown} className="flex gap-1 overflow-x-auto rounded-lg bg-[#e6ebf2] p-1">
+        <div role="tablist" aria-label={t.tablist} onKeyDown={onKeyDown} className="bench-tabs relative flex flex-1 gap-0.5 rounded-lg bg-[#e6ebf2] p-1 sm:flex-none">
+          {pill && <span aria-hidden="true" className="bench-pill" style={{ transform: `translateX(${pill.x - 4}px)`, width: pill.w }} />}
           {TAB_IDS.map((id, i) => {
             const selected = id === active;
             return (
@@ -135,11 +156,18 @@ export function HeroWorkbench() {
                 tabIndex={selected ? 0 : -1}
                 onClick={() => setActive(id)}
                 className={cn(
-                  'rounded-md px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-[background-color,color,box-shadow] duration-200',
-                  selected ? 'bg-ink text-white shadow-[0_6px_14px_-8px_rgb(13_26_48/0.7)]' : 'text-slate hover:bg-card hover:text-ink',
+                  'relative z-10 min-h-9 flex-auto rounded-md px-1.5 py-1.5 text-[0.8rem] font-medium whitespace-nowrap transition-colors duration-200 min-[400px]:px-2.5 min-[400px]:text-sm sm:flex-none sm:px-3',
+                  selected ? 'text-white' : 'text-slate hover:text-ink',
                 )}
               >
-                {t.tabs[id]}
+                {t.tabsShort[id] === t.tabs[id] ? (
+                  t.tabs[id]
+                ) : (
+                  <>
+                    <span className="max-[359px]:hidden">{t.tabs[id]}</span>
+                    <span className="min-[360px]:hidden">{t.tabsShort[id]}</span>
+                  </>
+                )}
               </button>
             );
           })}
@@ -148,7 +176,7 @@ export function HeroWorkbench() {
       </div>
 
       <div id={`${baseId}-panel`} role="tabpanel" aria-labelledby={`${baseId}-tab-${active}`} className="h-[19rem] sm:h-[19.5rem]">
-        <div key={`${active}-${locale}`} className="h-full animate-fade">
+        <div key={`${active}-${locale}`} className="bench-in h-full">
           {active === 'site' && <SitePanel t={t} />}
           {active === 'planilha' && <SheetPanel t={t} intl={intl} />}
           {active === 'automacao' && <AutomationPanel t={t} />}

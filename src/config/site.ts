@@ -33,9 +33,14 @@ export const site = {
   url: 'https://altocode.netlify.app',
 
   hero: {
-    /** Título principal. O trecho em `titleAccent` recebe a moldura de seleção da marca. */
-    title: 'Sites, sistemas e planilhas sob medida para pequenos negócios.',
+    /**
+     * Título principal. A moldura de seleção da marca percorre as palavras de
+     * `titleTargets`, acompanhando a aba escolhida na bancada (Site, Planilha,
+     * Automação, Sistema). Cada palavra precisa aparecer exatamente assim no título.
+     */
+    title: 'Sites, sistemas, planilhas e automações sob medida para pequenos negócios.',
     titleAccent: 'sob medida',
+    titleTargets: { site: 'Sites', sistema: 'sistemas', planilha: 'planilhas', automacao: 'automações' },
     subtitle:
       'Desenvolvo soluções para apresentar seus serviços, organizar informações e simplificar tarefas. Você acompanha o projeto diretamente comigo, da proposta à entrega.',
   },

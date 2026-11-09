@@ -1,17 +1,147 @@
+/**
+ * Início — "bancada de criação".
+ *
+ * A bancada (Site, Planilha, Automação, Sistema) comanda a primeira tela:
+ * - a moldura de seleção da marca percorre o título até a palavra da solução escolhida;
+ * - o painel de inspeção ao lado mostra o serviço correspondente, com links reais
+ *   (projeto demonstrativo relacionado, quando existe, e pedido de orçamento);
+ * - a cor da categoria do serviço (presença, gestão, processos) tinge a moldura e a luz de fundo.
+ * Tudo continua funcionando sem animação (prefers-reduced-motion e o botão de pausa).
+ */
+import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Check } from 'lucide-react';
 import { ButtonLink } from '@/components/ui/Button';
 import { AmbientBackground } from '@/components/ui/AmbientBackground';
-import { HeroWorkbench } from './HeroWorkbench';
-import { useProjects, useSiteText } from '@/i18n/content';
+import { HeroWorkbench, TAB_SERVICE, type TabId } from './HeroWorkbench';
+import { CATEGORY_COLORS } from './categories';
+import { useProjects, useServices, useSiteText } from '@/i18n/content';
 import { useLocale } from '@/i18n/useLocale';
 import { useUi } from '@/i18n/ui';
 import { site } from '@/config/site';
+import { cn } from '@/utils/cn';
 
-/** Divide o título para aplicar a moldura de seleção ao trecho de destaque. */
-function splitTitle(title: string, accent: string) {
-  const at = accent ? title.indexOf(accent) : -1;
-  return at < 0 ? [title, '', ''] : [title.slice(0, at), accent, title.slice(at + accent.length)];
+type Part = { text: string; id?: TabId | 'accent' };
+
+/** Divide o título em trechos, marcando as palavras-alvo da moldura e o destaque. */
+function splitTitle(title: string, targets: Record<TabId, string>, accent: string): Part[] {
+  const marks = [...(Object.entries(targets) as Array<[TabId, string]>), ['accent', accent] as const]
+    .map(([id, word]) => ({ id, word, at: word ? title.indexOf(word) : -1 }))
+    .filter((m) => m.at >= 0)
+    .sort((a, b) => a.at - b.at);
+  const parts: Part[] = [];
+  let pos = 0;
+  for (const m of marks) {
+    if (m.at < pos) continue;
+    if (m.at > pos) parts.push({ text: title.slice(pos, m.at) });
+    parts.push({ text: m.word, id: m.id as Part['id'] });
+    pos = m.at + m.word.length;
+  }
+  if (pos < title.length) parts.push({ text: title.slice(pos) });
+  return parts;
+}
+
+function HeroTitle({ parts, active }: { parts: Part[]; active: TabId }) {
+  const h1 = useRef<HTMLHeadingElement>(null);
+  const words = useRef<Partial<Record<string, HTMLSpanElement | null>>>({});
+  const [box, setBox] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      const el = words.current[active];
+      const root = h1.current;
+      if (!el || !root) return setBox(null);
+      const a = el.getBoundingClientRect();
+      const b = root.getBoundingClientRect();
+      const pad = parseFloat(getComputedStyle(root).fontSize) * 0.1;
+      setBox({ x: a.left - b.left - pad, y: a.top - b.top + pad * 0.9, w: a.width + pad * 2, h: a.height - pad * 1.1 });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (h1.current) ro.observe(h1.current);
+    document.fonts?.ready.then(measure).catch(() => {});
+    return () => ro.disconnect();
+  }, [active, parts]);
+
+  return (
+    <h1 ref={h1} id="hero-title" className="hero-title relative mt-4 max-w-[21ch] animate-rise text-balance sm:mt-6">
+      {parts.map((p, i) =>
+        p.id ? (
+          <span
+            key={i}
+            ref={(el) => {
+              words.current[p.id!] = el;
+            }}
+            data-word={p.id}
+            className={cn('hero-word', p.id === active && 'is-active', p.id === 'accent' && 'hero-accent')}
+          >
+            {p.text}
+          </span>
+        ) : (
+          <span key={i}>{p.text}</span>
+        ),
+      )}
+      {box && (
+        <span
+          aria-hidden="true"
+          className="title-sel"
+          style={{ transform: `translate(${box.x}px, ${box.y}px)`, width: box.w, height: box.h }}
+        />
+      )}
+    </h1>
+  );
+}
+
+/** Painel de inspeção: o "objeto selecionado" na bancada, com dados reais do serviço. */
+function HeroInspector({ active }: { active: TabId }) {
+  const ui = useUi();
+  const { lp } = useLocale();
+  const { services, categories } = useServices();
+  const projects = useProjects();
+  const service = services.find((s) => s.id === TAB_SERVICE[active]);
+  if (!service) return null;
+  const proofs = service.proof.map((slug) => projects.find((p) => p.slug === slug)).filter((p): p is NonNullable<typeof p> => !!p);
+  const t = ui.hero.inspector;
+  return (
+    <div className="inspector" aria-label={t.region} role="group">
+      <div key={active} className="bench-in grid content-start gap-3">
+        <p className="type-label flex items-center gap-2 text-fg-muted">
+          <span aria-hidden="true" className="inspector-dot" />
+          {t.label}
+        </p>
+        <div>
+          <p className="font-title text-[1.15rem] leading-tight font-semibold tracking-[-0.02em] text-fg">{service.name}</p>
+          <p className="type-tag mt-1 text-[var(--cat-dark)]">{categories[service.category]}</p>
+        </div>
+        <p className="text-[0.9rem] leading-relaxed text-fg-muted max-lg:hidden">{service.benefit}</p>
+        {proofs.length > 0 && (
+          <div className="grid gap-1.5">
+            <p className="type-label text-fg-muted">{t.inPractice}</p>
+            <ul className="flex flex-wrap gap-1.5">
+              {proofs.slice(0, 2).map((p) => (
+                <li key={p.slug}>
+                  <Link to={lp(`/projetos/${p.slug}`)} className="chip h-8 border-edge-strong! text-fg! hover:border-[var(--cat)]!" style={{ ['--dot' as string]: p.accent.detail }}>
+                    <span aria-hidden="true" className="chip-dot" />
+                    <span className="font-text text-[0.85rem]">{p.name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <div className="grid gap-1 border-t border-edge pt-3">
+          <Link to={{ pathname: lp('/'), search: `?servico=${service.id}`, hash: '#contato' }} className="group min-h-8 py-1 text-[0.9rem] leading-snug font-medium text-[var(--cat-dark)] hover:underline">
+            {service.cta}
+            <ArrowRight aria-hidden="true" className="ml-1.5 inline h-4 w-4 align-[-3px] transition-transform group-hover:translate-x-0.5" />
+          </Link>
+          <Link to={{ pathname: lp('/'), hash: `#servico-${service.id}` }} className="inline-flex min-h-8 items-center gap-1.5 text-[0.85rem] text-fg-muted hover:text-fg hover:underline">
+            {t.service}
+            <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function Hero() {
@@ -19,12 +149,18 @@ export function Hero() {
   const ui = useUi();
   const { lp } = useLocale();
   const projects = useProjects();
-  const [before, accent, after] = splitTitle(text.hero.title, text.hero.titleAccent);
+  const { services } = useServices();
+  const [active, setActive] = useState<TabId>('planilha');
+  const parts = splitTitle(text.hero.title, text.hero.titleTargets, text.hero.titleAccent);
   const home = lp('/');
+  const category = services.find((s) => s.id === TAB_SERVICE[active])?.category ?? 'presenca';
+  const colors = CATEGORY_COLORS[category];
+  const tone = { ['--cat' as string]: colors.fill, ['--cat-dark' as string]: colors.onDark } as CSSProperties;
 
   return (
-    <section id="inicio" aria-labelledby="hero-title" className="tone-dark on-dark relative isolate overflow-hidden pt-24 sm:pt-32">
+    <section id="inicio" aria-labelledby="hero-title" style={tone} className="hero tone-dark on-dark relative isolate overflow-hidden pt-24 sm:pt-32">
       <AmbientBackground variant="hero" />
+      <span aria-hidden="true" className="hero-light" />
 
       <div className="container-site">
         <p className="type-label flex flex-wrap items-center gap-x-3 gap-y-1 text-fg-muted">
@@ -33,16 +169,12 @@ export function Hero() {
           {ui.hero.eyebrow}
         </p>
 
-        <h1 id="hero-title" className="hero-title mt-4 max-w-[19ch] animate-rise text-balance sm:mt-6">
-          {before}
-          {accent && <span className="frame-sel frame-word text-tide">{accent}</span>}
-          {after}
-        </h1>
+        <HeroTitle parts={parts} active={active} />
 
-        <div className="mt-6 grid gap-10 pb-12 sm:mt-10 lg:mt-14 lg:grid-cols-12 lg:gap-12 lg:pb-20 [&>*]:min-w-0">
-          <div className="lg:col-span-5 lg:pt-2">
+        <div className="mt-6 grid gap-10 pb-12 sm:mt-10 lg:mt-12 lg:grid-cols-12 lg:gap-10 lg:pb-20 [&>*]:min-w-0">
+          <div className="lg:col-span-4 lg:pt-3">
             <p className="type-lead text-fg-muted">{text.hero.subtitle}</p>
-            <div className="mt-6 grid gap-3 min-[380px]:grid-cols-2 sm:mt-8 sm:flex">
+            <div className="mt-6 grid gap-3 min-[380px]:grid-cols-2 sm:mt-8 sm:flex lg:grid lg:grid-cols-1 xl:flex">
               <ButtonLink to={{ pathname: home, hash: '#projetos' }} size="hero">
                 {ui.hero.primary}
                 <ArrowRight aria-hidden="true" className="arrow h-5 w-5" />
@@ -62,19 +194,22 @@ export function Hero() {
             </ul>
           </div>
 
-          <div className="lg:col-span-7">
-            {/* A bancada é um "objeto selecionado": moldura com alças e rótulo, como numa ferramenta de design */}
-            <div className="frame-sel bench-canvas relative mt-7 p-1.5 sm:p-2" style={{ ['--frame-color' as string]: 'rgb(34 195 176 / 0.6)' }}>
+          <div className="lg:col-span-8">
+            {/* A bancada é um "objeto selecionado": moldura com alças, rótulo e painel de inspeção, como numa ferramenta de design */}
+            <div className="frame-sel bench-canvas relative mt-7">
               <span className="frame-label">
                 {ui.hero.benchLabel} <span aria-hidden="true">·</span> {ui.hero.benchHint}
               </span>
-              <HeroWorkbench />
+              <div className="grid gap-px overflow-hidden rounded-[12px] sm:grid-cols-[minmax(0,1fr)_15rem]">
+                <HeroWorkbench active={active} onActiveChange={setActive} />
+                <HeroInspector active={active} />
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Atalhos para as demonstrações: prova visível logo na primeira tela */}
+      {/* Atalhos para os projetos: prova visível logo na primeira tela */}
       <nav aria-label={ui.hero.railLabel} className="border-t border-edge bg-white/[0.02]">
         <div className="container-site flex items-center gap-4 overflow-x-auto py-4 [scrollbar-width:none]">
           <span className="type-label shrink-0 text-fg-muted">{ui.hero.railLabel}</span>
