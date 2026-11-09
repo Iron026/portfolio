@@ -12,6 +12,10 @@ import { cn } from '@/utils/cn';
  *   com "reduzir movimento" e quando o navegador pede economia de dados;
  * - a captura estática fica sempre por baixo (é a imagem alternativa).
  * Cada cartão tem um botão para pausar ou reproduzir a sua prévia.
+ *
+ * Com `autoplay: false` (páginas "Projeto em detalhes"), a prévia só toca depois
+ * que a pessoa clica em "Ver em movimento": antes disso nenhuma fonte de vídeo
+ * entra no HTML, então nada é baixado.
  */
 
 type Entry = { id: number; ratio: number; eligible: boolean; boost: boolean; setElected: (v: boolean) => void };
@@ -41,7 +45,7 @@ const saveData = () => {
   return !!c?.saveData;
 };
 
-export function usePreviewVideo(src: string | undefined) {
+export function usePreviewVideo(src: string | undefined, { autoplay = true }: { autoplay?: boolean } = {}) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const boxRef = useRef<HTMLDivElement | null>(null);
   const { paused: motionPaused } = useMotion();
@@ -54,7 +58,7 @@ export function usePreviewVideo(src: string | undefined) {
   const [armed, setArmed] = useState(false);
   const idRef = useRef(0);
 
-  const auto = !motionPaused && !saveData();
+  const auto = autoplay && !motionPaused && !saveData();
 
   // "Pausar animações" vale também para quem tinha mandado reproduzir uma prévia
   useEffect(() => {
@@ -123,6 +127,8 @@ export function usePreviewVideo(src: string | undefined) {
   return {
     src,
     armed,
+    /** a pessoa pediu para reproduzir e o vídeo ainda está carregando */
+    loading: manual === 'play' && !playing,
     boxRef,
     videoRef,
     playing,
@@ -172,15 +178,36 @@ export function PreviewVideoButton({ preview, name, className }: { preview: Retu
       type="button"
       onClick={preview.toggle}
       title={label}
+      aria-busy={preview.loading || undefined}
       data-preview-toggle
       className={cn(
         'inline-flex h-9 items-center gap-1.5 rounded-full bg-night/80 px-3 text-[0.8rem] font-medium text-white ring-1 ring-white/20 backdrop-blur transition-[background-color,transform] hover:bg-night active:scale-[0.96]',
         className,
       )}
     >
-      {preview.showsPause ? <Pause aria-hidden="true" className="h-3.5 w-3.5 text-tide" /> : <Play aria-hidden="true" className="h-3.5 w-3.5 text-tide" />}
+      {preview.showsPause ? (
+        <Pause aria-hidden="true" className="h-3.5 w-3.5 text-tide" />
+      ) : (
+        <Play aria-hidden="true" className={cn('h-3.5 w-3.5 text-tide', preview.loading && 'motion-safe:animate-pulse')} />
+      )}
       <span>{preview.showsPause ? ui.video.pause : ui.video.play}</span>
       <span className="sr-only"> {ui.video.previewOf(name)}</span>
     </button>
+  );
+}
+
+/**
+ * Atalho visual sobre a imagem de prévia (páginas de projeto): um botão grande de
+ * reprodução no centro. Fica fora da ordem do teclado e oculto para leitores de tela,
+ * porque o botão "Ver em movimento" abaixo da imagem faz o mesmo com nome acessível.
+ */
+export function PreviewPlayOverlay({ preview }: { preview: ReturnType<typeof usePreviewVideo> }) {
+  if (preview.playing) return null;
+  return (
+    <span aria-hidden="true" onClick={preview.toggle} className="preview-play group/play absolute inset-0 z-[1] grid cursor-pointer place-items-center">
+      <span className={cn('preview-play-dot grid h-16 w-16 place-items-center rounded-full bg-night/85 text-tide ring-1 ring-white/25 backdrop-blur transition-transform group-hover/play:scale-105 sm:h-20 sm:w-20', preview.loading && 'motion-safe:animate-pulse')}>
+        <Play className="ml-1 h-7 w-7 sm:h-8 sm:w-8" fill="currentColor" />
+      </span>
+    </span>
   );
 }

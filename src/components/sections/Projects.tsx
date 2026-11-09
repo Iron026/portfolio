@@ -126,7 +126,7 @@ export function Projects() {
 
       <div className="mt-10 grid gap-12 sm:mt-14 lg:mt-16 lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:gap-14">
         <ProjectIndex projects={projects} active={active} />
-        <div className="grid gap-14 sm:gap-16 lg:gap-20">
+        <div className="grid gap-12 sm:gap-14">
           {projects.map((project, i) => (
             <ProjectStage key={project.slug} project={project} index={i} total={projects.length} />
           ))}
@@ -207,10 +207,11 @@ function ProjectStage({ project, index, total }: { project: Project; index: numb
       </div>
 
       {/* Informações comerciais */}
-      <div className="mt-5 grid gap-5 sm:mt-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-10">
+      <div className="mt-5 grid gap-5 sm:mt-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-10">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <span aria-hidden="true" className="type-label text-accent">
+            {/* No computador o número já está no índice ao lado */}
+            <span aria-hidden="true" className="type-label text-accent lg:hidden">
               {num(index + 1)} / {num(total)}
             </span>
             <span className="chip">
@@ -219,19 +220,12 @@ function ProjectStage({ project, index, total }: { project: Project; index: numb
             </span>
             <DemoBadge kind={project.kind} />
           </div>
-          <h3 id={titleId} className="type-h2 mt-3 text-fg">
+          <h3 id={titleId} className="type-h2 mt-2.5 text-fg">
             <Link to={detailsUrl} className="hover:text-accent">
               {project.name}
             </Link>
           </h3>
           <p className="type-body mt-2 max-w-[58ch] text-fg-muted">{project.teaser}</p>
-          <ul className="mt-4 flex flex-wrap gap-x-3 gap-y-1 max-sm:hidden" aria-label={ui.projects.tech}>
-            {project.technologies.map((tech) => (
-              <li key={tech} className="type-tag text-fg-muted">
-                {tech}
-              </li>
-            ))}
-          </ul>
         </div>
         <div className="grid gap-2 md:min-w-[15rem]">
           <div className="grid gap-2.5 min-[400px]:grid-cols-2 md:grid-cols-1">

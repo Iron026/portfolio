@@ -963,12 +963,12 @@
     box-shadow: 0 30px 60px -40px rgb(13 26 48 / 0.6);
   }
   @media (min-width: 640px) { .stage-media { padding: 2rem 2rem 3.5rem; } }
-  @media (min-width: 1024px) { .stage-media { padding: 2.25rem 2.5rem 3.25rem; } }
+  @media (min-width: 1024px) { .stage-media { padding: 2.25rem 2.5rem 2.75rem; } }
   .stage-media--flip { background:
       radial-gradient(120% 90% at 15% 0%, color-mix(in srgb, var(--accent-detail) 30%, transparent), transparent 60%),
       linear-gradient(200deg, color-mix(in srgb, var(--accent-base) 92%, white 8%), var(--accent-base)); }
   .stage-phone { bottom: -1.5rem; }
-  @media (min-width: 640px) { .stage-phone { bottom: -2.25rem; } }
+  @media (min-width: 640px) { .stage-phone { bottom: -1.75rem; } }
   @media (max-width: 359px) { .stage-phone { display: none; } }
   .index-item { position: relative; display: grid; }
   .index-item:focus-visible { outline-offset: -2px; }

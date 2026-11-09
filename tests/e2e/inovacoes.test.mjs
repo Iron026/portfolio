@@ -2,7 +2,8 @@
 // A) Início: a moldura do título acompanha a aba da bancada e o painel de inspeção mostra o serviço.
 // B) Vitrine: índice com os cinco projetos, que acompanha a rolagem e leva ao palco certo.
 // C) Projeto em detalhes: tour de funcionalidades que troca a captura e enquadra a área certa.
-// Correções: contraste da descrição da prévia, legendas sem rotas técnicas, linguagem "Projetos em detalhes".
+// Correções: contraste da descrição da prévia, legendas sem rotas técnicas, linguagem "Projetos em detalhes",
+// prévia em vídeo das páginas de projeto só depois do clique (nada baixado antes).
 import { chromium, BASE, LAUNCH } from '../helpers.mjs';
 const b = await chromium.launch(LAUNCH);
 let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : (fail++, console.log('FAIL:', m)); };
@@ -124,6 +125,34 @@ for (const lang of ['', '/en']) {
         return { inFrame: !!el.closest('.browser'), ratio: (Math.max(a, z) + 0.05) / (Math.min(a, z) + 0.05) };
       });
       ok(cap && !cap.inFrame && cap.ratio >= 4.5, `${tag}: descrição da prévia fora da moldura, contraste ${cap?.ratio.toFixed(2)}:1`);
+    }
+    await p.close();
+  }
+}
+
+// Prévia em vídeo nas páginas de projeto: só toca (e só é baixada) depois do clique
+for (const lang of ['', '/en']) {
+  for (const slug of SLUGS) {
+    const tag = `${lang || 'pt'} vídeo ${slug}`;
+    const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
+    p.on('pageerror', (e) => errs.push(e.message));
+    const videos = [];
+    p.on('request', (r) => /previa\.(webm|mp4)/.test(r.url()) && videos.push(r.url()));
+    await p.goto(`${BASE}${lang}${lang ? '/projects/' : '/projetos/'}${slug}`); await p.waitForTimeout(1500);
+    const before = await p.evaluate(() => {
+      const fig = document.querySelector('figure'); const v = fig.querySelector('video'); const r = fig.querySelector('.browser').getBoundingClientRect();
+      return { sources: v.querySelectorAll('source').length, paused: v.paused, preload: v.getAttribute('preload'), autoplay: v.hasAttribute('autoplay'), overlay: !!fig.querySelector('.preview-play'), h: Math.round(r.height) };
+    });
+    ok(videos.length === 0 && before.sources === 0 && before.paused && before.preload === 'none' && !before.autoplay, `${tag}: nada baixado nem tocando antes do clique (${videos.length} pedidos)`);
+    ok(before.overlay, `${tag}: botão de reprodução sobre a imagem`);
+    if (slug === 'prime-imoveis' || slug === 'arena-store') {
+      await p.click('figure [data-preview-toggle]'); await p.waitForTimeout(2500);
+      const after = await p.evaluate(() => { const fig = document.querySelector('figure'); const v = fig.querySelector('video'); return { paused: v.paused, h: Math.round(fig.querySelector('.browser').getBoundingClientRect().height), label: fig.querySelector('[data-preview-toggle]').textContent.trim() }; });
+      ok(videos.length >= 1 && videos.every((u) => (lang ? u.includes('/en/previa') : !u.includes('/en/'))) && !after.paused, `${tag}: o clique baixa a prévia do idioma e reproduz (${videos.map((u) => u.replace(/^.*\/projetos/, '')).join(', ')})`);
+      ok(after.h === before.h, `${tag}: sem deslocamento da moldura (${before.h} → ${after.h} px)`);
+      ok(/^(Pausar|Pause)/.test(after.label), `${tag}: botão passa a pausar (${after.label})`);
+      await p.click('figure [data-preview-toggle]'); await p.waitForTimeout(400);
+      ok(await p.evaluate(() => document.querySelector('figure video').paused), `${tag}: botão pausa a prévia`);
     }
     await p.close();
   }

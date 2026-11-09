@@ -25,7 +25,7 @@ import { ButtonLink } from '@/components/ui/Button';
 import { Capture } from '@/components/ui/Capture';
 import { ProjectCover } from '@/components/sections/ProjectCover';
 import { DemoButton, quoteTarget } from '@/components/sections/ProjectActions';
-import { PreviewVideoButton, PreviewVideoLayer, usePreviewVideo } from '@/components/ui/PreviewVideo';
+import { PreviewPlayOverlay, PreviewVideoButton, PreviewVideoLayer, usePreviewVideo } from '@/components/ui/PreviewVideo';
 import { englishMedia } from '@/data/projects';
 import { cn } from '@/utils/cn';
 import NotFound from './NotFound';
@@ -41,7 +41,8 @@ export default function ProjectDetail() {
   const ui = useUi();
   const { locale, lp } = useLocale();
   const t = ui.caseStudy;
-  const preview = usePreviewVideo(project?.video?.src);
+  // Página do projeto: a prévia só toca (e só é baixada) depois do clique em "Ver em movimento"
+  const preview = usePreviewVideo(project?.video?.src, { autoplay: false });
   useDocumentTitle(
     project ? t.title(project.name) : ui.notFound.title,
     project ? `${project.teaser} ${t.seoSuffix(site.name)}` : undefined,
@@ -139,6 +140,7 @@ export default function ProjectDetail() {
               <div ref={preview.boxRef} className="relative overflow-hidden">
                 <ProjectCover project={project} className="rounded-none" sizes="(min-width: 1280px) 1200px, 100vw" priority />
                 {project.video && <PreviewVideoLayer preview={preview} label={ui.video.layer(project.name, project.video.shows)} />}
+                {project.video && <PreviewPlayOverlay preview={preview} />}
               </div>
             </div>
             {phone && (
