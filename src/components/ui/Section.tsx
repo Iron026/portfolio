@@ -17,7 +17,7 @@ export function Section({ id, className, children, labelledBy, tone = 'light', b
     <section
       id={id}
       aria-labelledby={labelledBy}
-      className={cn('relative py-20 sm:py-28', tone === 'dark' ? 'tone-dark on-dark' : 'tone-light on-light', background ? 'isolate overflow-hidden' : undefined, className)}
+      className={cn('relative py-16 sm:py-28', tone === 'dark' ? 'tone-dark on-dark' : 'tone-light on-light', background ? 'isolate overflow-hidden' : undefined, className)}
     >
       {background}
       <div className="container-site relative">{children}</div>

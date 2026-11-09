@@ -28,7 +28,7 @@ export function About() {
 
       <div className="mt-12 grid gap-10 lg:grid-cols-12 lg:gap-12">
         {/* Cartão do responsável */}
-        <div role="group" aria-label={ui.about.profile(name)} className="lg:col-span-5">
+        <div role="group" aria-label={ui.about.profile(name)} className="lg:sticky lg:top-28 lg:col-span-5 lg:self-start">
           <div className="tone-dark on-dark relative overflow-hidden rounded-[18px] p-6 sm:p-8">
             <div aria-hidden="true" className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-tide/10 blur-3xl" />
             <div className="relative flex items-center gap-5">
@@ -83,7 +83,7 @@ export function About() {
         <div className="lg:col-span-7">
           <div className="max-w-[62ch] space-y-5">
             {text.about.paragraphs.map((paragraph, i) => (
-              <p key={paragraph.slice(0, 32)} className={i === 0 ? 'type-lead text-fg' : 'type-body text-fg-muted'}>
+              <p key={paragraph.slice(0, 32)} className={i === 0 ? 'about-statement text-fg' : 'type-body text-fg-muted'}>
                 {paragraph}
               </p>
             ))}

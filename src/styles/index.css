@@ -870,49 +870,8 @@
     letter-spacing: -0.04em;
     color: var(--fg);
   }
-  /* Cartão de projeto da vitrine */
-  .pcard {
-    background: var(--surface);
-    border: 1px solid var(--edge);
-    border-radius: 16px;
-    box-shadow: var(--elev);
-    transition: box-shadow 300ms ease, border-color 300ms ease;
-  }
-  .pcard:hover, .pcard:focus-within { box-shadow: var(--elev-hover); border-color: var(--edge-strong); }
-  .pcard-media {
-    --frame-color: var(--accent-detail);
-    background:
-      radial-gradient(120% 90% at 85% 0%, rgb(255 255 255 / 0.08), transparent 60%),
-      var(--accent-base);
-  }
-  .pcard-route {
-    position: absolute;
-    top: 0.85rem;
-    left: 1.25rem;
-    font-family: var(--font-code);
-    font-size: 0.6875rem;
-    color: rgb(255 255 255 / 0.72);
-    letter-spacing: 0.02em;
-  }
-  .pcard-route::before { content: '/demos/'; color: rgb(255 255 255 / 0.45); }
-  /* Cartão de serviço: borda superior na cor da categoria e elevação no hover */
-  .svc-card {
-    position: relative;
-    background: var(--surface);
-    border: 1px solid var(--edge);
-    border-radius: 16px;
-    box-shadow: var(--elev);
-    transition: box-shadow 300ms ease, border-color 300ms ease, transform 300ms ease;
-  }
-  .svc-card::before {
-    content: '';
-    position: absolute;
-    inset: -1px -1px auto;
-    height: 3px;
-    border-radius: 16px 16px 0 0;
-    background: var(--cat);
-  }
-  .svc-card:hover, .svc-card:focus-within { box-shadow: var(--elev-hover); border-color: var(--edge-strong); }
+  /* Sobre: a primeira frase (formação e experiência) como declaração */
+  .about-statement { font-family: var(--font-title); font-weight: 500; font-size: clamp(1.3rem, 1.05rem + 1vw, 1.7rem); line-height: 1.32; letter-spacing: -0.02em; text-wrap: pretty; }
   /* Índice de serviços: linhas separadas por fios, moldura de seleção ao apontar */
   .svc-list { border-top: 2px solid var(--cat); }
   .svc-row { padding: 1.25rem 0.25rem; border-bottom: 1px solid var(--edge); --frame-color: var(--cat); transition: background-color 200ms ease; }

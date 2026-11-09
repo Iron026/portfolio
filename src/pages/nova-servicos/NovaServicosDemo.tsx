@@ -93,12 +93,12 @@ export default function NovaServicosDemo() {
               <li aria-current="page" className="font-semibold text-white">Nova Serviços</li>
             </ol>
           </nav>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <LanguageSwitch className="tone-dark bg-transparent! p-0.5! [&>a]:h-7! [&>span]:h-7! max-sm:ml-auto sm:order-last" />
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 max-sm:w-full sm:ml-auto">
             <span>{t.bar.note}</span>
             <Link to={lp('/projetos/nova-servicos')} className="rounded font-semibold text-white underline underline-offset-2">
               {t.bar.details}
             </Link>
-            <LanguageSwitch className="tone-dark bg-transparent! p-0.5! [&>a]:h-7! [&>span]:h-7!" />
           </div>
         </div>
       </aside>

@@ -22,8 +22,8 @@ export function Footer() {
 
   return (
     <footer className="tone-dark on-dark border-t border-edge text-fg-muted">
-      <div className="container-site grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
-        <div className="max-w-sm lg:col-span-3">
+      <div className="container-site grid grid-cols-2 gap-x-6 gap-y-10 py-14 sm:gap-12 sm:py-16 lg:grid-cols-12 lg:gap-8">
+        <div className="col-span-2 max-w-sm sm:col-span-1 lg:col-span-3">
           <Logo />
           <p className="type-small mt-5">{text.description}</p>
           <Link to={{ pathname: home, hash: '#contato' }} className="mt-7 inline-flex h-11 items-center rounded-[10px] bg-tide px-5 text-[0.95rem] font-semibold text-ink transition-colors hover:bg-tide-bright">

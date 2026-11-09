@@ -146,10 +146,10 @@ export default function OrcaFacilDemo() {
               <li aria-current="page" className="font-semibold text-white">OrçaFácil</li>
             </ol>
           </nav>
-          <p className="flex flex-wrap items-center gap-x-3">
+          <LanguageSwitch className="tone-dark bg-transparent! p-0.5! [&>a]:h-7! [&>span]:h-7! max-sm:ml-auto sm:order-last" />
+          <p className="flex flex-wrap items-center gap-x-3 max-sm:w-full sm:ml-auto">
             <span>{T.bar.note}</span>
             <Link to={lp('/projetos/orcafacil')} className="rounded font-semibold text-white underline underline-offset-2">{T.bar.details}</Link>
-            <LanguageSwitch className="tone-dark bg-transparent! p-0.5! [&>a]:h-7! [&>span]:h-7!" />
           </p>
         </div>
       </aside>
