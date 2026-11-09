@@ -9,7 +9,7 @@ export const siteEn = {
     titleAccent: 'Custom',
     titleTargets: { site: 'websites', sistema: 'systems', planilha: 'spreadsheets', automacao: 'automation' },
     subtitle:
-      'I build solutions that present your services, organize information and simplify everyday tasks. You work directly with me, from proposal to delivery.',
+      'Present your services better, keep information organized and cut down on repetitive tasks with solutions built around your routine. From quote to delivery, you talk directly with me.',
   },
   whatsappGreeting: 'Hi! I saw your portfolio and would like to request a quote.',
   about: {

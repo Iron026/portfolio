@@ -42,7 +42,7 @@ export const site = {
     titleAccent: 'sob medida',
     titleTargets: { site: 'Sites', sistema: 'sistemas', planilha: 'planilhas', automacao: 'automações' },
     subtitle:
-      'Desenvolvo soluções para apresentar seus serviços, organizar informações e simplificar tarefas. Você acompanha o projeto diretamente comigo, da proposta à entrega.',
+      'Apresente melhor seus serviços, organize informações e reduza tarefas repetitivas com soluções feitas para sua rotina. Do orçamento à entrega, você fala diretamente comigo.',
   },
 
   contact: {

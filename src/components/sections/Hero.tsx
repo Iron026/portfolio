@@ -67,7 +67,7 @@ function HeroTitle({ parts, active }: { parts: Part[]; active: TabId }) {
   }, [active, parts]);
 
   return (
-    <h1 ref={h1} id="hero-title" className="hero-title relative mt-4 max-w-[21ch] animate-rise text-balance sm:mt-6">
+    <h1 ref={h1} id="hero-title" className="hero-title relative mt-3 max-w-[21ch] animate-rise text-balance sm:mt-6">
       {parts.map((p, i) =>
         p.id ? (
           <span
@@ -159,23 +159,23 @@ export function Hero() {
   const tone = tabStyle(active);
 
   return (
-    <section id="inicio" aria-labelledby="hero-title" data-tab={active} style={tone} className="hero tone-dark on-dark relative isolate overflow-hidden pt-24 sm:pt-32">
+    <section id="inicio" aria-labelledby="hero-title" data-tab={active} style={tone} className="hero tone-dark on-dark relative isolate overflow-hidden pt-[5.5rem] sm:pt-32">
       <AmbientBackground variant="hero" />
       <span aria-hidden="true" className="hero-light" />
 
       <div className="container-site">
         <p className="type-label flex flex-wrap items-center gap-x-3 gap-y-1 text-fg-muted">
-          <span className="text-accent">{site.name}</span>
-          <span aria-hidden="true" className="h-px w-6 bg-white/25" />
+          <span className="text-accent max-sm:hidden">{site.name}</span>
+          <span aria-hidden="true" className="h-px w-6 bg-white/25 max-sm:hidden" />
           {ui.hero.eyebrow}
         </p>
 
         <HeroTitle parts={parts} active={active} />
 
-        <div className="mt-6 grid gap-10 pb-12 sm:mt-10 lg:mt-12 lg:grid-cols-12 lg:gap-10 lg:pb-20 [&>*]:min-w-0">
+        <div className="mt-5 grid gap-9 pb-10 sm:mt-10 sm:gap-10 sm:pb-12 lg:mt-12 lg:grid-cols-12 lg:gap-10 lg:pb-20 [&>*]:min-w-0">
           <div className="lg:col-span-4 lg:pt-3">
-            <p className="type-lead text-fg-muted">{text.hero.subtitle}</p>
-            <div className="mt-6 grid gap-3 min-[380px]:grid-cols-2 sm:mt-8 sm:flex lg:grid lg:grid-cols-1 xl:flex">
+            <p className="type-lead max-w-[46ch] text-fg-muted max-sm:text-[1.0625rem] max-sm:leading-[1.6]">{text.hero.subtitle}</p>
+            <div className="mt-6 grid gap-2.5 min-[380px]:grid-cols-2 sm:mt-8 sm:flex sm:gap-3 lg:grid lg:grid-cols-1 xl:flex">
               <ButtonLink to={{ pathname: home, hash: '#projetos' }} size="hero">
                 {ui.hero.primary}
                 <ArrowRight aria-hidden="true" className="arrow h-5 w-5" />
@@ -185,7 +185,7 @@ export function Hero() {
               </ButtonLink>
             </div>
             {/* Fatos verificáveis no próprio site — nenhuma métrica inventada */}
-            <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 sm:mt-8">
+            <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-1.5 sm:mt-8 sm:gap-y-2">
               {ui.hero.facts.map((fact) => (
                 <li key={fact} className="type-small inline-flex items-center gap-2 text-fg">
                   <Check aria-hidden="true" className="h-4 w-4 text-tide" strokeWidth={2.5} />
@@ -198,8 +198,13 @@ export function Hero() {
           <div className="lg:col-span-8">
             {/* A bancada é um "objeto selecionado": moldura com alças, rótulo e painel de inspeção, como numa ferramenta de design */}
             <div className="frame-sel bench-canvas relative mt-7">
+              {/* Em telas muito estreitas, só o nome da bancada (a dica cortaria a etiqueta) */}
               <span className="frame-label">
-                {ui.hero.benchLabel} <span aria-hidden="true">·</span> {ui.hero.benchHint}
+                {ui.hero.benchLabel}
+                <span className="max-[359px]:hidden">
+                  {' '}
+                  <span aria-hidden="true">·</span> {ui.hero.benchHint}
+                </span>
               </span>
               <div className="grid gap-px overflow-hidden rounded-[12px] sm:grid-cols-[minmax(0,1fr)_15rem]">
                 <HeroWorkbench active={active} onActiveChange={setActive} />

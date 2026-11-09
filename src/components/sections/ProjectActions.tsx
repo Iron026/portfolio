@@ -13,7 +13,7 @@ export function DemoButton({ project, size = 'md', className }: { project: Proje
   const { lp } = useLocale();
   if (project.demo.status !== 'disponivel') {
     return (
-      <span className={cn('inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-surface-2 px-5 text-[0.95rem] font-medium text-fg-muted ring-1 ring-edge', className)}>
+      <span className={cn('inline-flex min-h-11 items-center justify-center gap-2 rounded-[10px] bg-surface-2 px-5 py-2.5 text-center text-[0.95rem] leading-snug font-medium text-fg-muted ring-1 ring-edge [&_svg]:shrink-0', className)}>
         <Clock aria-hidden="true" className="h-4 w-4" />
         {ui.common.demoInProduction}
       </span>

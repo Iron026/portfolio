@@ -228,7 +228,8 @@ function ProjectStage({ project, index, total }: { project: Project; index: numb
           <p className="type-body mt-2 max-w-[58ch] text-fg-muted">{project.teaser}</p>
         </div>
         <div className="grid gap-2 md:min-w-[15rem]">
-          <div className="grid gap-2.5 min-[400px]:grid-cols-2 md:grid-cols-1">
+          {/* Lado a lado só quando os dois textos cabem em uma linha (a partir de 520 px); antes disso, empilhados */}
+          <div className="grid gap-2.5 min-[520px]:grid-cols-2 md:grid-cols-1">
             <DemoButton project={project} />
             <ButtonLink to={detailsUrl} variant="secondary">
               {ui.common.caseStudy}

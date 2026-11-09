@@ -200,7 +200,20 @@ type Col = 'receita' | 'despesas' | 'lucro';
 
 function SheetPanel({ t, intl }: { t: Text; intl: string }) {
   const [selected, setSelected] = useState<Col>('lucro');
-  const money = (value: number) => value.toLocaleString(intl, { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+  // Em telas abaixo de 360 px o "R$" sai da vista em cada célula (vai para o cabeçalho) e as
+  // quatro colunas cabem sem rolagem; leitores de tela continuam ouvindo o valor completo.
+  const money = (value: number) => {
+    const parts = new Intl.NumberFormat(intl, { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).formatToParts(value);
+    const cut = parts.findIndex((x) => x.type !== 'currency' && x.type !== 'literal' && x.type !== 'minusSign');
+    const prefix = parts.slice(0, cut).map((x) => x.value).join('');
+    const rest = parts.slice(cut).map((x) => x.value).join('');
+    return (
+      <>
+        <span className="max-[359px]:sr-only">{prefix}</span>
+        {rest}
+      </>
+    );
+  };
   const totals = sheetValues.reduce((acc, row) => ({ receita: acc.receita + row.receita, despesas: acc.despesas + row.despesas }), { receita: 0, despesas: 0 });
   const lucroTotal = totals.receita - totals.despesas;
   const margin = (lucroTotal / totals.receita) * 100;
@@ -216,7 +229,7 @@ function SheetPanel({ t, intl }: { t: Text; intl: string }) {
         <span className="truncate text-ink">{`=${t.sheet.fn}(${letter[selected]}2:${letter[selected]}5)`}</span>
       </div>
       <div className="flex-1 overflow-x-auto">
-        <table className="w-full min-w-[19rem] border-collapse text-left text-[0.8rem] tabular-nums sm:text-sm">
+        <table className="w-full min-w-[17rem] border-collapse text-left text-[0.8rem] tabular-nums max-[359px]:text-[0.75rem] max-[359px]:[&_td]:px-1.5 max-[359px]:[&_th]:px-1.5 max-[359px]:[&_button]:px-1.5 sm:text-sm">
           <caption className="sr-only">{t.sheet.caption}</caption>
           <thead>
             <tr className="bg-paper text-[0.8rem] text-slate">
@@ -229,6 +242,7 @@ function SheetPanel({ t, intl }: { t: Text; intl: string }) {
               {cols.map((c) => (
                 <th key={c} scope="col" className="border-r border-b border-line px-2 py-1.5 text-right font-medium sm:px-3">
                   {t.sheet.cols[c]}
+                  <span aria-hidden="true" className="hidden max-[359px]:inline"> (R$)</span>
                 </th>
               ))}
             </tr>

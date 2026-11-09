@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Check } from 'lucide-react';
 import { Section, SectionHeading } from '@/components/ui/Section';
 import { AmbientBackground } from '@/components/ui/AmbientBackground';
@@ -11,7 +11,32 @@ import { cn } from '@/utils/cn';
  * entram na tela, e a linha que as liga se preenche até a última etapa
  * alcançada (horizontal no desktop, vertical no celular). Sem rolagem
  * controlada: tudo é legível de imediato, com ou sem animação.
+ *
+ * A linha é medida a partir dos centros reais dos marcadores (01 a 05): começa no
+ * primeiro, termina exatamente no último e o preenchimento para no centro da etapa
+ * alcançada, mesmo quando os textos (em inglês, por exemplo) têm alturas diferentes.
  */
+type Track = { vertical: boolean; x: number; y: number; length: number; stops: number[] };
+
+/** Centros dos marcadores relativos ao contêiner: define a direção, o início, o fim e as paradas da linha. */
+function measureTrack(wrap: HTMLElement, marks: HTMLElement[]): Track | null {
+  if (marks.length < 2) return null;
+  const base = wrap.getBoundingClientRect();
+  const centers = marks.map((m) => {
+    const r = m.getBoundingClientRect();
+    return { x: r.left + r.width / 2 - base.left, y: r.top + r.height / 2 - base.top };
+  });
+  const first = centers[0];
+  const last = centers[centers.length - 1];
+  const vertical = Math.abs(last.y - first.y) > Math.abs(last.x - first.x);
+  return {
+    vertical,
+    x: first.x,
+    y: first.y,
+    length: vertical ? last.y - first.y : last.x - first.x,
+    stops: centers.map((c) => (vertical ? c.y - first.y : c.x - first.x)),
+  };
+}
 export function Process() {
   const steps = useProcessSteps();
   const ui = useUi();
@@ -39,20 +64,47 @@ export function Process() {
     return () => io.disconnect();
   }, [steps.length]);
 
-  const progress = steps.length > 1 ? Math.max(0, reached - 1) / (steps.length - 1) : 1;
+  // Posição da linha: remedida quando o tamanho da lista muda (fontes, idioma, largura da tela)
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [track, setTrack] = useState<Track | null>(null);
+  useLayoutEffect(() => {
+    const wrap = wrapRef.current;
+    const list = listRef.current;
+    if (!wrap || !list) return;
+    const measure = () => setTrack(measureTrack(wrap, [...list.querySelectorAll<HTMLElement>('[data-step-mark]')]));
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(list);
+    return () => ro.disconnect();
+  }, [steps]);
+
+  const filled = track ? track.stops[Math.max(0, Math.min(reached, steps.length) - 1)] ?? 0 : 0;
+  const progress = track && track.length > 0 ? filled / track.length : 0;
 
   return (
     <Section id="como-trabalho" labelledBy="processo-title" tone="dark" background={<AmbientBackground variant="process" />}>
       <SectionHeading id="processo-title" index="03" label={ui.sections.process.label} title={ui.sections.process.title} intro={ui.sections.process.intro} />
 
-      <div className="relative mt-14 sm:mt-16">
-        {/* trilho e preenchimento (decorativos) */}
-        <div aria-hidden="true" className="absolute top-5 right-[10%] left-[10%] hidden h-px bg-white/15 lg:block">
-          <div className="h-full origin-left bg-tide transition-transform duration-1000 ease-out" style={{ transform: `scaleX(${progress})` }} />
-        </div>
-        <div aria-hidden="true" className="absolute top-5 bottom-5 left-5 w-px bg-white/15 lg:hidden">
-          <div className="w-full origin-top bg-tide transition-transform duration-1000 ease-out" style={{ height: '100%', transform: `scaleY(${progress})` }} />
-        </div>
+      <div ref={wrapRef} className="relative mt-14 sm:mt-16">
+        {/* trilho e preenchimento (decorativos), do centro do marcador 01 ao centro do 05 */}
+        {track && (
+          <div
+            aria-hidden="true"
+            data-process-track={track.vertical ? 'vertical' : 'horizontal'}
+            className="process-line pointer-events-none absolute bg-white/15"
+            style={
+              track.vertical
+                ? { left: track.x - 0.5, top: track.y, width: 1, height: track.length }
+                : { left: track.x, top: track.y - 0.5, width: track.length, height: 1 }
+            }
+          >
+            <div
+              className={cn('process-line-fill h-full w-full bg-tide transition-transform duration-1000 ease-out', track.vertical ? 'origin-top' : 'origin-left')}
+              style={{ transform: track.vertical ? `scaleY(${progress})` : `scaleX(${progress})` }}
+            />
+          </div>
+        )}
 
         <ol ref={listRef} className="relative grid gap-8 lg:grid-cols-5 lg:gap-6">
           {steps.map((step, i) => {
@@ -61,6 +113,7 @@ export function Process() {
               <li key={step.title} className="relative grid grid-cols-[2.5rem_1fr] gap-4 lg:block lg:text-center" data-reached={on ? '' : undefined}>
                 <span
                   aria-hidden="true"
+                  data-step-mark=""
                   className={cn(
                     'relative z-10 grid h-10 w-10 place-items-center rounded-full font-code text-[0.85rem] font-medium tabular-nums ring-1 transition-[background-color,color,box-shadow] duration-500 lg:mx-auto',
                     on ? 'bg-tide text-night ring-tide shadow-[0_0_0_6px_rgb(34_195_176/0.12)]' : 'bg-night text-tide ring-white/20',
